@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "pdfding"
+version = "0.1.0"
+description = ""
+authors = ["mrmn"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+django = "==5.0.6"
+django-allauth = {extras = ["socialaccount","mfa"], version = "==0.63.3"}
+django-htmx = "==1.17.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

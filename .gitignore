@@ -1,0 +1,6 @@
+**/__pycache__/
+
+pdfding/core/settings.py
+pdfding/db.sqlite3
+pyproject copy.toml
+notes.md

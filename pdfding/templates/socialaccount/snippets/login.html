@@ -1,0 +1,26 @@
+{% load i18n %}
+{% load allauth %}
+{% load socialaccount %}
+{% get_providers as socialaccount_providers %}
+{% if not 'accountsignup' in request.path %}
+    {% if socialaccount_providers %}
+        {% if not SOCIALACCOUNT_ONLY %}
+            <div class="relative flex py-5 items-center">
+            <div class="flex-grow border-t border-gray-400"></div>
+            <span class="flex-shrink mx-4 text-gray-400">or</span>
+            <div class="flex-grow border-t border-gray-400"></div>
+        </div>
+        {% else %}
+            {% element hr %}
+            {% endelement %}
+            {% element h2 %}
+                {% translate "Sign in via" %}
+            {% endelement %}
+        {% endif %}
+        
+        {% provider_login_url socialaccount_providers.0 process="login" scope=scope auth_params=auth_params as href %}
+        <form action="{{ href }}">
+            <button type="submit" class="pt-50 button">SIGN IN VIA {{ socialaccount_providers.0.name }}</button>
+        </form>
+    {% endif %}
+{% endif %}
