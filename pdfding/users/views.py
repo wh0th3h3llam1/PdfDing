@@ -16,7 +16,7 @@ def profile_view(request, username=None):
             profile = request.user.profile
         except:
             return redirect('account_login')
-    return render(request, 'users/profile.html', {'profile':profile})
+    return render(request, 'profile.html', {'profile':profile})
 
 
 @login_required
@@ -34,7 +34,7 @@ def profile_edit_view(request):
     else:
         onboarding = False
 
-    return render(request, 'users/profile_edit.html', {'form': form, 'onboarding': onboarding})
+    return render(request, 'profile_edit.html', {'form': form, 'onboarding': onboarding})
 
 
 @login_required
@@ -42,7 +42,7 @@ def profile_settings_view(request):
     print([f.name for f in User._meta.get_fields()])
     uses_social = request.user.socialaccount_set.exists()
 
-    return render(request, 'users/profile_settings.html', {'uses_social': uses_social})
+    return render(request, 'profile_settings.html', {'uses_social': uses_social})
 
 
 @login_required
@@ -94,4 +94,4 @@ def profile_delete(request):
         messages.success(request, 'Account deleted, what a pity')
         return redirect('home')
     
-    return render(request, 'users/profile_delete.html')
+    return render(request, 'profile_delete.html')
