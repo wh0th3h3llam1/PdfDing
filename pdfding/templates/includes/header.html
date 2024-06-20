@@ -25,16 +25,22 @@
             <li><a href="/">PDFs</a></li>
             <li x-data="{ dropdownOpen: false }" class="relative">
                 <a @click="dropdownOpen = !dropdownOpen" @click.away="dropdownOpen = false" class="cursor-pointer select-none">
-                    <img class="h-8 w-8 bg-white rounded-full object-cover" src="{{ user.profile.avatar }}"/>
-                    {{ user.profile.name }} 
+                    <img class="h-8 w-8 bg-white rounded-full object-cover" src="{{ user.profile.avatar }}"/>                    
                     <img x-bind:class="dropdownOpen && 'rotate-180 duration-300'" class="w-4" src="{% static "images/arrow_down.svg" %}"/>
                 </a>
-                <div x-show="dropdownOpen" x-cloak class="absolute md:right-0 bg-white text-black shadow rounded-lg w-40 p-2 z-20"
+                <div x-show="dropdownOpen" x-cloak class="absolute md:right-0 bg-white text-black shadow rounded-lg w-52 p-2 z-20"
                 x-transition:enter="duration-300 ease-out"
                 x-transition:enter-start="opacity-0 -translate-y-5 scale-90"
                 x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                >
-                    <ul class="hoverlist md:[&>li>a]:justify-end [&>li>a]:justify-left">
+                >   
+                    <div class="mx-2">
+                        <span class="flex text-xs pb-1 text-left  justify-start">Logged in as</span>
+                        <span class="flex text-xs pb-1 text-left  justify-start  truncate">{{ user.email}}</span>
+                        <div class="flex-grow border-b border-gray-400"></div>
+                    </div>
+
+                    
+                    <ul class="hoverlist  [&>li>*]:justify-left">
                         <li><a href="{% url 'profile' %}">My Profile</a></li>
                         <li><a href="{% url 'profile-edit' %}">Edit Profile</a></li>
                         <li><a href="{% url 'profile-settings' %}">Settings</a></li>

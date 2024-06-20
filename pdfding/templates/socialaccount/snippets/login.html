@@ -10,12 +10,6 @@
             <span class="flex-shrink mx-4 text-gray-400">or</span>
             <div class="flex-grow border-t border-gray-400"></div>
         </div>
-        {% else %}
-            {% element hr %}
-            {% endelement %}
-            {% element h2 %}
-                {% translate "Sign in via" %}
-            {% endelement %}
         {% endif %}
         
         {% provider_login_url socialaccount_providers.0 process="login" scope=scope auth_params=auth_params as href %}
