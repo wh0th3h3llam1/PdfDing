@@ -10,7 +10,7 @@ from core.settings import MEDIA_ROOT
 
 @login_required
 def pdf_overview(request):
-    return render(request, 'overview.html')
+    return render(request, 'overview.html', {'profile': request.user.profile})
 
 
 @login_required

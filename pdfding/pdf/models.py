@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.templatetags.static import static
 
 from users.models import Profile 
@@ -29,9 +30,15 @@ class Pdf(models.Model):
     name = models.CharField(max_length=50, null=True, blank=False)
     filename = models.CharField(max_length=50, null=True, blank=False)
     description = models.TextField(null=True, blank=True, help_text='Optional')
-    creation_date = models.DateField(blank=False, editable=False, auto_now_add=True)
+    creation_date = models.DateTimeField(blank=False, editable=False, auto_now_add=True)
     tags = models.ManyToManyField(Tag, blank=True)
     
     def __str__(self):
         return self.name
+
+    @property
+    def now(self):
+        natural_time = naturaltime(self.creation_date)
+
+        return natural_time.split(sep=',')[0]
     
