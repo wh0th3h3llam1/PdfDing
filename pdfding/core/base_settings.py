@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.openid_connect",
     'django_htmx',
     'home',
+    'pdf',
     'users'
 ]
 

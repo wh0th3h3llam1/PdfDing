@@ -39,7 +39,6 @@ def profile_edit_view(request):
 
 @login_required
 def profile_settings_view(request):
-    print([f.name for f in User._meta.get_fields()])
     uses_social = request.user.socialaccount_set.exists()
 
     return render(request, 'profile_settings.html', {'uses_social': uses_social})

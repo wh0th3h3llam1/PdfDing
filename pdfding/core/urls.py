@@ -32,7 +32,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('account', include('allauth.urls')),
     path('', home_view, name='home'),
-    path('profile', include('users.urls')),
+    path('profile/', include('users.urls')),
+    path('pdf/', include('pdf.urls')),
     path('@<username>/', profile_view, name="profile"),
 ]
 

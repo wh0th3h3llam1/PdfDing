@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Title</title>
-    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+    <title>PdfDing</title>
+    <link rel="icon" type="image/x-icon" href="{% static "images/logo.svg" %}">
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script src="https://unpkg.com/htmx.org/dist/htmx.js" defer></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -27,11 +27,11 @@
             @apply mt-6 mb-6
         }
         .button, button, [type='submit'], [type='button'] {
-            @apply bg-indigo-600 text-white font-bold px-6 py-4 inline-block 
+            @apply bg-green-400 text-white font-bold px-6 py-4 inline-block 
             rounded-lg shadow-lg transition-all cursor-pointer
         }
         .button:hover, button:hover, [type='submit']:hover, [type='button']:hover {
-            @apply bg-indigo-700
+            @apply bg-green-500
         }
         .button:active, button:active, [type='submit']:active, [type='button']:active {
             @apply scale-95
@@ -60,6 +60,9 @@
         .highlight {
             @apply !bg-indigo-100;
         }
+        .helptext {
+            @apply !text-gray-500 !text-sm;
+        }
         .allauth content a {
             @apply underline underline-offset-2
         }
@@ -85,7 +88,7 @@
             @apply hidden
         }
         input[type=file] {
-            @apply bg-white pl-0
+            @apply  w-full text-gray-400 bg-gray-100 file:cursor-pointer cursor-pointer file:border-0 file:py-4 file:px-4 file:-my-7 file:-ml-5 file:mr-4 file:bg-green-400 file:hover:bg-green-500 file:text-white file:font-bold file:rounded-lg 
         }
         .textarea, textarea, input {
             @apply w-full rounded-lg py-4 px-5 bg-gray-100
