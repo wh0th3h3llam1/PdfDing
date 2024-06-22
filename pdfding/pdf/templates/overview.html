@@ -8,7 +8,7 @@
     <div x-data="{ delete_{{ pdf.id }}: false }" class="pb-4">
       <ul>
         <div class="!-mb-1">
-          <a href="" class="text-lg font-bold">{{ pdf.name }}</a>
+          <a href="" class="text-lg font-bold hover:text-green-500">{{ pdf.name }}</a>
         </div>
         <div class="truncate space-x-1 [&>span]: text-gray-800 !-mb-1">
           {% for tag in pdf.tags.all %}

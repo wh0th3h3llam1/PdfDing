@@ -105,6 +105,9 @@
         .textarea, textarea, input {
             @apply w-full rounded-lg py-4 px-5 bg-gray-100
         }
+        .textarea:focus, textarea:focus, input:focus {
+            @apply outline outline-2 outline-green-400
+        }
         .errorlist li {
             @apply p-1 pl-4 border-l-red-500 border-l-4 border-solid mb-2 text-red-500
         }
@@ -123,7 +126,6 @@
 <body class="{% block class %}{% endblock %}">
 	
     {% include 'includes/messages.html' %}
-    {% include 'includes/header.html' %}
     
     {% block layout %}
     {% endblock %}

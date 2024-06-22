@@ -1,4 +1,4 @@
-{% extends 'layouts/blank.html' %}
+{% extends 'layouts/blank_without_header.html' %}
 {% load static %}
 {% block content %}
 <script src="../../static/js/pdf.mjs" type="module"></script>
@@ -34,14 +34,11 @@
 
       var current_width = viewport.width;
       var resize_factor = document.getElementById('canvas-div').offsetWidth / current_width;
-      console.log(document.getElementById('canvas-div').offsetWidth )
 
       canvas.height = viewport.height;
       canvas.width = viewport.width;
       canvas.style.width = `${(viewport.width * resize_factor) }px`;
       canvas.style.height = `${(viewport.height * resize_factor) }px`;
-      console.log(canvas.width)
-      console.log(canvas.style.width)
 
       // Render PDF page into canvas context
       var renderContext = {
@@ -62,7 +59,7 @@
     });
 
     // Update page counters
-    document.getElementById('page_num').textContent = num;
+    document.getElementById('page_input').value = num;
   }
 
   /**
@@ -101,6 +98,19 @@
   }
   document.getElementById('next').addEventListener('click', onNextPage);
 
+  /**
+   * Displays any page.
+   */
+  function onAnyPage() {
+    var selected_page = parseInt(document.getElementById('page_input').value);
+    if (isNaN(selected_page) || selected_page > pdfDoc.numPages || (selected_page < 1)) {
+      return;
+    }    
+    pageNum = selected_page;
+    queueRenderPage(pageNum);
+  }
+  document.getElementById('jump').addEventListener('click', onAnyPage);
+
   window.addEventListener('keydown', event => {
     if (event.key == "ArrowLeft") {
       onPrevPage();
@@ -121,20 +131,34 @@
   });
 </script>
 
-<content class="block max-w-6xl mx-auto">
-  <button style="display:inline-block">
-    <img class="-my-2 -mx-3" src="{% static "images/logo.svg" %}" width="30">
-  </button>
+
+<content class="block">
   
-  <div class="flex mx-auto max-w-72 items-center justify-center sticky top-20 z-40 pt-2 gap-x-4 p-1 bg-white rounded-lg">
-      <button id="prev">Previous</button>
-      <div class="bg-white">
-        <span id="page_num"></span> / <span id="page_count"></span></span>                
-      </div>
-      <button id="next">Next</button>   
+  <div class="flex justify-between items-center sticky top-0 z-40">
+    <div class=""></div>
+    <div class="flex mx-auto max-w-xs items-center justify-center mt-2  gap-x-0 bg-gray-100 rounded-lg border">
+      <button class="py-2 px-2 mr-1" style="display:inline-block" id="prev">
+        <img src="{% static "images/arrow_right.svg" %}" width="33" class="transform -scale-x-100">
+      </button>   
+      <button class="py-2 px-2" style="display:inline-block" id="next">
+        <img src="{% static "images/arrow_right.svg" %}" width="33">
+      </button>   
+      <input class="border w-14 ml-3 border-green-400 py-3" type="text" id="page_input">
+      <span class="px-2">/</span> <span class="pr-4" id="page_count">??</span>
+      <button class="px-1 py-3 font-md" id="jump">Jump</button>       
+    </div>
+    
+    <div class="px-4">
+      <form action="http://127.0.0.1:5000/pdf">
+        <button class="py-2 px-2 !rounded-full" style="display:inline-block">
+          <img src="{% static "images/close_white.svg" %}" width="30">
+        </button>
+      </form>
+  </div>
   </div>
 
-  <div class="flex justify-center bg-green-400" id="canvas-div">
+
+  <div class="flex justify-center max-w-6xl mx-auto" id="canvas-div">
     <canvas class="" id="the-canvas"></canvas>
   </div>
     
