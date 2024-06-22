@@ -22,7 +22,7 @@
         <ul class="navitems flex items-center h-full flex-col md:flex-row justify-center -translate-y-10 md:translate-y-0">
             {% if request.user.is_authenticated %}
             <li><a href="{% url 'add_pdf' %}">Add PDF</a></li>
-            <li><a href="/">PDFs</a></li>
+            <li><a href="{% url 'pdf_overview' %}">PDFs</a></li>
             <li x-data="{ dropdownOpen: false }" class="relative">
                 <a @click="dropdownOpen = !dropdownOpen" @click.away="dropdownOpen = false" class="cursor-pointer select-none">
                     <img class="h-8 w-8 bg-white rounded-full object-cover" src="{{ user.profile.avatar }}"/>                    

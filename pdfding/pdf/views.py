@@ -49,3 +49,15 @@ def add_pdf_view(request):
             return redirect('pdf_overview')
 
     return render(request, 'add_pdf.html', {'form': form})
+
+
+@login_required
+def delete_pdf_view(request, pdf_id):
+    try:
+        user_profile = request.user.profile
+        pdf = user_profile.pdf_set.get(id=pdf_id)
+        pdf.delete()
+    except:
+        pass
+    
+    return redirect('pdf_overview')

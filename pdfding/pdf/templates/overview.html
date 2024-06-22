@@ -5,7 +5,7 @@
   <div class="bg-white  md:drop-shadow-2xl shadow-black w-full p-8">
     <h1>PDFs</h1>
     {% for pdf in profile.pdf_set.all %}
-    <div class="pb-4">
+    <div x-data="{ delete_{{ pdf.id }}: false }" class="pb-4">
       <ul>
         <div>
           <a href="" class="text-lg font-bold">{{ pdf.name }}</a>
@@ -19,11 +19,13 @@
           <span>{{ pdf.description }}</span>
           {% endif %}
         </div>
-        <div class="text-gray-500 space-x-1 text-sm">
+        <div class="text-gray-500 space-x-1 text-sm pb-3">
           <span>{{ pdf.now }} |</span>
           <a href="" class="hover:text-green-400"> Details</a>
           <a href="" class="hover:text-green-400">Download</a>
-          <a href="" class="hover:text-green-400">Delete</a>
+          <a x-show="delete_{{ pdf.id }}" href="{% url 'delete_pdf' pdf.id %}" class="text-red-400 hover:text-red-500">Confirm</a>
+          <button x-show="delete_{{ pdf.id }}" @click="delete_{{ pdf.id }} = false" type="button" class="button-text-cancel">Cancel</button>
+          <button x-show="!delete_{{ pdf.id }}" @click="delete_{{ pdf.id }} = true" type="button" class="button-text">Delete</button>
         </div>
       </ul>
     </div>
