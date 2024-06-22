@@ -7,10 +7,10 @@
     {% for pdf in profile.pdf_set.all %}
     <div x-data="{ delete_{{ pdf.id }}: false }" class="pb-4">
       <ul>
-        <div>
+        <div class="!-mb-1">
           <a href="" class="text-lg font-bold">{{ pdf.name }}</a>
         </div>
-        <div class="truncate space-x-1 [&>span]: text-gray-800">
+        <div class="truncate space-x-1 [&>span]: text-gray-800 !-mb-1">
           {% for tag in pdf.tags.all %}
           <a href="" class="text-green-400 hover:text-green-500 font-bold">#{{ tag.name }}</a>
           {% endfor %}
@@ -19,7 +19,7 @@
           <span>{{ pdf.description }}</span>
           {% endif %}
         </div>
-        <div class="text-gray-500 space-x-1 text-sm pb-3">
+        <div class="text-gray-500 space-x-1 text-sm">
           <span>{{ pdf.now }} |</span>
           <a href="" class="hover:text-green-400"> Details</a>
           <a href="{% url 'download_pdf' pdf.id %}" class="hover:text-green-400">Download</a>
