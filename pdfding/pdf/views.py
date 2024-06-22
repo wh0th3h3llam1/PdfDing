@@ -1,10 +1,12 @@
 from django.shortcuts import render, redirect
 from django.forms import ValidationError
-from .forms import *
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import FileResponse
+
+from .forms import *
 from .models import Pdf, Tag
-from uuid import uuid4
+
 
 
 @login_required
@@ -61,3 +63,13 @@ def delete_pdf_view(request, pdf_id):
         pass
     
     return redirect('pdf_overview')
+
+
+@login_required
+def download_pdf_view(request, pdf_id):
+    user_profile = request.user.profile
+    pdf = user_profile.pdf_set.get(id=pdf_id)
+    file_name = pdf.name.replace(' ', '_').lower()
+    response = FileResponse(open(pdf.file.path, "rb"), as_attachment=True, filename=file_name)
+
+    return response
