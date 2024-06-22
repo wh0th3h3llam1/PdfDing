@@ -45,7 +45,9 @@ INSTALLED_APPS = [
     'django_htmx',
     'home',
     'pdf',
-    'users'
+    'users',
+    # django_cleanup needs to be placed last in INSTALLED_APPS
+    'django_cleanup.apps.CleanupConfig',
 ]
 
 MIDDLEWARE = [

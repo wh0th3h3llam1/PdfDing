@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.12"
 django = "==5.0.6"
 django-allauth = {extras = ["socialaccount","mfa"], version = "==0.63.3"}
+django-cleanup = "==8.1.0"
 django-htmx = "==1.17.3"
 
 [build-system]

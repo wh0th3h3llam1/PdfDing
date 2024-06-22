@@ -5,12 +5,17 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Pdf, Tag
 from uuid import uuid4
-from core.settings import MEDIA_ROOT
 
 
 @login_required
 def pdf_overview(request):
     return render(request, 'overview.html', {'profile': request.user.profile})
+
+
+@login_required
+def view_pdf_view(request, pdf_uuid):
+    return render(request, 'view_pdf.html')
+
 
 
 @login_required
@@ -24,8 +29,6 @@ def add_pdf_view(request):
         if form.is_valid():
             pdf = form.save(commit=False)
             pdf.owner = request.user.profile
-            pdf.filename = f'{uuid4()}.pdf'
-            handle_uploaded_file(request.FILES["file"], request.user.id, pdf.filename)  
             pdf.save()
 
             tag_string = form.data["tag_string"]
@@ -46,14 +49,3 @@ def add_pdf_view(request):
             return redirect('pdf_overview')
 
     return render(request, 'add_pdf.html', {'form': form})
-
-
-def handle_uploaded_file(file, user_id, file_name):
-    file_path = MEDIA_ROOT / str(user_id) / file_name
-
-    if not file_path.parent.exists():
-        file_path.parent.mkdir(parents=True)
-
-    with open(file_path, "wb+") as destination:
-        for chunk in file.chunks():
-            destination.write(chunk)

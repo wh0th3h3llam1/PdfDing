@@ -5,7 +5,7 @@ from .models import Pdf
 
 
 class AddForm(ModelForm):
-    file = forms.FileField(required=True)
+    # file = forms.FileField(required=True)
     tag_string = forms.CharField(
         required=False, 
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Add Tags'}),
@@ -17,9 +17,10 @@ class AddForm(ModelForm):
         widgets = {
             'name' : forms.TextInput(attrs={'placeholder': 'Add PDF Name'}),
             'description' : forms.Textarea(attrs={'rows':3, 'placeholder': 'Add Description'}),
+            'file': forms.ClearableFileInput()
         }
         
-        fields = ['name', 'description']
+        fields = ['name', 'description', 'file']
 
     def __init__(self, *args, **kwargs):
         self.owner = kwargs.pop('owner', None)

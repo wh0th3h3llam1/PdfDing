@@ -1,7 +1,10 @@
+from uuid import uuid4
+
 from django.db import models
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.templatetags.static import static
 
+from core.settings import MEDIA_ROOT
 from users.models import Profile 
 
 
@@ -24,11 +27,17 @@ class Tag(models.Model):
 
         return names
 
+def get_file_path(instance, _): 
+    file_name = f'{uuid4()}.pdf'
+    file_path = '/'.join([str(instance.owner.user.id), file_name])
+
+    return(str(file_path))
+
 
 class Pdf(models.Model):
     owner = models.ForeignKey(Profile, on_delete=models.CASCADE)
     name = models.CharField(max_length=50, null=True, blank=False)
-    filename = models.CharField(max_length=50, null=True, blank=False)
+    file = models.FileField(upload_to=get_file_path)
     description = models.TextField(null=True, blank=True, help_text='Optional')
     creation_date = models.DateTimeField(blank=False, editable=False, auto_now_add=True)
     tags = models.ManyToManyField(Tag, blank=True)
