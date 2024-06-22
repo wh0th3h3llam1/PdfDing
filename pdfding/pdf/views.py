@@ -15,7 +15,8 @@ def pdf_overview(request):
 
 
 @login_required
-def view_pdf_view(request, pdf_uuid):
+# def view_pdf_view(request, pdf_uuid):
+def view_pdf_view(request):
     return render(request, 'view_pdf.html')
 
 

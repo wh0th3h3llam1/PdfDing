@@ -5,3 +5,4 @@ pdfding/db.sqlite3
 pdfding/media
 pyproject copy.toml
 notes.md
+pdfding/static/js
