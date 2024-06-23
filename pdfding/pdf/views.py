@@ -3,9 +3,11 @@ from django.forms import ValidationError
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import FileResponse
+from django.views.static import serve
 
 from .forms import *
 from .models import Pdf, Tag
+from core.settings import MEDIA_ROOT
 
 
 @login_required
@@ -14,9 +16,26 @@ def pdf_overview(request):
 
 
 @login_required
-# def view_pdf_view(request, pdf_uuid):
-def view_pdf_view(request):
-    return render(request, 'view_pdf.html')
+def serve_pdf(request, pdf_id):
+    try:
+        user_profile = request.user.profile
+        pdf = user_profile.pdf_set.get(id=pdf_id)
+
+        return serve(request, document_root=MEDIA_ROOT, path=pdf.file.name)
+    except:
+        return
+
+
+@login_required
+def view_pdf_view(request, pdf_id):
+    try:
+        user_profile = request.user.profile
+        pdf = user_profile.pdf_set.get(id=pdf_id)
+
+        return render(request, 'view_pdf.html', {'pdf_id': pdf_id})
+    except:
+        messages.warning(request, 'You have no access to the requested PDF File!')
+        return redirect('pdf_overview')
 
 
 @login_required
