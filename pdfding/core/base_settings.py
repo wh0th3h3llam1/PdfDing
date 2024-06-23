@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     "allauth.socialaccount.providers.openid_connect",
     'django_htmx',
-    'home',
     'pdf',
     'users',
     # django_cleanup needs to be placed last in INSTALLED_APPS
@@ -182,7 +181,7 @@ ACCOUNT_USERNAME_REQUIRED = False
 
 DEFAULT_FROM_EMAIL = 'info@localhost'
 
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/pdf'
 LOGIN_URL = '/accountlogin/'
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

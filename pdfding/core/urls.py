@@ -18,7 +18,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from users.views import profile_view
-from home.views import home_view
+from pdf.views import redirect_overview
 
 
 from allauth.account.decorators import secure_admin_login
@@ -30,7 +30,7 @@ admin.site.login = secure_admin_login(admin.site.login)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('account', include('allauth.urls')),
-    path('', home_view, name='home'),
+    path('', redirect_overview, name='home'),
     path('profile/', include('users.urls')),
     path('pdf/', include('pdf.urls')),
     path('@<username>/', profile_view, name="profile"),

@@ -10,6 +10,10 @@ from .models import Pdf, Tag
 from core.settings import MEDIA_ROOT
 
 
+def redirect_overview(request):
+    return redirect('pdf_overview')
+
+
 @login_required
 def pdf_overview(request):
     return render(request, 'overview.html', {'profile': request.user.profile})
