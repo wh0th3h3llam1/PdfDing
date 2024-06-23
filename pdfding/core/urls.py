@@ -17,7 +17,6 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-from users.views import profile_view
 from pdf.views import redirect_overview
 
 
@@ -33,5 +32,4 @@ urlpatterns = [
     path('', redirect_overview, name='home'),
     path('profile/', include('users.urls')),
     path('pdf/', include('pdf.urls')),
-    path('@<username>/', profile_view, name="profile"),
 ]

@@ -8,14 +8,13 @@ from django.contrib import messages
 from .forms import *
 
 
-def profile_view(request, username=None):
-    if username:
-        profile = get_object_or_404(User, username=username).profile
-    else:
-        try:
-            profile = request.user.profile
-        except:
-            return redirect('account_login')
+@login_required
+def profile_view(request):
+    try:
+        profile = request.user.profile
+    except:
+        return redirect('account_login')
+
     return render(request, 'profile.html', {'profile': profile})
 
 
@@ -29,12 +28,7 @@ def profile_edit_view(request):
             form.save()
             return redirect('profile')
 
-    if request.path == reverse('profile-onboarding'):
-        onboarding = True
-    else:
-        onboarding = False
-
-    return render(request, 'profile_edit.html', {'form': form, 'onboarding': onboarding})
+    return render(request, 'profile_edit.html', {'form': form})
 
 
 @login_required
@@ -89,7 +83,7 @@ def profile_delete(request):
     if request.method == "POST":
         logout(request)
         user.delete()
-        messages.success(request, 'Account deleted, what a pity')
+        messages.success(request, 'Your Account was successfully deleted.')
         return redirect('home')
 
     return render(request, 'profile_delete.html')
