@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.forms import ValidationError
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.http import FileResponse
+from django.http import FileResponse, HttpResponse, JsonResponse
 from django.views.static import serve
 
 from .forms import *
@@ -38,7 +38,7 @@ def view_pdf_view(request, pdf_id):
 
         return render(request, 'view_pdf.html', {'pdf_id': pdf_id})
     except:
-        messages.warning(request, 'You have no access to the requested PDF File!')
+        messages.error(request, 'You have no access to the requested PDF File!')
         return redirect('pdf_overview')
 
 
@@ -89,9 +89,51 @@ def delete_pdf_view(request, pdf_id):
 
 @login_required
 def download_pdf_view(request, pdf_id):
-    user_profile = request.user.profile
-    pdf = user_profile.pdf_set.get(id=pdf_id)
-    file_name = pdf.name.replace(' ', '_').lower()
-    response = FileResponse(open(pdf.file.path, "rb"), as_attachment=True, filename=file_name)
+    try:
+        user_profile = request.user.profile
+        pdf = user_profile.pdf_set.get(id=pdf_id)
+        file_name = pdf.name.replace(' ', '_').lower()
+        response = FileResponse(open(pdf.file.path, "rb"), as_attachment=True, filename=file_name)
+
+        return response
+    except:
+        messages.warning(request, 'You have no access to the requested PDF File!')
+        return redirect('pdf_overview')
 
     return response
+
+
+def update_page_view(request):     
+    if not request.user.is_authenticated:
+        return HttpResponse(status=403)
+    if request.method != 'POST':
+        return HttpResponse(status=405) 
+    try:
+        user_profile = request.user.profile
+        pdf_id = request.POST.get('pdf_id')
+        pdf = user_profile.pdf_set.get(id=pdf_id)      
+
+        # update current page              
+        current_page = request.POST.get('current_page')
+        pdf.current_page = current_page
+        pdf.save()
+
+        return HttpResponse(status=200)
+    except:
+        return HttpResponse(status=403)        
+
+
+def current_page_view(request, pdf_id):    
+    if not request.user.is_authenticated:
+        return HttpResponse(status=403)
+    if request.method != 'GET':
+        return HttpResponse(status=405) 
+    try:
+        user_profile = request.user.profile
+        pdf = user_profile.pdf_set.get(id=pdf_id)      
+
+        print(pdf.current_page)
+
+        return JsonResponse({"current_page": pdf.current_page}, status=200)
+    except:
+        return HttpResponse(status=403)      

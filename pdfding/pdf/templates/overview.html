@@ -11,7 +11,8 @@
         <div class="!-mb-1">
           <a href="{% url 'view_pdf' pdf.id %}" class="text-lg font-bold hover:text-green-500">{{ pdf.name }}</a>
         </div>
-        <div class="truncate space-x-1 [&>span]: text-gray-800 !-mb-1">
+        {% if pdf.description or pdf.tags.all %}
+        <div class="truncate space-x-1 [&>span]: text-gray-800 -mb-1">
           {% for tag in pdf.tags.all %}
           <a href="" class="text-green-400 hover:text-green-500 font-bold">#{{ tag.name }}</a>
           {% endfor %}
@@ -20,6 +21,7 @@
           <span>{{ pdf.description }}</span>
           {% endif %}
         </div>
+        {% endif %}
         <div class="text-gray-500 space-x-1 text-sm">
           <span>{{ pdf.now }} |</span>
           <a href="" class="hover:text-green-400"> Details</a>

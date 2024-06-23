@@ -44,6 +44,7 @@ class Pdf(models.Model):
     description = models.TextField(null=True, blank=True, help_text='Optional')
     creation_date = models.DateTimeField(blank=False, editable=False, auto_now_add=True)
     tags = models.ManyToManyField(Tag, blank=True)
+    current_page = models.IntegerField(default=1)
 
     def __str__(self):
         return self.name

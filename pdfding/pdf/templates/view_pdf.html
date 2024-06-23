@@ -2,11 +2,12 @@
 {% load static %}
 {% block content %}
 <script src="../../static/js/pdf.mjs" type="module"></script>
+<script src="../../static/js/jquery.min.js"></script>
 
 <script type="module">
   // If absolute URL from the remote server is provided, configure the CORS
   // header on that server.
-  var url = '{% url 'serve_pdf' pdf_id %}';
+  var url = "{% url 'serve_pdf' pdf_id %}";
 
   // Loaded via <script> tag, create shortcut to access PDF.js exports.
   var { pdfjsLib } = globalThis;
@@ -21,6 +22,8 @@
       scale = 3,
       canvas = document.getElementById('the-canvas'),
       ctx = canvas.getContext('2d');
+
+  get_current_page();
 
   /**
    * Get page info from document, resize canvas accordingly, and render page.
@@ -64,7 +67,7 @@
 
   /**
    * If another page rendering in progress, waits until the rendering is
-   * finised. Otherwise, executes rendering immediately.
+   * finished. Otherwise, executes rendering immediately.
    */
   function queueRenderPage(num) {
     if (pageRendering) {
@@ -72,6 +75,32 @@
     } else {
       renderPage(num);
     }
+  }
+
+  function get_current_page() {
+    var response = $.ajax({
+        url: "{% url 'current_page' pdf_id %}",
+        dataType: 'json',
+        type: "GET",
+        success: function (data) {
+          pageNum = data.current_page;
+        },
+        failure: function (data) {
+          pageNum = 1;
+        }           
+    });
+  }
+
+  function update_page(current_page) {
+    $.ajax({
+        url: "{% url 'update_page'%}",
+        'data': {
+            'pdf_id': '{{ pdf_id }}',
+            'current_page': current_page,
+            'csrfmiddlewaretoken': '{{ csrf_token }}',
+        },
+        type: "POST",
+    });
   }
 
   /**
@@ -82,6 +111,7 @@
       return;
     }
     pageNum--;
+    update_page(pageNum);
     queueRenderPage(pageNum);
   }
   document.getElementById('prev').addEventListener('click', onPrevPage);
@@ -94,6 +124,7 @@
       return;
     }
     pageNum++;
+    update_page(pageNum);
     queueRenderPage(pageNum);
   }
   document.getElementById('next').addEventListener('click', onNextPage);
@@ -107,6 +138,7 @@
       return;
     }    
     pageNum = selected_page;
+    update_page(pageNum);
     queueRenderPage(pageNum);
   }
   document.getElementById('jump').addEventListener('click', onAnyPage);
