@@ -9,6 +9,7 @@ from users.models import Profile
 
 
 class Tag(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     name = models.CharField(max_length=50, null=True, blank=False)
     owner = models.ForeignKey(Profile, on_delete=models.CASCADE)
 
@@ -36,6 +37,7 @@ def get_file_path(instance, _):
 
 
 class Pdf(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     owner = models.ForeignKey(Profile, on_delete=models.CASCADE)
     name = models.CharField(max_length=50, null=True, blank=False)
     file = models.FileField(upload_to=get_file_path)
