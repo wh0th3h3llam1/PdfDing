@@ -5,7 +5,8 @@
   <div class="bg-white  md:drop-shadow-2xl shadow-black w-full p-8">
     <h1>PDFs</h1>
     {% for pdf in profile.pdf_set.all %}
-    <div x-data="{ delete_{{ pdf.id }}: false }" class="pb-4">
+    {% with loop_id=forloop.counter %}
+    <div x-data="{ delete{{ loop_id }}: false }" class="pb-4">
       <ul>
         <div class="!-mb-1">
           <a href="{% url 'view_pdf' pdf.id %}" class="text-lg font-bold hover:text-green-500">{{ pdf.name }}</a>
@@ -23,12 +24,13 @@
           <span>{{ pdf.now }} |</span>
           <a href="" class="hover:text-green-400"> Details</a>
           <a href="{% url 'download_pdf' pdf.id %}" class="hover:text-green-400">Download</a>
-          <a x-show="delete_{{ pdf.id }}" href="{% url 'delete_pdf' pdf.id %}" class="text-red-400 hover:text-red-500">Confirm</a>
-          <button x-show="delete_{{ pdf.id }}" @click="delete_{{ pdf.id }} = false" type="button" class="button-text-cancel">Cancel</button>
-          <button x-show="!delete_{{ pdf.id }}" @click="delete_{{ pdf.id }} = true" type="button" class="button-text">Delete</button>
+          <a x-show="delete{{ loop_id }}" href="{% url 'delete_pdf' pdf.id %}" class="text-red-400 hover:text-red-500">Confirm</a>
+          <button x-show="delete{{ loop_id }}" @click="delete{{ loop_id }} = false" type="button" class="button-text-cancel">Cancel</button>
+          <button x-show="!delete{{ loop_id }}" @click="delete{{ loop_id }} = true" type="button" class="button-text">Delete</button>
         </div>
       </ul>
     </div>
+    {% endwith %}
     {% endfor %}
   </div>
 </content>
