@@ -6,6 +6,6 @@ urlpatterns = [
     path('add', add_pdf_view, name='add_pdf'),
     path('delete/<pdf_id>', delete_pdf_view, name='delete_pdf'),
     path('download/<pdf_id>', download_pdf_view, name='download_pdf'),
-    #path('view/<pdf_uuid>', view_pdf_view, name='view_pdf'),
+    # path('view/<pdf_uuid>', view_pdf_view, name='view_pdf'),
     path('view', view_pdf_view, name='view_pdf'),
 ]

@@ -8,7 +8,6 @@ from .forms import *
 from .models import Pdf, Tag
 
 
-
 @login_required
 def pdf_overview(request):
     return render(request, 'overview.html', {'profile': request.user.profile})
@@ -20,10 +19,9 @@ def view_pdf_view(request):
     return render(request, 'view_pdf.html')
 
 
-
 @login_required
 def add_pdf_view(request):
-    form = AddForm()  
+    form = AddForm()
 
     if request.method == 'POST':
         form = AddForm(request.POST, request.FILES, owner=request.user.profile)
@@ -44,7 +42,7 @@ def add_pdf_view(request):
                 except Tag.DoesNotExist:
                     tag = Tag(name=tag_name, owner=request.user.profile)
                     tag.save()
-                
+
                 tags.append(tag)
 
             pdf.tags.set(tags)
@@ -62,7 +60,7 @@ def delete_pdf_view(request, pdf_id):
         pdf.delete()
     except:
         pass
-    
+
     return redirect('pdf_overview')
 
 

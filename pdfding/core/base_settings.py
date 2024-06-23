@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',    
+    'django.contrib.staticfiles',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -59,7 +59,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
-    'django_htmx.middleware.HtmxMiddleware'
+    'django_htmx.middleware.HtmxMiddleware',
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -165,7 +165,7 @@ SOCIALACCOUNT_PROVIDERS = {
                     # "token_auth_method": "client_secret_basic",
                 },
             }
-        ]
+        ],
     }
 }
 

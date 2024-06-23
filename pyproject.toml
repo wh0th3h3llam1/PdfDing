@@ -12,6 +12,27 @@ django-allauth = {extras = ["socialaccount","mfa"], version = "==0.63.3"}
 django-cleanup = "==8.1.0"
 django-htmx = "==1.17.3"
 
+[tool.poetry.group.dev.dependencies]
+black = "==24.4.2"
+
+[tool.black]
+line-length = 120
+skip-string-normalization = true
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

@@ -5,17 +5,17 @@ from django.contrib.auth.models import User
 from .models import Profile
 
 
-@receiver(post_save, sender=User)       
+@receiver(post_save, sender=User)
 def user_postsave(sender, instance, created, **kwargs):
     user = instance
-    
+
     # add profile if user is created
     if created:
         Profile.objects.create(
-            user = user,
+            user=user,
         )
     else:
-        # update allauth emailaddress if exists 
+        # update allauth emailaddress if exists
         try:
             email_address = EmailAddress.objects.get_primary(user)
             if email_address.email != user.email:
@@ -24,12 +24,7 @@ def user_postsave(sender, instance, created, **kwargs):
                 email_address.save()
         except:
             # if allauth emailaddress doesn't exist create one
-            EmailAddress.objects.create(
-                user = user,
-                email = user.email, 
-                primary = True,
-                verified = False
-            )
+            EmailAddress.objects.create(user=user, email=user.email, primary=True, verified=False)
 
 
 # predsave also possible, in example used for lower case username  into db

@@ -16,19 +16,19 @@ def profile_view(request, username=None):
             profile = request.user.profile
         except:
             return redirect('account_login')
-    return render(request, 'profile.html', {'profile':profile})
+    return render(request, 'profile.html', {'profile': profile})
 
 
 @login_required
 def profile_edit_view(request):
-    form = ProfileForm(instance=request.user.profile)  
-    
+    form = ProfileForm(instance=request.user.profile)
+
     if request.method == 'POST':
         form = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
         if form.is_valid():
             form.save()
             return redirect('profile')
-        
+
     if request.path == reverse('profile-onboarding'):
         onboarding = True
     else:
@@ -46,36 +46,35 @@ def profile_settings_view(request):
 
 @login_required
 def profile_emailchange(request):
-    
+
     if request.htmx:
         form = EmailForm(instance=request.user)
-        return render(request, 'partials/email_form.html', {'form':form})
-    
+        return render(request, 'partials/email_form.html', {'form': form})
+
     if request.method == 'POST':
         form = EmailForm(request.POST, instance=request.user)
 
         if form.is_valid():
-            
+
             # Check if the email already exists
             email = form.cleaned_data['email']
             if User.objects.filter(email=email).exclude(id=request.user.id).exists():
                 messages.warning(request, f'{email} is already in use.')
                 return redirect('profile-settings')
-            
-            form.save() 
-            
+
+            form.save()
+
             # Then Signal updates emailaddress and set verified to False
-            
-            # Then send confirmation email 
+
+            # Then send confirmation email
             send_email_confirmation(request, request.user)
-            
+
             return redirect('profile-settings')
         else:
             messages.warning(request, 'Form not valid')
             return redirect('profile-settings')
-        
-    return redirect('home')
 
+    return redirect('home')
 
 
 @login_required
@@ -92,5 +91,5 @@ def profile_delete(request):
         user.delete()
         messages.success(request, 'Account deleted, what a pity')
         return redirect('home')
-    
+
     return render(request, 'profile_delete.html')

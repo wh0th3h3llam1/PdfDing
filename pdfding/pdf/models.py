@@ -5,7 +5,7 @@ from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.templatetags.static import static
 
 from core.settings import MEDIA_ROOT
-from users.models import Profile 
+from users.models import Profile
 
 
 class Tag(models.Model):
@@ -27,11 +27,12 @@ class Tag(models.Model):
 
         return names
 
-def get_file_path(instance, _): 
+
+def get_file_path(instance, _):
     file_name = f'{uuid4()}.pdf'
     file_path = '/'.join([str(instance.owner.user.id), file_name])
 
-    return(str(file_path))
+    return str(file_path)
 
 
 class Pdf(models.Model):
@@ -41,7 +42,7 @@ class Pdf(models.Model):
     description = models.TextField(null=True, blank=True, help_text='Optional')
     creation_date = models.DateTimeField(blank=False, editable=False, auto_now_add=True)
     tags = models.ManyToManyField(Tag, blank=True)
-    
+
     def __str__(self):
         return self.name
 
@@ -50,4 +51,3 @@ class Pdf(models.Model):
         natural_time = naturaltime(self.creation_date)
 
         return natural_time.split(sep=',')[0]
-    
