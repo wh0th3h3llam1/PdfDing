@@ -20,8 +20,7 @@
       pageRendering = false,
       pageNumPending = null,
       scale = 3,
-      canvas = document.getElementById('the-canvas'),
-      ctx = canvas.getContext('2d');
+      canvas = document.getElementById('the-canvas');
 
   get_current_page();
 
@@ -30,22 +29,35 @@
    * @param num Page number.
    */
   function renderPage(num) {
+    // always start at the top of the page
+    document.body.scrollTop = document.documentElement.scrollTop = 0;
+
     pageRendering = true;
     // Using promise to fetch the page
     pdfDoc.getPage(num).then(function(page) {
-      var viewport = page.getViewport({scale: scale});    
+      const ratio = window.devicePixelRatio || 1
 
-      var current_width = viewport.width;
-      var resize_factor = document.getElementById('canvas-div').offsetWidth / current_width;
+      const unscaledViewport = page.getViewport({
+        scale: 1.0,
 
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
-      canvas.style.width = `${(viewport.width * resize_factor) }px`;
-      canvas.style.height = `${(viewport.height * resize_factor) }px`;
+      })
 
-      // Render PDF page into canvas context
-      var renderContext = {
-        canvasContext: ctx,
+      const scale = document.getElementById('canvas-div').offsetWidth / unscaledViewport.width
+
+      const viewport = page.getViewport({
+            scale: scale,
+            intent: "print",
+          });
+
+      canvas.height = viewport.height * ratio;
+      canvas.width = viewport.width * ratio;
+      canvas.style.width = viewport.width + 'px';
+      canvas.style.height = viewport.height + 'px';
+      canvas.style.display = "block";
+      canvas.getContext("2d").scale(ratio, ratio);
+
+      const renderContext = {
+        canvasContext: canvas.getContext("2d"),
         viewport: viewport
       };
       var renderTask = page.render(renderContext);
@@ -56,10 +68,33 @@
         if (pageNumPending !== null) {
           // New page rendering is pending
           renderPage(pageNumPending);
-          pageNumPending = null;
+          pageNumPending = null;;
         }
+      }).then(function() {
+      // Returns a promise, on resolving it will return text contents of the page
+      return page.getTextContent();
+    }).then(function(textContent) {
+
+      // Assign CSS to the pdfTextSelector element
+      var pdfTextSelector = document.querySelector(".pdfTextSelector");
+
+      
+      pdfTextSelector.style.left = canvas.offsetLeft + 'px';
+      pdfTextSelector.style.top = canvas.offsetTop + 'px';
+      // pdfTextSelector.style.height = canvas.offsetHeight + 'px';
+      // pdfTextSelector.style.width = canvas.offsetWidth + 'px';
+      console.log(scale)
+      pdfTextSelector.style.setProperty('--scale-factor', scale);
+
+      // Pass the data to the method for rendering of text over the pdf canvas.
+      const text_layer = new pdfjsLib.TextLayer({
+        textContentSource: textContent,
+        container: pdfTextSelector,
+        viewport: viewport,
       });
+      text_layer.render();
     });
+  });
 
     // Update page counters
     document.getElementById('page_input').value = num;
@@ -194,7 +229,11 @@
 
 
   <div class="flex justify-center max-w-6xl mx-auto" id="canvas-div">
-    <canvas class="" id="the-canvas"></canvas>
+    <div>
+      <canvas class="" id="the-canvas"></canvas>
+    </div>
+    
+    <div class="pdfTextSelector"></div>
   </div>
     
 </content>
