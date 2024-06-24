@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.forms import ValidationError
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core.paginator import Paginator
 from django.http import FileResponse, HttpResponse, JsonResponse
 from django.views.static import serve
 
@@ -15,8 +16,12 @@ def redirect_overview(request):
 
 
 @login_required
-def pdf_overview(request):
-    return render(request, 'overview.html', {'profile': request.user.profile})
+def pdf_overview(request, page=1):
+    pdfs = request.user.profile.pdf_set.all().order_by('creation_date')
+    paginator = Paginator(pdfs, per_page=15, allow_empty_first_page=True)
+    page_object = paginator.get_page(page)
+
+    return render(request, 'overview.html', {'page_obj': page_object})
 
 
 @login_required
@@ -55,7 +60,7 @@ def add_pdf_view(request):
             pdf.owner = request.user.profile
             pdf.save()
 
-            tag_string = form.data["tag_string"]
+            tag_string = form.data['tag_string']
             # get unique tag names
             tag_names = Tag.parse_tag_string(tag_string)
             tags = []
@@ -93,7 +98,7 @@ def download_pdf_view(request, pdf_id):
         user_profile = request.user.profile
         pdf = user_profile.pdf_set.get(id=pdf_id)
         file_name = pdf.name.replace(' ', '_').lower()
-        response = FileResponse(open(pdf.file.path, "rb"), as_attachment=True, filename=file_name)
+        response = FileResponse(open(pdf.file.path, 'rb'), as_attachment=True, filename=file_name)
 
         return response
     except:
@@ -103,37 +108,37 @@ def download_pdf_view(request, pdf_id):
     return response
 
 
-def update_page_view(request):     
+def update_page_view(request):
     if not request.user.is_authenticated:
         return HttpResponse(status=403)
     if request.method != 'POST':
-        return HttpResponse(status=405) 
+        return HttpResponse(status=405)
     try:
         user_profile = request.user.profile
         pdf_id = request.POST.get('pdf_id')
-        pdf = user_profile.pdf_set.get(id=pdf_id)      
+        pdf = user_profile.pdf_set.get(id=pdf_id)
 
-        # update current page              
+        # update current page
         current_page = request.POST.get('current_page')
         pdf.current_page = current_page
         pdf.save()
 
         return HttpResponse(status=200)
     except:
-        return HttpResponse(status=403)        
+        return HttpResponse(status=403)
 
 
-def current_page_view(request, pdf_id):    
+def current_page_view(request, pdf_id):
     if not request.user.is_authenticated:
         return HttpResponse(status=403)
     if request.method != 'GET':
-        return HttpResponse(status=405) 
+        return HttpResponse(status=405)
     try:
         user_profile = request.user.profile
-        pdf = user_profile.pdf_set.get(id=pdf_id)      
+        pdf = user_profile.pdf_set.get(id=pdf_id)
 
         print(pdf.current_page)
 
-        return JsonResponse({"current_page": pdf.current_page}, status=200)
+        return JsonResponse({'current_page': pdf.current_page}, status=200)
     except:
-        return HttpResponse(status=403)      
+        return HttpResponse(status=403)

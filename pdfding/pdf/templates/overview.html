@@ -4,7 +4,7 @@
 <content class="block max-w-4xl mx-auto md:p-12">
   <div class="bg-white  md:drop-shadow-2xl shadow-black w-full p-8">
     <h1>PDFs</h1>
-    {% for pdf in profile.pdf_set.all %}
+    {% for pdf in page_obj %}
     {% with loop_id=forloop.counter %}
     <div x-data="{ delete{{ loop_id }}: false }" class="pb-4">
       <ul>
@@ -34,6 +34,23 @@
     </div>
     {% endwith %}
     {% endfor %}
-  </div>
+    <div class="flex [&>a]:text-green-400 [&>span]:text-green-400 [&>span]:cursor-default gap-x-3 pt-5">
+      {% if page_obj.has_previous %}
+        <a class="hover:text-green-500" href="{% url 'pdf_overview_page' page_obj.previous_page_number %}">
+            Prev
+        </a>
+      {% else %}
+      <span>Prev</span>
+      {% endif %}
+      <span class="bg-green-400 !text-gray-100 px-2 rounded-sm">{{ page_obj.number }}</span>
+      {% if page_obj.has_next %}
+        <a class="hover:text-green-500" href="{% url 'pdf_overview_page' page_obj.next_page_number %}">
+            Next
+        </a>
+      {% else %}
+        <span>Next</span>
+      {% endif %}
+    </div>
+  </div>  
 </content>
 {% endblock %}

@@ -19,7 +19,6 @@
       pageNum = 1,
       pageRendering = false,
       pageNumPending = null,
-      scale = 3,
       canvas = document.getElementById('the-canvas');
 
   get_current_page();
@@ -81,9 +80,6 @@
       
       pdfTextSelector.style.left = canvas.offsetLeft + 'px';
       pdfTextSelector.style.top = canvas.offsetTop + 'px';
-      // pdfTextSelector.style.height = canvas.offsetHeight + 'px';
-      // pdfTextSelector.style.width = canvas.offsetWidth + 'px';
-      console.log(scale)
       pdfTextSelector.style.setProperty('--scale-factor', scale);
 
       // Pass the data to the method for rendering of text over the pdf canvas.
@@ -213,7 +209,7 @@
       <button class="py-2 px-2" style="display:inline-block" id="next">
         <img src="{% static "images/arrow_right.svg" %}" width="33">
       </button>   
-      <input class="border w-14 ml-3 border-green-400 py-3 bg-white" type="text" id="page_input">
+      <input class="border w-14 ml-3 px-0 border-green-400 py-3 bg-white text-center" type="text" id="page_input">
       <span class="px-2">/</span> <span class="pr-4" id="page_count">??</span>
       <button class="px-1 py-3 font-md" id="jump">Jump</button>       
     </div>
