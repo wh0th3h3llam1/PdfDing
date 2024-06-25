@@ -17,7 +17,9 @@
           <a href="" class="text-green-400 hover:text-green-500 font-bold">#{{ tag.name }}</a>
           {% endfor %}
           {% if pdf.description %}
+          {% if pdf.tags.all %}
           <span>|</span>
+          {% endif %}
           <span>{{ pdf.description }}</span>
           {% endif %}
         </div>

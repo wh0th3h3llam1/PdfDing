@@ -182,6 +182,12 @@
     } else if (event.key == "Enter") {
       onAnyPage();
     }
+    else if (event.key == "Escape") {
+      // timeout needed, otherwise no redirect
+      setTimeout(function () {                
+        window.location = "{% url 'pdf_overview' %}";
+      }, 300); 
+    }
 
   })
 
@@ -215,7 +221,7 @@
     </div>
     
     <div class="px-4">
-      <form action="http://127.0.0.1:5000/pdf">
+      <form action="{% url 'pdf_overview' %}">
         <button class="py-2 px-2 !rounded-full" style="display:inline-block">
           <img src="{% static "images/close_white.svg" %}" width="30">
         </button>
