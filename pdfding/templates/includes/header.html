@@ -37,9 +37,7 @@
                         <span class="flex text-xs pb-1 text-left  justify-start">Logged in as</span>
                         <span class="flex text-xs pb-1 text-left  justify-start  truncate">{{ user.email}}</span>
                         <div class="flex-grow border-b border-gray-400"></div>
-                    </div>
-
-                    
+                    </div>                    
                     <ul class="hoverlist  [&>li>*]:justify-left">
                         <li><a href="{% url 'profile' %}">My Profile</a></li>
                         <li><a href="{% url 'profile-edit' %}">Edit Profile</a></li>

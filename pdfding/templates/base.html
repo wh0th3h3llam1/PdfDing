@@ -64,10 +64,13 @@
             @apply flex items-center gap-2 h-12 px-4 hover:bg-green-500 rounded-lg;
         }
         .hoverlist>* {
-            @apply hover:bg-gray-100 rounded-md transition duration-150;
+            @apply hover:bg-green-200 rounded-md transition duration-150;
         }
         .hoverlist>*>a {
             @apply flex items-center p-2;
+        }
+        .hoverlist>*>span {
+            @apply flex items-center p-2 cursor-pointer;
         }
         .highlight {
             @apply !bg-indigo-100;
@@ -106,7 +109,7 @@
             @apply w-full rounded-lg py-4 px-5 bg-gray-100
         }
         .textarea:focus, textarea:focus, input:focus {
-            @apply outline outline-2 outline-green-400
+            @apply outline outline-1 outline-green-400
         }
         .errorlist li {
             @apply p-1 pl-4 border-l-red-500 border-l-4 border-solid mb-2 text-red-500

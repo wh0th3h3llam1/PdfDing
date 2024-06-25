@@ -209,15 +209,15 @@
   <div class="flex justify-between items-center sticky top-0 z-40">
     <div class=""></div>
     <div class="flex mx-auto max-w-xs items-center justify-center mt-2  gap-x-0 bg-white rounded-lg border">
-      <button class="py-2 px-2 mr-1" style="display:inline-block" id="prev">
+      <button class="py-2 px-2 mr-1 !rounded-r h-12" style="display:inline-block" id="prev">
         <img src="{% static "images/arrow_right.svg" %}" width="33" class="transform -scale-x-100">
       </button>   
-      <button class="py-2 px-2" style="display:inline-block" id="next">
+      <button class="py-2 px-2 !rounded-l h-12" style="display:inline-block" id="next">
         <img src="{% static "images/arrow_right.svg" %}" width="33">
       </button>   
-      <input class="border w-14 ml-3 px-0 border-green-400 py-3 bg-white text-center" type="text" id="page_input">
+      <input class="border w-14 ml-3 px-0 border-green-400 py-3 bg-white text-center h-12" type="text" id="page_input">
       <span class="px-2">/</span> <span class="pr-4" id="page_count">??</span>
-      <button class="px-1 py-3 font-md" id="jump">Jump</button>       
+      <button class="px-1 py-3 font-md h-12" id="jump">Jump</button>       
     </div>
     
     <div class="px-4">
