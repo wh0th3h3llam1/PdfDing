@@ -1,0 +1,23 @@
+<div class="pt-1">
+    <span class="text-2xl font-bold">Tags</span>  
+</div>
+<div class="flex-grow border-t border-gray-400 mt-3 mb-4"></div>
+<div>
+    <p class="leading-9">
+    {% for tag in request.user.profile.tag_set.all|dictsort:"name" %}
+        {% if tag.pdf_set.all %}
+            {% if request.user.profile.tag_set.all|length < 20 %}
+            <div class="py-1">
+            <a href="{% url 'pdf_overview' %}?q=%23{{ tag.name }}"
+               class="base font-semibold text-green-400 hover:text-green-500">{{ tag.name }}
+            </a>
+            </div>
+            {% else %}
+            <a href="{% url 'pdf_overview' %}?q=%23{{ tag.name }}"
+               class="base font-semibold text-green-400 hover:text-green-500 px-1">{{ tag.name }}
+            </a>
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+    </p>
+</div>

@@ -16,12 +16,23 @@ def redirect_overview(request):
 
 
 @login_required
-def pdf_overview(request, page=1):
+def pdf_overview(request, page=1):  
     pdfs = request.user.profile.pdf_set.all().order_by('creation_date')
+
+    # filter pdfs
+    raw_search_query = request.GET.get('q', '')
+    search, tags = process_raw_search_query(raw_search_query)
+
+    if tags:
+        pdfs = pdfs.filter(tags__name__in=tags)
+
+    if search:        
+        pdfs = pdfs.filter(name__icontains=search)
+
     paginator = Paginator(pdfs, per_page=15, allow_empty_first_page=True)
     page_object = paginator.get_page(page)
 
-    return render(request, 'overview.html', {'page_obj': page_object})
+    return render(request, 'overview.html', {'page_obj': page_object, 'raw_search_query': raw_search_query})
 
 
 @login_required
@@ -142,3 +153,23 @@ def current_page_view(request, pdf_id):
         return JsonResponse({'current_page': pdf.current_page}, status=200)
     except:
         return HttpResponse(status=403)
+
+
+def process_raw_search_query(raw_search_query):
+    search = []
+    tags = []
+
+    if raw_search_query:
+        split_query = raw_search_query.split(sep=' ')
+        
+        for query in split_query:
+            if query.startswith('#'):
+                #ignore hashtags only
+                if len(query) > 1:
+                    tags.append(query[1:])
+            elif query:
+                search.append(query)
+    
+    search = ' '.join(search)
+
+    return search, tags

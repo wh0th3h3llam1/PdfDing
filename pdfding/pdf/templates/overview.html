@@ -1,87 +1,22 @@
 {% extends 'layouts/blank.html' %}
 {% load static %}
 {% block content %}
-<content class="block max-w-4xl mx-auto md:p-12 !pt-4">
-  <div class="bg-white w-full md:p-8 p-3">
-    <div class="flex justify-between items-center">
-      <span class="text-2xl font-bold pr-4">PDFs</span>
-      <div class="flex justify-end h-10 mr-2">
-        <input class="border border-green-400 h-10 !rounded-r-none" type="text" placeholder="Search for words or #tags"/>
-        <form action="">
-          <button type="submit" class="button h-10 !rounded-l-none !rounded-md !item-center !py-2 !px-2" style="display:inline-block">
-            <img src="{% static 'images/search.svg' %}" width="35">
-          </button>
-        </form>
-        <div x-data="{ sortdropdownOpen: false, sorting: 'z-a' }" class="relative">
-          <a @click="sortdropdownOpen = !sortdropdownOpen" @click.away="sortdropdownOpen = false" class="cursor-pointer select-none">              
-            <img class="w-10 h-10 bg-green-400 rounded-md ml-2 px-2 mx-2 " x-bind:class="sortdropdownOpen && 'duration-300'" src="{% static 'images/sort.svg' %}"/>
-          </a>
-          <div x-show="sortdropdownOpen" x-cloak class="absolute right-0 origin-top-right bg-white text-black shadow rounded-lg w-40 p-2 mt-1 z-20"
-            x-transition:enter="duration-300 ease-out"
-            x-transition:enter-start="opacity-0 -translate-y-5 scale-90"
-            x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-            >                
-            <ul class="hoverlist [&>li>span]:justify-left [&>li>span]:rounded-md">
-              <li><span @click="sorting = 'newest'" :class="sorting === 'newest' ? 'bg-green-400' : 'hower:bg-green-200'">Newest</span></li>
-              <li><span @click="sorting = 'oldest'" :class="sorting === 'oldest' ? 'bg-green-400' : 'hower:bg-green-200'">Oldest</span></li>
-              <li><span @click="sorting = 'a-z'" :class="sorting === 'a-z' ? 'bg-green-400' : 'hower:bg-green-200'">A --- Z</span></li>
-              <li><span @click="sorting = 'z-a'" :class="sorting === 'z-a' ? 'bg-green-400' : 'hower:bg-green-200'">Z --- A</span></li>
-            </ul>
-          </div>
-        </div>
-      </div>      
-    </div>
-    <div class="flex-grow border-t border-gray-400 mt-2 mb-4"></div>
-    {% for pdf in page_obj %}
-    {% with loop_id=forloop.counter %}
-    <div x-data="{ delete{{ loop_id }}: false }" class="pb-4">
-      <ul>
-        <div class="!-mb-1">
-          <a href="{% url 'view_pdf' pdf.id %}" class="text-lg font-bold hover:text-green-500">{{ pdf.name }}</a>
-        </div>
-        {% if pdf.description or pdf.tags.all %}
-        <div class="truncate space-x-1 [&>span]: text-gray-800 -mb-1">
-          {% for tag in pdf.tags.all %}
-          <a href="" class="text-green-400 hover:text-green-500 font-bold">#{{ tag.name }}</a>
-          {% endfor %}
-          {% if pdf.description %}
-          {% if pdf.tags.all %}
-          <span>|</span>
-          {% endif %}
-          <span>{{ pdf.description }}</span>
-          {% endif %}
-        </div>
-        {% endif %}
-        <div class="text-gray-500 space-x-1 text-sm">
-          <span>{{ pdf.now }} |</span>
-          <a href="" class="hover:text-green-400"> Details</a>
-          <a href="{% url 'download_pdf' pdf.id %}" class="hover:text-green-400">Download</a>
-          <a x-show="delete{{ loop_id }}" href="{% url 'delete_pdf' pdf.id %}" class="text-red-400 hover:text-red-500">Confirm</a>
-          <button x-show="delete{{ loop_id }}" @click="delete{{ loop_id }} = false" type="button" class="button-text-cancel">Cancel</button>
-          <button x-show="!delete{{ loop_id }}" @click="delete{{ loop_id }} = true" type="button" class="button-text">Delete</button>
-        </div>
-      </ul>
-    </div>
-    {% endwith %}
-    {% endfor %}
-    <div class="flex-grow border-t border-gray-400 mt-2 mb-4"></div>
-    <div class="flex [&>a]:text-green-400 [&>span]:text-green-400 [&>span]:cursor-default gap-x-3 pt-5">
-      {% if page_obj.has_previous %}
-        <a class="hover:text-green-500" href="{% url 'pdf_overview_page' page_obj.previous_page_number %}">
-            Prev
-        </a>
-      {% else %}
-      <span>Prev</span>
-      {% endif %}
-      <span class="bg-green-400 !text-gray-100 px-2 rounded-sm">{{ page_obj.number }}</span>
-      {% if page_obj.has_next %}
-        <a class="hover:text-green-500" href="{% url 'pdf_overview_page' page_obj.next_page_number %}">
-            Next
-        </a>
-      {% else %}
-        <span>Next</span>
-      {% endif %}
-    </div>
+<content class="flex justify-between block max-w-5xl mx-auto md:p-12 !pt-4">
+  <div class="bg-white w-full md:w-3/4 md:p-8 p-3">
+    {% include 'includes/overview_top.html' %}
+    {% include 'includes/overview_center.html' %}    
   </div>  
+  <div class="md:w-1/4 md:p-8 p-3 hidden md:block">
+    {% include 'includes/overview_side.html' %}  
+  </div>
 </content>
+
+<script>
+  function append_seach_query()
+    {
+        var search_input = document.getElementById('search_input').value;
+        var search_q = document.getElementById('search_q');
+        search_q.value = search_input;
+    }
+</script>
 {% endblock %}

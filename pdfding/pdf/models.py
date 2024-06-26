@@ -24,7 +24,7 @@ class Tag(models.Model):
         # remove empty names, sanitize remaining names
         names = [name.strip() for name in names if name]
         # remove duplicates
-        names = [name.lower() for name in set(names)]
+        names = [name.replace('#', '').lower() for name in set(names)]
 
         return names
 

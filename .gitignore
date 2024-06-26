@@ -1,4 +1,5 @@
 **/__pycache__/
+.idea/
 
 pdfding/core/settings.py
 pdfding/db.sqlite3

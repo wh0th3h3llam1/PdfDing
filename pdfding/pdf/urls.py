@@ -3,7 +3,7 @@ from pdf.views import *
 
 urlpatterns = [
     path('', pdf_overview, name='pdf_overview'),
-    path('<int:page>', pdf_overview, name='pdf_overview_page'),
+    path('<int:page>/', pdf_overview, name='pdf_overview_page'),
     path('add', add_pdf_view, name='add_pdf'),
     path('current_page/<pdf_id>', current_page_view, name='current_page'),
     path('delete/<pdf_id>', delete_pdf_view, name='delete_pdf'),

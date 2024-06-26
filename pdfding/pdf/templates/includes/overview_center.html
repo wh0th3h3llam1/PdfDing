@@ -1,0 +1,64 @@
+{% if not page_obj %}
+    <div class="pt-10 [&>*]:flex [&>*]:justify-center">
+      {% if raw_search_query %}
+      <span class="text-2xl">There are no PDFs matching the search</span>
+      <span class="pt-4 text-lg">Please try a different search PDFs.</span>
+      {% else %}
+      <span class="text-2xl">You have no PDFs yet</span>
+      <span class="pt-4 text-lg">Get started by <a class="text-green-400 hover:text-green-500 px-1" href="{% url 'add_pdf' %}"> adding</a> PDFs.</span>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% for pdf in page_obj %}
+    {% with loop_id=forloop.counter %}
+    <div x-data="{ delete{{ loop_id }}: false }" class="pb-1">
+      <ul>
+        <div class="!-mb-1">
+          <a href="{% url 'view_pdf' pdf.id %}" class="text-lg font-bold text-green-400 hover:text-green-500">{{ pdf.name }}</a>
+        </div>
+        {% if pdf.description or pdf.tags.all %}
+        <div class="truncate space-x-1 [&>span]: text-gray-800 -mb-1">
+          {% for tag in pdf.tags.all %}
+          <a href="{% url 'pdf_overview' %}?q=%23{{ tag.name }}" class="text-blue-300 hover:text-blue-500 font-bold">#{{ tag.name }}</a>
+          {% endfor %}
+          {% if pdf.description %}
+          {% if pdf.tags.all %}
+          <span>|</span>
+          {% endif %}
+          <span>{{ pdf.description }}</span>
+          {% endif %}
+        </div>
+        {% endif %}
+        <div class="text-gray-500 space-x-1 text-sm">
+          <span>{{ pdf.now }} |</span>
+          <a href="" class="hover:text-green-500"> Details</a>
+          <a href="{% url 'download_pdf' pdf.id %}" class="hover:text-green-400">Download</a>
+          <a x-show="delete{{ loop_id }}" x-cloak href="{% url 'delete_pdf' pdf.id %}" class="text-red-400 hover:text-red-500">Confirm</a>
+          <button x-show="delete{{ loop_id }}" x-cloak @click="delete{{ loop_id }} = false" type="button" class="button-text-cancel">Cancel</button>
+          <button x-show="!delete{{ loop_id }}" @click="delete{{ loop_id }} = true" type="button" class="button-text">Delete</button>
+        </div>
+      </ul>
+    </div>
+    {% endwith %}
+    {% endfor %}
+    {% if page_obj %}
+    <div class="flex-grow border-t border-gray-400 mt-2 mb-4"></div>
+    <div class="flex [&>a]:text-green-400 [&>span]:text-green-400 [&>span]:cursor-default gap-x-3 pt-5">
+      {% if page_obj.has_previous %}
+        <a class="hover:text-green-500" href="{% url 'pdf_overview_page' page_obj.previous_page_number %}?q={{ raw_search_query }}">
+            Prev
+        </a>
+      {% else %}
+      <span>Prev</span>
+      {% endif %}
+      <span class="bg-green-400 !text-gray-100 px-2 rounded-sm">{{ page_obj.number }}</span>
+      {% if page_obj.has_next %}
+        <a class="hover:text-green-500" href="{% url 'pdf_overview_page' page_obj.next_page_number %}?q={{ raw_search_query }}">
+            Next
+        </a>
+      {% else %}
+        <span>Next</span>
+      {% endif %}
+    </div>
+    {% endif %}
