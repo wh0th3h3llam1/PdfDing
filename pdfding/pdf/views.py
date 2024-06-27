@@ -7,7 +7,7 @@ from django.http import FileResponse, HttpResponse, JsonResponse
 from django.views.static import serve
 
 from .forms import *
-from .models import Pdf, Tag
+from .models import Tag
 from core.settings import MEDIA_ROOT
 
 
@@ -16,23 +16,36 @@ def redirect_overview(request):
 
 
 @login_required
-def pdf_overview(request, page=1):  
-    pdfs = request.user.profile.pdf_set.all().order_by('creation_date')
+def pdf_overview(request, page=1):
+    sorting_query = request.GET.get('sort', '')
+    sorting_dict = {
+        '': '-creation_date',
+        'newest': '-creation_date',
+        'oldest': 'creation_date',
+        'title_asc': 'name',
+        'title_desc': '-name',
+    }
+
+    pdfs = request.user.profile.pdf_set.all().order_by(sorting_dict[sorting_query])
 
     # filter pdfs
     raw_search_query = request.GET.get('q', '')
     search, tags = process_raw_search_query(raw_search_query)
 
-    if tags:
-        pdfs = pdfs.filter(tags__name__in=tags)
+    for tag in tags:
+        pdfs = pdfs.filter(tags__name=tag)
 
-    if search:        
+    if search:
         pdfs = pdfs.filter(name__icontains=search)
 
     paginator = Paginator(pdfs, per_page=15, allow_empty_first_page=True)
     page_object = paginator.get_page(page)
 
-    return render(request, 'overview.html', {'page_obj': page_object, 'raw_search_query': raw_search_query})
+    return render(
+        request,
+        'overview.html',
+        {'page_obj': page_object, 'raw_search_query': raw_search_query, 'sorting_query': sorting_query},
+    )
 
 
 @login_required
@@ -148,8 +161,6 @@ def current_page_view(request, pdf_id):
         user_profile = request.user.profile
         pdf = user_profile.pdf_set.get(id=pdf_id)
 
-        print(pdf.current_page)
-
         return JsonResponse({'current_page': pdf.current_page}, status=200)
     except:
         return HttpResponse(status=403)
@@ -161,15 +172,15 @@ def process_raw_search_query(raw_search_query):
 
     if raw_search_query:
         split_query = raw_search_query.split(sep=' ')
-        
+
         for query in split_query:
             if query.startswith('#'):
-                #ignore hashtags only
+                # ignore hashtags only
                 if len(query) > 1:
                     tags.append(query[1:])
             elif query:
                 search.append(query)
-    
+
     search = ' '.join(search)
 
     return search, tags

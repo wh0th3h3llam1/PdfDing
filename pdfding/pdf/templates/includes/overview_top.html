@@ -1,7 +1,8 @@
 {% load static %}
 <div class="flex justify-between items-center">
     <span class="text-2xl font-bold pr-4">PDFs</span>
-    <div x-data="{ queryUrl: '{% url 'pdf_overview' %}'}" class="flex justify-end h-10 mr-2">
+<!--    x-data necessary otherwise alpine js will not trigger-->
+    <div x-data="{}" class="flex justify-end h-10 mr-2">
         <input class="border border-green-400 h-10 !rounded-r-none align-text-center"
                 type="text" placeholder="Search for words or #tags"
                 value="{{ raw_search_query }}"
@@ -9,13 +10,16 @@
                 @keyup.enter="append_seach_query(); document.getElementById('search_form').submit()"/>
         <form action="{% url 'pdf_overview' %}" method="GET" id="search_form">
         <input type="hidden" name=q value='' id="search_q">
+        {% if sorting_query %}
+        <input type="hidden" name=sort value="{{ sorting_query }}">
+        {% endif %}
         <button @click="append_seach_query" type="submit"
                 class="button h-10 !rounded-l-none !rounded-md !item-center !py-2 !px-2"
                 style="display:inline-block">
             <img src="{% static 'images/search.svg' %}" width="35">
         </button>
         </form>
-        <div x-data="{ sortdropdownOpen: false, sorting: 'title_desc' }" class="relative">
+        <div x-data="{ sortdropdownOpen: false }" class="relative">
         <a @click="sortdropdownOpen = !sortdropdownOpen" @click.away="sortdropdownOpen = false" class="cursor-pointer select-none">              
             <img class="w-10 h-10 bg-green-400 rounded-md ml-2 px-2 mx-2 "
                 x-bind:class="sortdropdownOpen && 'duration-300'"
@@ -26,11 +30,15 @@
             x-transition:enter-start="opacity-0 -translate-y-5 scale-90"
             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
             >                
-            <ul class="hoverlist [&>li>span]:justify-left [&>li>span]:rounded-md">
-            <li><span @click="sorting = 'newest'" :class="sorting === 'newest' ? 'bg-green-400' : 'hower:bg-green-200'">Newest</span></li>
-            <li><span @click="sorting = 'oldest'" :class="sorting === 'oldest' ? 'bg-green-400' : 'hower:bg-green-200'">Oldest</span></li>
-            <li><span @click="sorting = 'title_asc'" :class="sorting === 'title_asc' ? 'bg-green-400' : 'hower:bg-green-200'">A --- Z</span></li>
-            <li><span @click="sorting = 'title_desc'" :class="sorting === 'title_desc' ? 'bg-green-400' : 'hower:bg-green-200'">Z --- A</span></li>
+            <ul class="hoverlist [&>li>*]:justify-left [&>li>*]:rounded-md">
+            <li><a x-bind:href="construct_query_string('{{ raw_search_query }}', 'newest')"
+                   x-bind:class="get_active_sorting('{{ sorting_query }}') === 'newest' ? 'bg-green-400' : 'hower:bg-green-200'">Newest</a></li>
+            <li><a x-bind:href="construct_query_string('{{ raw_search_query }}', 'oldest')"
+                   x-bind:class="get_active_sorting('{{ sorting_query }}') === 'oldest' ? 'bg-green-400' : 'hower:bg-green-200'">Oldest</a></li>
+            <li><a x-bind:href="construct_query_string('{{ raw_search_query }}', 'title_asc')"
+                   x-bind:class="get_active_sorting('{{ sorting_query }}') === 'title_asc' ? 'bg-green-400' : 'hower:bg-green-200'">A --- Z</a></li>
+            <li><a x-bind:href="construct_query_string('{{ raw_search_query }}', 'title_desc')"
+                   x-bind:class="get_active_sorting('{{ sorting_query }}') === 'title_desc' ? 'bg-green-400' : 'hower:bg-green-200'">Z --- A</a></li>
             </ul>
         </div>
         </div>

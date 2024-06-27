@@ -6,16 +6,17 @@
     <p class="leading-9">
     {% for tag in request.user.profile.tag_set.all|dictsort:"name" %}
         {% if tag.pdf_set.all %}
-            {% if request.user.profile.tag_set.all|length < 20 %}
-            <div class="py-1">
-            <a href="{% url 'pdf_overview' %}?q=%23{{ tag.name }}"
-               class="base font-semibold text-green-400 hover:text-green-500">{{ tag.name }}
-            </a>
+            {% if request.user.profile.tag_set.all|length < 15 %}
+            <div x-data="{}" class="py-1">
+                <a x-bind:href="combine_url_query('{% url 'pdf_overview' %}', construct_query_string('%23{{ tag.name }}', '{{ sorting_query }}'))"
+                   class="base font-semibold text-green-400 hover:text-green-500">{{ tag.name }}
+                </a>
             </div>
             {% else %}
-            <a href="{% url 'pdf_overview' %}?q=%23{{ tag.name }}"
-               class="base font-semibold text-green-400 hover:text-green-500 px-1">{{ tag.name }}
+            <a x-data="{}" x-bind:href="combine_url_query('{% url 'pdf_overview' %}', construct_query_string('%23{{ tag.name }}', '{{ sorting_query }}'))"
+                    class="base font-semibold text-green-400 hover:text-green-500 px-1">{{ tag.name }}
             </a>
+
             {% endif %}
         {% endif %}
     {% endfor %}

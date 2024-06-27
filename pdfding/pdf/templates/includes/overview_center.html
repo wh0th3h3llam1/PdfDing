@@ -1,8 +1,8 @@
 {% if not page_obj %}
     <div class="pt-10 [&>*]:flex [&>*]:justify-center">
       {% if raw_search_query %}
-      <span class="text-2xl">There are no PDFs matching the search</span>
-      <span class="pt-4 text-lg">Please try a different search PDFs.</span>
+      <span class="text-2xl">There aren't any PDFs matching the search criteria</span>
+      <span class="pt-4 text-lg">Please try a different search.</span>
       {% else %}
       <span class="text-2xl">You have no PDFs yet</span>
       <span class="pt-4 text-lg">Get started by <a class="text-green-400 hover:text-green-500 px-1" href="{% url 'add_pdf' %}"> adding</a> PDFs.</span>
@@ -20,7 +20,9 @@
         {% if pdf.description or pdf.tags.all %}
         <div class="truncate space-x-1 [&>span]: text-gray-800 -mb-1">
           {% for tag in pdf.tags.all %}
-          <a href="{% url 'pdf_overview' %}?q=%23{{ tag.name }}" class="text-blue-300 hover:text-blue-500 font-bold">#{{ tag.name }}</a>
+          <a x-data="{}"
+             x-bind:href="combine_url_query('{% url 'pdf_overview' %}', construct_query_string('%23{{ tag.name }}', '{{ sorting_query }}'))"
+             class="text-blue-300 hover:text-blue-500 font-bold">#{{ tag.name }}</a>
           {% endfor %}
           {% if pdf.description %}
           {% if pdf.tags.all %}
@@ -44,9 +46,10 @@
     {% endfor %}
     {% if page_obj %}
     <div class="flex-grow border-t border-gray-400 mt-2 mb-4"></div>
-    <div class="flex [&>a]:text-green-400 [&>span]:text-green-400 [&>span]:cursor-default gap-x-3 pt-5">
+    <div x-data="{}" class="flex [&>a]:text-green-400 [&>span]:text-green-400 [&>span]:cursor-default gap-x-3 pt-5">
       {% if page_obj.has_previous %}
-        <a class="hover:text-green-500" href="{% url 'pdf_overview_page' page_obj.previous_page_number %}?q={{ raw_search_query }}">
+        <a x-bind:href="combine_url_query('{% url 'pdf_overview_page' page_obj.previous_page_number %}', construct_query_string('{{ raw_search_query }}', '{{ sorting_query }}'))"
+           class="hover:text-green-500">
             Prev
         </a>
       {% else %}
@@ -54,7 +57,8 @@
       {% endif %}
       <span class="bg-green-400 !text-gray-100 px-2 rounded-sm">{{ page_obj.number }}</span>
       {% if page_obj.has_next %}
-        <a class="hover:text-green-500" href="{% url 'pdf_overview_page' page_obj.next_page_number %}?q={{ raw_search_query }}">
+        <a x-bind:href="combine_url_query('{% url 'pdf_overview_page' page_obj.next_page_number %}', construct_query_string('{{ raw_search_query }}', '{{ sorting_query }}'))"
+           class="hover:text-green-500">
             Next
         </a>
       {% else %}
