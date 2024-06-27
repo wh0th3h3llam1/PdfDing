@@ -56,4 +56,4 @@ class Pdf(models.Model):
         if ',' in natural_time:
             return natural_time.split(sep=', ')[0]
         else:
-            return natural_time[:-4]
+            return natural_time.replace(' ago', '')
