@@ -5,7 +5,6 @@ from django.templatetags.static import static
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    # image = models.ImageField(upload_to='avatars/', null=True, blank=True)
     displayname = models.CharField(max_length=20, null=True, blank=True)
     info = models.TextField(null=True, blank=True)
 
@@ -21,6 +20,3 @@ class Profile(models.Model):
     @property
     def avatar(self):
         return static("images/avatar.png")
-        # if self.image:
-        #     return self.image.url
-        # return static("images/avatar.svg")
