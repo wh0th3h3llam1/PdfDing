@@ -13,20 +13,21 @@
 
 <script>
   function append_seach_query()
-    {
-        var search_input = document.getElementById('search_input').value;
-        var search_q = document.getElementById('search_q');
-        search_q.value = search_input;
-    }
+  {
+      var search_input = document.getElementById('search_input').value;
+      var search_q = document.getElementById('search_q');
+      search_q.value = search_input;
+  }
+
   function get_active_sorting(sorting_string)
-    {
-      if (sorting_string === "") {
-        return "newest";
-      }
-      else {
-        return sorting_string;
-      }
+  {
+    if (sorting_string === "") {
+      return "newest";
     }
+    else {
+      return sorting_string;
+    }
+  }
 
   function combine_url_query(url, query) {
     return `${url}${query}`;
@@ -41,7 +42,8 @@
 
   function construct_query_string(search_string, sorting_string)
   {
-    search_string = prepare_search_string(search_string)
+    search_string = prepare_search_string(search_string);
+
     if (search_string === "" && sorting_string === "")
       return "";
     else if (search_string === "") {

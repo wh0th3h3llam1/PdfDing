@@ -53,4 +53,7 @@ class Pdf(models.Model):
     def now(self):
         natural_time = naturaltime(self.creation_date)
 
-        return natural_time.split(sep=',')[0]
+        if ',' in natural_time:
+            return natural_time.split(sep=', ')[0]
+        else:
+            return natural_time[:-4]
