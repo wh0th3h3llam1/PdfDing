@@ -55,7 +55,7 @@ def serve_pdf(request, pdf_id):
         pdf = user_profile.pdf_set.get(id=pdf_id)
 
         return serve(request, document_root=MEDIA_ROOT, path=pdf.file.name)
-    except:
+    except ValidationError:
         return
 
 
@@ -63,10 +63,10 @@ def serve_pdf(request, pdf_id):
 def view_pdf_view(request, pdf_id):
     try:
         user_profile = request.user.profile
-        pdf = user_profile.pdf_set.get(id=pdf_id)
+        user_profile.pdf_set.get(id=pdf_id)
 
         return render(request, 'view_pdf.html', {'pdf_id': pdf_id})
-    except:
+    except ValidationError:
         messages.error(request, 'You have no access to the requested PDF File!')
         return redirect('pdf_overview')
 
@@ -87,21 +87,73 @@ def add_pdf_view(request):
             tag_string = form.data['tag_string']
             # get unique tag names
             tag_names = Tag.parse_tag_string(tag_string)
-            tags = []
-            for tag_name in tag_names:
-                try:
-                    tag = Tag.objects.get(owner=request.user.profile, name=tag_name)
-                except Tag.DoesNotExist:
-                    tag = Tag(name=tag_name, owner=request.user.profile)
-                    tag.save()
-
-                tags.append(tag)
+            tags = process_tag_names(tag_names, request)
 
             pdf.tags.set(tags)
 
             return redirect('pdf_overview')
 
     return render(request, 'add_pdf.html', {'form': form})
+
+
+@login_required
+def pdf_details_view(request, pdf_id):
+    try:
+        user_profile = request.user.profile
+        pdf = user_profile.pdf_set.get(id=pdf_id)
+        sort_query = request.META['HTTP_REFERER'].split('sort=')
+        if len(sort_query) == 1:
+            sort_query = ''
+        else:
+            sort_query = sort_query[-1]
+
+        return render(request, 'details.html', {'pdf': pdf, 'sort_query': sort_query})
+    except ValidationError:
+        messages.error(request, 'You have no access to the requested PDF File!')
+        return redirect('pdf_overview')
+
+
+@login_required()
+def pdf_edit_view(request, pdf_id, field):
+    try:
+        user_profile = request.user.profile
+        pdf = user_profile.pdf_set.get(id=pdf_id)
+    except ValidationError:
+        messages.error(request, 'You have no access to the requested PDF File!')
+        return redirect('pdf_overview')
+
+    if request.htmx:
+        form = get_detail_form_class(field, instance=pdf)
+        return render(
+            request,
+            'partials/details_form.html',
+            {
+                'form': form,
+                'pdf_id': pdf_id,
+                'field': field,
+            },
+        )
+
+    if request.method == 'POST':
+        form = get_detail_form_class(field, instance=pdf, data=request.POST)
+
+        if form.is_valid():
+            if field != 'tags':
+                form.save()
+            else:
+                tag_names = form.data['tag_string'].split(' ')
+
+                # check if tag needs to be deleted
+                for tag in pdf.tags.all():
+                    if tag.name not in tag_names and tag.pdf_set.count() == 1:
+                        tag.delete()
+
+                tags = process_tag_names(tag_names, request)
+
+                pdf.tags.set(tags)
+
+            return redirect('pdf_details', pdf_id=pdf_id)
+    return redirect('home')
 
 
 @login_required
@@ -150,6 +202,20 @@ def update_page_view(request):
         return HttpResponse(status=200)
     except:
         return HttpResponse(status=403)
+
+
+def process_tag_names(tag_names, request):
+    tags = []
+    for tag_name in tag_names:
+        try:
+            tag = Tag.objects.get(owner=request.user.profile, name=tag_name)
+        except Tag.DoesNotExist:
+            tag = Tag(name=tag_name, owner=request.user.profile)
+            tag.save()
+
+        tags.append(tag)
+
+    return tags
 
 
 def current_page_view(request, pdf_id):

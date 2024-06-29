@@ -1,0 +1,16 @@
+<form action="{% url 'edit_pdf' pdf_id field %}"
+      method="post"
+      {% if field != "description" %}
+      class="flex gap-2 text-black h-8 w-11/12"
+      {% else %}
+      class="flex gap-2 text-black w-11/12"
+      {% endif %}
+      autocomplete="off">
+    {% csrf_token %}
+    {% for field in form %}{{ field }}{% endfor %}
+    <button class="!flex items-center justify-center h-8 w-16" type="submit">Submit</button>
+</form>
+
+<a hx-swap-oob="true" id="{{ field }}-edit" href="{% url 'pdf_details' pdf_id %}" class="font-medium text-blue-600 hover:underline">
+    Cancel
+</a>

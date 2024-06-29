@@ -5,7 +5,6 @@ from .models import Pdf
 
 
 class AddForm(ModelForm):
-    # file = forms.FileField(required=True)
     tag_string = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Add Tags'}),
@@ -47,3 +46,37 @@ class AddForm(ModelForm):
             raise forms.ValidationError("Uploaded file is not a PDF!")
 
         return file
+
+
+def get_detail_form_class(field_name, instance, data=None,):
+    class DetailForm(forms.ModelForm):
+        if field_name == 'tags':
+            tag_string = forms.CharField(
+                widget=forms.TextInput(attrs={'rows': 3, 'class': 'form-control'}),
+            )
+
+        class Meta:
+            model = Pdf
+            if field_name != 'tags':
+                fields = [field_name]
+            else:
+                fields = []
+
+    if data:
+        form = DetailForm(instance=instance, data=data)
+    else:
+        if field_name == 'tags':
+            tags = [tag.name for tag in instance.tags.all()]
+            form = DetailForm(instance=instance, initial={'tag_string': ' '.join(sorted(tags))})
+        else:
+            form = DetailForm(instance=instance)
+
+    return form
+
+
+class NameForm(ModelForm):
+    # name = forms.CharField(required=True)
+
+    class Meta:
+        model = Pdf
+        fields = ['name']

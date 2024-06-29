@@ -1,0 +1,107 @@
+{% extends 'layouts/box.html' %}
+{% block content %}
+<div class="w-full [&>div]:flex [&>div]:justify-between [&>div]:border-b [&>div]:py-4
+            [&>div>div>span]:font-bold [&>div>div>span]:text-gray-900
+            [&>div>div>div>span]:text-sm [&>div>div>div>span]:text-gray-500
+            [&>div>div>div>a]:text-sm [&>div>div>div>a]:cursor-pointer [&>div>div>div>a]:text-green-400">
+    <span class="text-3xl font-bold">{{ pdf.name }}</span>
+    <div class="!pb-6">
+        <a href="{% url 'view_pdf' pdf.id %}" class="text font-bold text-indigo-800 hover:underline">{{ request.get_host }}{% url 'view_pdf' pdf.id %}</a>
+    </div>
+
+    <div>
+        <div class="w-1/6">
+            <span>Name</span>
+        </div>
+        <div class="flex justify-between w-5/6 pl-4">
+            <div class="w-5/6">
+                <span id="name">{{ pdf.name }}</span>
+            </div>
+            <div class="w-1/6">
+                <a id="name-edit" class="hover:underline"
+                    hx-get="{% url 'edit_pdf' pdf_id=pdf.id field='name' %}"
+                    hx-target="#name"
+                    hx-swap="innerHTML" >
+                    Edit
+                </a>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div class="w-1/6">
+            <span>Description</span>
+        </div>
+        <div class="flex justify-between w-5/6 pl-4">
+            <div class="w-5/6 pr-6  ">
+                <span id="description">
+                {% if pdf.description %}
+                {{ pdf.description }}
+                {% else %}
+                no description available
+                {% endif%}
+                </span>
+            </div>
+            <div class="w-1/6">
+                <a id="description-edit" class="hover:underline"
+                    hx-get="{% url 'edit_pdf' pdf_id=pdf.id field='description' %}"
+                    hx-target="#description"
+                    hx-swap="innerHTML" >
+                    Edit
+                </a>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div class="w-1/6">
+            <span>Tags</span>
+        </div>
+        <div class="flex justify-between w-5/6 pl-4">
+            <div class="w-5/6">
+                <span id="tags">
+                {% if pdf.tags.all %}
+                    {% for tag in pdf.tags.all|dictsort:"name" %}
+                        {% if sort_query %}
+                        <a class="text-green-400 hover:text-green-500" href="{% url 'pdf_overview' %}?q=%23{{ tag }}&sort={{ sort_query }}">#{{ tag }}</a>
+                        {% else %}
+                        <a class="text-green-400 hover:text-green-500" href="{% url 'pdf_overview' %}?q=%23{{ tag }}">#{{ tag }}</a>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    no tags available
+                {% endif%}
+                </span>
+            </div>
+            <div class="w-1/6">
+                <a id="tags-edit" class="hover:underline"
+                    hx-get="{% url 'edit_pdf' pdf_id=pdf.id field='tags' %}"
+                    hx-target="#tags"
+                    hx-swap="innerHTML" >
+                    Edit
+                </a>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div class="w-1/6">
+            <span>Date added</span>
+        </div>
+        <div class="flex justify-between w-5/6 pl-4">
+            <div class="w-5/6">
+                <span>{{ pdf.creation_date }}</span>
+            </div>
+            <div class="w-1/6">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="flex justify-between py-8">
+    <a href="{{ request.META.HTTP_REFERER }}" class="text-md !font-bold text-green-400 hover:text-green-500">Back</a>
+    <div x-data="{ delete_pdf: false }" class="pr-4">
+        <a x-show="delete_pdf" x-cloak href="{% url 'delete_pdf' pdf.id %}" class="button-text-delete !font-bold">Confirm</a>
+        <button x-show="delete_pdf" x-cloak @click="delete_pdf = false" type="button" class="button-text-delete !font-bold">Cancel</button>
+        <button x-show="!delete_pdf" @click="delete_pdf = true" type="button" class="button-text-delete !font-bold">Delete</button>
+    </div>
+</div>
+{% endblock %}
+
