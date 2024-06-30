@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 
 
 class EmailForm(ModelForm):
+    """The form for changing the email address."""
+
     email = forms.EmailField(required=True)
 
     class Meta:

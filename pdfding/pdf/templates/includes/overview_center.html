@@ -33,10 +33,14 @@
         </div>
         {% endif %}
         <div class="text-gray-500 space-x-1 text-sm">
-          <span>{{ pdf.now }} |</span>
+          <span>{{ pdf.natural_age }} |</span>
           <a href="{% url 'pdf_details' pdf.id %}" class="hover:text-green-500"> Details</a>
           <a href="{% url 'download_pdf' pdf.id %}" class="hover:text-green-400">Download</a>
-          <a x-show="delete{{ loop_id }}" x-cloak href="{% url 'delete_pdf' pdf.id %}" class="button-text-delete">Confirm</a>
+          <a x-show="delete{{ loop_id }}" x-cloak
+             hx-delete="{% url 'delete_pdf' pdf.id %}"
+             hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+             class="button-text-delete cursor-pointer">Confirm
+          </a>
           <button x-show="delete{{ loop_id }}" x-cloak @click="delete{{ loop_id }} = false" type="button" class="button-text-delete">Cancel</button>
           <button x-show="!delete{{ loop_id }}" @click="delete{{ loop_id }} = true" type="button" class="button-text">Delete</button>
         </div>

@@ -12,13 +12,16 @@
 </content>
 
 <script>
-  function append_seach_query()
+
+  // function for updating the search query specified by the searchbar input
+  function update_search_query()
   {
       var search_input = document.getElementById('search_input').value;
       var search_q = document.getElementById('search_q');
       search_q.value = search_input;
   }
 
+  // function for getting the current sorting
   function get_active_sorting(sorting_string)
   {
     if (sorting_string === "") {
@@ -29,6 +32,7 @@
     }
   }
 
+  // function for combining the url and its query to a single url
   function combine_url_query(url, query) {
     return `${url}${query}`;
   }
@@ -40,6 +44,7 @@
     return search_string;
   }
 
+  // function for constructing the url query string from the search and sorting strings
   function construct_query_string(search_string, sorting_string)
   {
     search_string = prepare_search_string(search_string);

@@ -7,6 +7,8 @@ from .models import Profile
 
 @receiver(post_save, sender=User)
 def user_postsave(sender, instance, created, **kwargs):
+    """Create the corresponding django user if a profile is created."""
+
     user = instance
 
     # add profile if user is created
@@ -25,6 +27,3 @@ def user_postsave(sender, instance, created, **kwargs):
         except:
             # if allauth emailaddress doesn't exist create one
             EmailAddress.objects.create(user=user, email=user.email, primary=True, verified=False)
-
-
-# predsave also possible, in example used for lower case username  into db

@@ -9,6 +9,8 @@ from users.models import Profile
 
 
 class Tag(models.Model):
+    """The model for the tags used for organizing PDF files."""
+
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     name = models.CharField(max_length=50, null=True, blank=False)
     owner = models.ForeignKey(Profile, on_delete=models.CASCADE)
@@ -30,6 +32,8 @@ class Tag(models.Model):
 
 
 def get_file_path(instance, _):
+    """Get the file path for a PDF by generating a UUID and using the user id. File paths are user_id/<uuid>.pdf"""
+
     file_name = f'{uuid4()}.pdf'
     file_path = '/'.join([str(instance.owner.user.id), file_name])
 
@@ -37,6 +41,8 @@ def get_file_path(instance, _):
 
 
 class Pdf(models.Model):
+    """Model for the pdf files."""
+
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     owner = models.ForeignKey(Profile, on_delete=models.CASCADE)
     name = models.CharField(max_length=50, null=True, blank=False)
@@ -50,7 +56,12 @@ class Pdf(models.Model):
         return self.name
 
     @property
-    def now(self):
+    def natural_age(self) -> str:
+        """
+        Get the natural age of a file. This converts the creation date to a natural age,
+        e.g: 2 minutes, 1 hour,  2 months, etc
+        """
+
         natural_time = naturaltime(self.creation_date)
 
         if ',' in natural_time:

@@ -96,9 +96,17 @@
 </div>
 
 <div class="flex justify-between py-8">
+    {% if "q=" in request.META.HTTP_REFERER %}
     <a href="{{ request.META.HTTP_REFERER }}" class="text-md !font-bold text-green-400 hover:text-green-500">Back</a>
+    {% else %}
+    <a href="{% url 'pdf_overview' %}" class="text-md !font-bold text-green-400 hover:text-green-500">Back</a>
+    {% endif %}
     <div x-data="{ delete_pdf: false }" class="pr-4">
-        <a x-show="delete_pdf" x-cloak href="{% url 'delete_pdf' pdf.id %}" class="button-text-delete !font-bold">Confirm</a>
+        <a x-show="delete_pdf" x-cloak
+          hx-delete="{% url 'delete_pdf' pdf.id %}"
+          hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+          class="button-text-delete cursor-pointer !font-bold">Confirm
+        </a>
         <button x-show="delete_pdf" x-cloak @click="delete_pdf = false" type="button" class="button-text-delete !font-bold">Cancel</button>
         <button x-show="!delete_pdf" @click="delete_pdf = true" type="button" class="button-text-delete !font-bold">Delete</button>
     </div>

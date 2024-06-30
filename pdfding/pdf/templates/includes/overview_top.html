@@ -7,13 +7,13 @@
                 type="text" placeholder="Search for words or #tags"
                 value="{{ raw_search_query }}"
                 id="search_input"
-                @keyup.enter="append_seach_query(); document.getElementById('search_form').submit()"/>
+                @keyup.enter="update_search_query(); document.getElementById('search_form').submit()"/>
         <form action="{% url 'pdf_overview' %}" method="GET" id="search_form">
         <input type="hidden" name=q value='' id="search_q">
         {% if sorting_query %}
         <input type="hidden" name=sort value="{{ sorting_query }}">
         {% endif %}
-        <button @click="append_seach_query" type="submit"
+        <button @click="update_search_query" type="submit"
                 class="button h-10 !rounded-l-none !rounded-md !item-center !py-2 !px-2"
                 style="display:inline-block">
             <img src="{% static 'images/search.svg' %}" width="35">

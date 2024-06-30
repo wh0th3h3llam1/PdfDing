@@ -5,6 +5,9 @@ from pdf.models import Pdf
 
 @receiver(pre_delete, sender=Pdf)
 def delete_orphan_tag(sender, instance, **kwargs):
+    """
+    Makes sure that there are no orphaned tags. If a tag is only used in a pdf object that is deleted, the tag will
+    be deleted as well."""
     pdf = instance
 
     for tag in pdf.tags.all():

@@ -8,6 +8,8 @@ from .forms import *
 
 @login_required
 def profile_settings_view(request):
+    """View for the profile settings page"""
+
     uses_social = request.user.socialaccount_set.exists()
 
     return render(request, 'profile_settings.html', {'uses_social': uses_social})
@@ -15,6 +17,10 @@ def profile_settings_view(request):
 
 @login_required
 def profile_emailchange(request):
+    """
+    View for changing the email address. For a htmx request this will load an email chage form as a partial. In case
+    of a post request the submitted email form will be processed.
+    """
 
     if request.htmx:
         form = EmailForm(instance=request.user)
@@ -33,8 +39,6 @@ def profile_emailchange(request):
 
             form.save()
 
-            # Then Signal updates emailaddress and set verified to False
-
             # Then send confirmation email
             send_email_confirmation(request, request.user)
 
@@ -47,13 +51,9 @@ def profile_emailchange(request):
 
 
 @login_required
-def profile_emailverify(request):
-    send_email_confirmation(request, request.user)
-    return redirect('profile-settings')
-
-
-@login_required
 def profile_delete(request):
+    """View for deleting a user profile."""
+
     user = request.user
     if request.method == "POST":
         logout(request)
