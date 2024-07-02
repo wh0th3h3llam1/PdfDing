@@ -8,12 +8,13 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.12"
 django = "==5.0.6"
-django-allauth = {extras = ["socialaccount","mfa"], version = "==0.63.3"}
+django-allauth = {extras = ["socialaccount"], version = "==0.63.3"}
 django-cleanup = "==8.1.0"
 django-htmx = "==1.17.3"
 
 [tool.poetry.group.dev.dependencies]
 black = "==24.4.2"
+flake8 = "==7.1.0 "
 
 [tool.black]
 line-length = 120
@@ -32,6 +33,9 @@ exclude = '''
   | dist
 )/
 '''
+
+[flake8]
+max-line-length = 120
 
 [build-system]
 requires = ["poetry-core"]

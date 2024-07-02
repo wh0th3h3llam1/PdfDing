@@ -1,0 +1,8 @@
+# Ignore everything
+
+pdfding/db.sqlite3
+pdfding/media
+
+pdfding/static/js
+pdfding/static/css/*
+!pdfding/static/css/input.css

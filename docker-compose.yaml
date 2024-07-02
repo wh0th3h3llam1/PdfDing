@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  pdfding:
+    container_name: pdfding
+    # # image: registry.gitlab.com/mrmn11/secure-note/frontend-image
+    build:
+      dockerfile: Dockerfile
+#    command: tail -f /dev/null
+#    command: gunicorn --config backend/gunicorn-config.py backend.wsgi:app
+    ports:
+      - 5000:5000

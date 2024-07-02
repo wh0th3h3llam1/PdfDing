@@ -1,9 +1,11 @@
 **/__pycache__/
 .idea/
 
-pdfding/core/settings.py
-pdfding/db.sqlite3
-pdfding/media
-pyproject copy.toml
 notes.md
+
+pdfding/db.sqlite3
+pdfding/media/
+pdfding/static/css/*
+!pdfding/static/css/input.css
 pdfding/static/js
+pdfding/core/settings.py

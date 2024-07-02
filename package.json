@@ -1,0 +1,16 @@
+{
+  "dependencies": {
+    "alpinejs": "3.14.1",
+    "jquery": "3.7.1",
+    "htmx.org": "1.9.12",
+    "pdfjs-dist": "4.3.136",
+    "tailwindcss": "3.4.4"
+  },
+  "scripts": {
+    "build:alpine": "cp node_modules/alpinejs/dist/cdn.min.js ./js/alpine.min.js",
+    "build:htmx": "cp node_modules/htmx.org/dist/htmx.min.js ./js/htmx.min.js",
+    "build:jquery": "cp node_modules/jquery/dist/jquery.min.js ./js/jquery.min.js",
+    "build:pdfjs": "cd node_modules/pdfjs-dist/build && rm pdf.mjs pdf.sandbox.mjs pdf.worker.mjs && cp * /build/js/",
+    "build": "npm run build:alpine && npm run build:htmx && npm run build:jquery && npm run build:pdfjs"
+  }
+}
