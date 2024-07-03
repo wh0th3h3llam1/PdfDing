@@ -9,7 +9,7 @@ from .forms import EmailForm
 
 
 @login_required
-def profile_settings_view(request):
+def settings(request):
     """View for the profile settings page"""
 
     uses_social = request.user.socialaccount_set.exists()
@@ -18,7 +18,7 @@ def profile_settings_view(request):
 
 
 @login_required
-def profile_emailchange(request):
+def change_email(request):
     """
     View for changing the email address. For a htmx request this will load an email chage form as a partial. In case
     of a post request the submitted email form will be processed.
@@ -53,7 +53,7 @@ def profile_emailchange(request):
 
 
 @login_required
-def profile_delete(request):
+def delete(request):
     """View for deleting a user profile."""
 
     user = request.user

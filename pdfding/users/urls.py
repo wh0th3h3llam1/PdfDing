@@ -1,8 +1,8 @@
 from django.urls import path
-from users.views import profile_delete, profile_emailchange, profile_settings_view
+from users.views import delete, change_email, settings
 
 urlpatterns = [
-    path('settings', profile_settings_view, name="profile-settings"),
-    path('emailchange', profile_emailchange, name="profile-emailchange"),
-    path('delete', profile_delete, name="profile-delete"),
+    path('settings', settings, name="profile-settings"),
+    path('change_email', change_email, name="profile-emailchange"),
+    path('delete', delete, name="profile-delete"),
 ]
