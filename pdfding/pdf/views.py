@@ -8,8 +8,8 @@ from django_htmx.http import HttpResponseClientRefresh, HttpResponseClientRedire
 from django.views.static import serve
 from django.urls import reverse
 
-from .forms import *
-from .models import Tag
+from .forms import AddForm, get_detail_form_class
+from .models import Pdf, Tag
 from core.settings import MEDIA_ROOT
 
 

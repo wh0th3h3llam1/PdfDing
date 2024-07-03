@@ -2,9 +2,7 @@ from uuid import uuid4
 
 from django.db import models
 from django.contrib.humanize.templatetags.humanize import naturaltime
-from django.templatetags.static import static
 
-from core.settings import MEDIA_ROOT
 from users.models import Profile
 
 

@@ -6,4 +6,4 @@ class PdfConfig(AppConfig):
     name = 'pdf'
 
     def ready(self):
-        import pdf.signals
+        import pdf.signals  # noqa: F401

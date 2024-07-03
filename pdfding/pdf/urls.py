@@ -1,5 +1,16 @@
 from django.urls import path
-from pdf.views import *
+from pdf.views import (
+    add_pdf_view,
+    current_page_view,
+    delete_pdf_view,
+    download_pdf_view,
+    pdf_details_view,
+    pdf_edit_view,
+    pdf_overview,
+    serve_pdf,
+    update_page_view,
+    view_pdf_view,
+)
 
 urlpatterns = [
     path('', pdf_overview, name='pdf_overview'),
