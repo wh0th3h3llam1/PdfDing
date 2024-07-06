@@ -1,0 +1,220 @@
+﻿{% load static %}
+<!DOCTYPE html>
+<html dir="ltr" mozdisallowselectionprint>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="google" content="notranslate">
+    <title>PdfDing</title>
+    <script src="../../static/pdf/build/pdf.mjs" type="module"></script>
+    <link rel="stylesheet" href="../../static/pdf/web/viewer.css">
+    <script src="../../static/pdf/web/viewer.mjs" type="module"></script>
+    <script>
+        window.addEventListener('load', function() {
+            PDFViewerApplication.open({ url: "{% url 'serve_pdf' pdf_id %}" });
+        });
+    </script>
+    <script>
+      document.addEventListener("webviewerloaded", () => {
+        PDFViewerApplicationOptions.set('disablePreferences', true);
+        PDFViewerApplicationOptions.set('disableHistory', true);
+        PDFViewerApplicationOptions.set("workerSrc", "{% static 'pdf/build/pdf.worker.mjs' %}");
+      });
+    </script>
+    <style>
+      select:hover option:hover {
+          background-color: red !important;
+          color: white !important;
+      }
+      :root{
+        --body-bg-color:rgb(255 255 255); /* background around pdf, sets also sidebar color!*/
+        --button-hover-color: rgb(74 222 128);  /* button hover */
+        --main-color:rgb(255 255 255);   /* main text */
+        --toolbar-bg-color:rgb(54 52 64);  /* toolbar color */
+        --toolbar-icon-bg-color:rgb(255 255 255);  /* toolbar icon image color */
+        --toolbar-icon-hover-bg-color:rgb(255 255 255);  /* toolbar icon hover image color */
+        --toggled-btn-color:rgb(255 255 255);  /* toolbar icon selected color */
+        --field-bg-color:rgb(64 64 67);  /* input field bg color */
+        --field-color:rgb(255 255 255);  /* input field text color */
+        --field-border-color:rgb(115 115 115);  /* input field bordercolor */
+        --progressBar-bg-color:rgb(40 40 43);  /* progressbar background color */
+        --progressBar-color:rgb(74 222 128);  /* progressbar color */
+        --dropdown-btn-bg-color:rgb(64 64 67);  /* dropdown button color */
+        --toggled-btn-bg-color:rgb(74 222 128 / 0.9);  /* dropdown toggled color */
+        --sidebar-toolbar-bg-color:rgb(54 52 64);  /* sidebar toolbar bg color */
+        --scrollbar-bg-color:rgb(255 255 255);  /* scrollbar background color */
+        --scrollbar-color:rgb(74 222 128);  /* scroll indicator color */
+        --toolbar-border-color:rgb(54 52 64);  /* toolbar bottom separator color */
+        --treeitem-color:rgb(54 52 64);  /* table of contents text color */
+        --treeitem-hover-color:rgb(74 222 128);  /* table of contents hover text color */
+        --treeitem-selected-color:rgb(74 222 128);  /* table of contents selected text color */
+        --treeitem-selected-bg-color:rgb(255 255 255);  /* table of contents selected bg color */
+        --treeitem-bg-color:rgb(255 255 255);   ;  /* table of contents bg color */
+        --thumbnail-hover-color:rgb(74 222 128 / 0.3);  /* thumbnail hover bg color */
+        --thumbnail-selected-color:rgb(74 222 128 / 0.7);  /* thumbnail selected bg color */
+      }
+      .textLayer .highlight {
+        --highlight-bg-color: rgb(74 222 128 / 0.2);  /* thumbnail hover bg color */
+        --highlight-selected-bg-color: rgb(74 222 128 / 0.5);  /* thumbnail hover bg color */
+      }
+      .button1 {
+        background-color:rgb(54 52 64);
+        border-width: 0px;
+        margin: 2px 1px;
+        padding: 3px 4px 0;
+      }
+      .button1:hover {
+        background-color: rgb(74 222 128);
+        border-radius: 2px
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="outerContainer">
+      <div id="sidebarContainer">
+        <div id="toolbarSidebar">
+          <div id="toolbarSidebarLeft">
+            <div id="sidebarViewButtons" class="splitToolbarButton toggled">
+              <button id="viewThumbnail" class="toolbarButton toggled"></button>
+              <button id="viewOutline" class="toolbarButton"></button>
+            </div>
+          </div>
+        </div>
+        <div id="sidebarContent">
+          <div id="thumbnailView">
+          </div>
+          <div id="outlineView" class="hidden">
+          </div>
+        </div>
+        <div id="sidebarResizer"></div>
+      </div>
+      <div id="mainContainer">
+        <div class="findbar hidden doorHanger" id="findbar">
+          <div id="findbarInputContainer">
+            <span class="loadingInput end">
+              <input id="findInput" class="toolbarField" placeholder="Search for">
+            </span>
+            <div class="splitToolbarButton">
+              <button id="findPrevious" class="toolbarButton"></button>
+              <div class="splitToolbarButtonSeparator"></div>
+              <button id="findNext" class="toolbarButton"></button>
+            </div>
+          </div>
+          <div id="findbarOptionsOneContainer">
+            <input type="checkbox" id="findHighlightAll" class="toolbarField">
+            <label for="findHighlightAll" class="toolbarLabel">Highlight All</label>
+            <input type="checkbox" id="findMatchCase" class="toolbarField">
+            <label for="findMatchCase" class="toolbarLabel">Match Case</label>
+          </div>
+          <div id="findbarOptionsTwoContainer">
+            <input type="checkbox" id="findMatchDiacritics" class="toolbarField">
+            <label for="findMatchDiacritics" class="toolbarLabel">Match Diacritics</label>
+            <input type="checkbox" id="findEntireWord" class="toolbarField">
+            <label for="findEntireWord" class="toolbarLabel">Whole Words</label>
+          </div>
+          <div id="findbarMessageContainer">
+            <span id="findResultsCount" class="toolbarLabel"></span>
+            <span id="findMsg" class="toolbarLabel"></span>
+          </div>
+        </div>
+        <div class="toolbar">
+          <div id="toolbarContainer">
+            <div id="toolbarViewer">
+              <div id="toolbarViewerLeft">
+                <button id="sidebarToggle" class="toolbarButton"></button>
+                <div class="toolbarButtonSpacer"></div>
+                <button id="viewFind" class="toolbarButton"></button>
+                <div class="toolbarButtonSpacer"></div>
+                <div class="splitToolbarButton">
+                  <button id="zoomOut" class="toolbarButton"></button>
+                  <div class="splitToolbarButtonSeparator"></div>
+                  <button id="zoomIn" class="toolbarButton"></button>
+                </div>
+                <div class="toolbarButtonSpacer"></div>
+                <span id="scaleSelectContainer" class="dropdownToolbarButton">
+                  <select id="scaleSelect">
+                    <option id="pageAutoOption" value="auto" selected="selected">Automatic Zoom</option>
+                    <option id="pageFitOption" value="page-fit">Page Fit</option>
+                    <option id="customScaleOption" value="custom" disabled="disabled" hidden="true" data-l10n-id="pdfjs-page-scale-percent" data-l10n-args='{ "scale": 0 }'>0%</option>
+                    <option value="0.5">50%</option>
+                    <option value="0.75">75%</option>
+                    <option value="1">100%</option>
+                    <option value="1.25">125%</option>
+                    <option value="1.5">150%</option>
+                    <option value="2">200%</option>
+                  </select>
+                </span>
+                <div class="toolbarButtonSpacer"></div>
+                <div class="toolbarButtonSpacer"></div>
+                <img src="../../static/images/logo.svg" width="22" style="opacity: 0.9;padding: 3px 4px 0;margin: 2px 1px;">
+                <span class="toolbarLabel hiddenSmallView" style="font-size: medium;font-weight: bold">PdfDing</span>
+              </div>
+              <div id="toolbarViewerRight">
+                <button onclick="location.href='{% url 'download_pdf' pdf_id %}'" class="button1">
+                  <img src="../../static/images/download.svg" width="22" style="opacity: 0.6">
+                </button>
+                {% if 'view' in request.META.HTTP_REFERER %}
+                <button onclick="location.href='{% url 'pdf_overview' %}'" class="button1">
+                {% else %}
+                <button onclick="history.back()" class="button1">
+                {% endif %}
+                  <img src="../../static/images/close_white.svg" width="22" style="opacity: 0.6">
+                </button>
+              </div>
+              <div id="toolbarViewerMiddle">
+                <div class="splitToolbarButton hiddenSmallView">
+                  <button class="toolbarButton" id="previous"></button>
+                  <div class="splitToolbarButtonSeparator"></div>
+                  <button class="toolbarButton" id="next"></button>
+                </div>
+                <span class="loadingInput start">
+                  <input type="number" id="pageNumber" class="toolbarField" value="1" min="1" autocomplete="off">
+                </span>
+                <span id="numPages" class="toolbarLabel"></span>
+              </div>
+            </div>
+            <div id="loadingBar">
+              <div class="progress">
+                <div class="glimmer">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="viewerContainer">
+          <div id="viewer" class="pdfViewer"></div>
+        </div>
+      </div>
+      <div id="dialogContainer">
+        <dialog id="passwordDialog">
+          <div class="row">
+            <label for="password" id="passwordText">Enter the password</label>
+          </div>
+          <div class="row">
+            <input type="password" id="password" class="toolbarField">
+          </div>
+          <div class="buttonRow">
+            <button id="passwordCancel" class="dialogButton"><span>Cancel</span></button>
+            <button id="passwordSubmit" class="dialogButton"><span>OK</span></button>
+          </div>
+        </dialog>
+      </div>
+    </div>
+  </body>
+
+  <div id="currentOutlineItem"></div><div id="secondaryOpenFile"></div><div id="secondaryDownload"></div>
+  <div id="presentationMode"></div><div id="viewBookmark"></div><div id="firstPage"></div><div id="lastPage"></div>
+  <div id="pageRotateCcw"></div><div id="pageRotateCw"></div><div id="cursorSelectTool"></div>
+  <div id="cursorHandTool"></div><div id="scrollHorizontal"></div><div id="scrollVertical"></div>
+  <div id="scrollPage"></div><div id="scrollWrapped"></div><div id="spreadNone"></div><div id="spreadOdd"></div>
+  <div id="spreadEven"></div><div id="documentProperties"></div><div id="editorFreeTextColor"></div>
+  <div id="editorFreeTextFontSize"></div><div id="editorHighlightShowAll"></div><div id="altTextDialog"></div>
+  <div id="documentPropertiesDialog"></div><div id="documentPropertiesClose"></div>
+  <div id="secondaryToolbarToggle"></div><div id="editorStampAddImage"></div><div id="editorStamp"></div>
+  <div id="print"></div><div id="secondaryPrint"></div><div id="viewAttachments"></div><div id="viewLayers"></div>
+  <div id="editorInk"></div><div id="editorInkColor"></div><div id="editorInkThickness"></div>
+  <div id="editorInkOpacity"></div><div id="editorFreeText"></div><div id="download"></div>
+  <div id="editorHighlight"></div><div id="altTextCancel"></div><div id="altTextSave"></div>
+  <div id="decorativeButton"></div><div id="descriptionButton"></div><div id="editorFreeHighlightThickness"></div>
+</html>

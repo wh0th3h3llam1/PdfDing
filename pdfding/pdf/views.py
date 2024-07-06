@@ -98,7 +98,7 @@ class View(BasePdfView):
 
         self.get_pdf(request, pdf_id)
 
-        return render(request, 'view_pdf.html', {'pdf_id': pdf_id})
+        return render(request, 'viewer.html', {'pdf_id': pdf_id})
 
 
 class Add(BasePdfView):
