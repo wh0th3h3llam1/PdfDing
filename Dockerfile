@@ -1,16 +1,26 @@
 # The frontend build image , used to create the css and js files
 FROM node:22.3.0-bookworm-slim as npm-build
 
+ARG PDFJS_VERSION=4.4.168
+
 WORKDIR /build
 
 COPY package.json package-lock.json tailwind.config.js ./
 COPY pdfding ./pdfding
 
+RUN apt-get update && apt-get install curl unzip -y
+# get pdfjs
+RUN curl -L https://github.com/mozilla/pdf.js/releases/download/v$PDFJS_VERSION/pdfjs-$PDFJS_VERSION-dist.zip > pdfjs.zip
+RUN unzip pdfjs.zip -d pdfjs
+RUN rm -rf pdfjs/web/locale pdfjs/web/standard_fonts pdfjs/web/compressed.tracemonkey-pldi-09.pdf
+# get other dependecies
 RUN mkdir ./js && mkdir ./css
-RUN npm ci
-RUN npm run build
+RUN npm ci && npm run build
 RUN npx tailwindcss -i pdfding/static/css/input.css -o css/tailwind.css -c tailwind.config.js --minify
-RUN rm pdfding/static/css/input.css && mv -t pdfding/static js css
+# minify pdfjs js files
+RUN for i in pdfjs/build/pdf.mjs pdfjs/build/pdf.sandbox.mjs pdfjs/build/pdf.worker.mjs pdfjs/web/viewer.mjs; \
+    do npx terser $i --compress -o $i; done
+RUN rm pdfding/static/css/input.css && mv -t pdfding/static js css pdfjs
 
 # The build image, used to build the virtual python environment
 FROM python:3.12.4-slim as python-build

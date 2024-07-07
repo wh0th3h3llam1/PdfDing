@@ -10,5 +10,5 @@ pdfding/media/
 pdfding/static/css/*
 !pdfding/static/css/input.css
 pdfding/static/js
-pdfding/static/pdf
+pdfding/static/pdfjs
 pdfding/core/settings.py

@@ -5,10 +5,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <meta name="google" content="notranslate">
-    <script src="../../static/pdf/build/pdf.mjs" type="module"></script>
-    <link rel="stylesheet" href="../../static/pdf/web/viewer.css">
+    <script src="../../static/pdfjs/build/pdf.mjs" type="module"></script>
+    <link rel="stylesheet" href="../../static/pdfjs/web/viewer.css">
     <link rel="icon" type="image/x-icon" href="{% static "images/logo.svg" %}">
-    <script src="../../static/pdf/web/viewer.mjs" type="module"></script>
+    <script src="../../static/pdfjs/web/viewer.mjs" type="module"></script>
     <script src="../../static/js/jquery.min.js"></script>
     <script>
       // get the start page
@@ -29,7 +29,7 @@
         PDFViewerApplicationOptions.set('disablePreferences', true); // needed otherwise settings are not overwritten
         PDFViewerApplicationOptions.set('disableHistory', true); // disable browsing history, clicking on chapters does not open new page
         PDFViewerApplicationOptions.set('viewOnLoad', 1  ); // disable remembering page
-        PDFViewerApplicationOptions.set("workerSrc", "{% static 'pdf/build/pdf.worker.mjs' %}");
+        PDFViewerApplicationOptions.set("workerSrc", "{% static 'pdfjs/build/pdf.worker.mjs' %}");
         PDFViewerApplicationOptions.set("defaultUrl", "PdfDing"); // otherwise compressed... is shown in the title while loading
       });
 

@@ -6,3 +6,4 @@ pdfding/media
 pdfding/static/js
 pdfding/static/css/*
 !pdfding/static/css/input.css
+pdfding/static/pdfjs
