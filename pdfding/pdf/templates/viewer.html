@@ -5,9 +5,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <meta name="google" content="notranslate">
-    <title>PdfDing</title>
     <script src="../../static/pdf/build/pdf.mjs" type="module"></script>
     <link rel="stylesheet" href="../../static/pdf/web/viewer.css">
+    <link rel="icon" type="image/x-icon" href="{% static "images/logo.svg" %}">
     <script src="../../static/pdf/web/viewer.mjs" type="module"></script>
     <script src="../../static/js/jquery.min.js"></script>
     <script>
@@ -19,6 +19,9 @@
       window.addEventListener('load', function() {
           PDFViewerApplication.initialBookmark = "page="+page_number;
           PDFViewerApplication.open({ url: "{% url 'serve_pdf' pdf_id %}" });
+          setTimeout(function() {
+              document.title = "PdfDing"
+          }, 2000);
       });
 
       // set properties
@@ -27,6 +30,7 @@
         PDFViewerApplicationOptions.set('disableHistory', true); // disable browsing history, clicking on chapters does not open new page
         PDFViewerApplicationOptions.set('viewOnLoad', 1  ); // disable remembering page
         PDFViewerApplicationOptions.set("workerSrc", "{% static 'pdf/build/pdf.worker.mjs' %}");
+        PDFViewerApplicationOptions.set("defaultUrl", "PdfDing"); // otherwise compressed... is shown in the title while loading
       });
 
       // check every 10 seconds if remote page needs updating
