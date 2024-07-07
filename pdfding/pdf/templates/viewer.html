@@ -9,17 +9,65 @@
     <script src="../../static/pdf/build/pdf.mjs" type="module"></script>
     <link rel="stylesheet" href="../../static/pdf/web/viewer.css">
     <script src="../../static/pdf/web/viewer.mjs" type="module"></script>
+    <script src="../../static/js/jquery.min.js"></script>
     <script>
-        window.addEventListener('load', function() {
-            PDFViewerApplication.open({ url: "{% url 'serve_pdf' pdf_id %}" });
-        });
-    </script>
-    <script>
+      // get the start page
+      var page_number;
+      get_current_page(async=false);
+
+      // open pdf on the start page
+      window.addEventListener('load', function() {
+          PDFViewerApplication.initialBookmark = "page="+page_number;
+          PDFViewerApplication.open({ url: "{% url 'serve_pdf' pdf_id %}" });
+      });
+
+      // set properties
       document.addEventListener("webviewerloaded", () => {
-        PDFViewerApplicationOptions.set('disablePreferences', true);
-        PDFViewerApplicationOptions.set('disableHistory', true);
+        PDFViewerApplicationOptions.set('disablePreferences', true); // needed otherwise settings are not overwritten
+        PDFViewerApplicationOptions.set('disableHistory', true); // disable browsing history, clicking on chapters does not open new page
+        PDFViewerApplicationOptions.set('viewOnLoad', 1  ); // disable remembering page
         PDFViewerApplicationOptions.set("workerSrc", "{% static 'pdf/build/pdf.worker.mjs' %}");
       });
+
+      // check every 10 seconds if remote page needs updating
+      setInterval(update_remote_page, 10000);
+
+      // function for updating the remote page
+      function update_remote_page() {
+        if (PDFViewerApplication.pdfViewer.currentPageNumber != page_number) {
+          page_number = PDFViewerApplication.pdfViewer.currentPageNumber
+          set_current_page(page_number)
+        }
+      }
+
+      // function for getting the page this pdf was last viewed on
+      function get_current_page(async=true) {
+        var response = $.ajax({
+            url: "{% url 'current_page' pdf_id %}",
+            dataType: 'json',
+            type: "GET",
+            async: async,
+            success: function (data) {
+              page_number = data.current_page;
+            },
+            failure: function (data) {
+              page_number = 1;
+            }
+        });
+      }
+
+      // function for updating the page this pdf was last viewed on
+      function set_current_page(current_page) {
+        $.ajax({
+            url: "{% url 'update_page'%}",
+            'data': {
+                'pdf_id': '{{ pdf_id }}',
+                'current_page': current_page,
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+            },
+            type: "POST",
+        });
+      }
     </script>
     <style>
       select:hover option:hover {
