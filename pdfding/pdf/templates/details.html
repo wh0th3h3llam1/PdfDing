@@ -5,8 +5,11 @@
             [&>div>div>div>span]:text-sm [&>div>div>div>span]:text-gray-500
             [&>div>div>div>a]:text-sm [&>div>div>div>a]:cursor-pointer [&>div>div>div>a]:text-green-400">
     <span class="text-3xl font-bold">{{ pdf.name }}</span>
-    <div class="!pb-6">
+    <div class="!pb-0 !border-none">
         <a href="{% url 'view_pdf' pdf.id %}" class="text font-bold text-indigo-800 hover:underline">{{ request.get_host }}{% url 'view_pdf' pdf.id %}</a>
+    </div>
+    <div>
+        <a href="{% url 'download_pdf' pdf.id %}" class="text-md !font-bold text-green-400 hover:text-green-500">Download</a>
     </div>
 
     <div>

@@ -14,31 +14,6 @@
         [x-cloak] { 
             display: none !important; 
         }
-        .pdfTextSelector{
-            position:absolute;
-            overflow:clip;
-            line-height:1;
-            -webkit-text-size-adjust:none;
-                -moz-text-size-adjust:none;
-                    text-size-adjust:none;
-            z-index:0;
-        }
-
-        .pdfTextSelector.highlighting{
-            touch-action:none;
-        }
-
-        .pdfTextSelector :is(span, br){
-            color:transparent;
-            position:absolute;
-            white-space:pre;
-            cursor:text;
-            transform-origin:0% 0%;
-        }
-
-        .pdfTextSelector ::selection{
-            background:rgba(74 222 128 / 0.3);
-        }
     </style>
 </head>
 <body class="{% block class %}{% endblock %}">
