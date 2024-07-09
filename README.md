@@ -24,7 +24,7 @@ Remembers current position - continue where you stopped reading
 * Every user can upload its own PDFs. There is no admin curating the content.
 
 ### Demo Video
-![](https://codeberg.org/mrmn/PdfDing/demo.gif)
+![Demo gif](demo.gif)
 
 ## Installation
 <hr>
