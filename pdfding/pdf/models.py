@@ -13,20 +13,21 @@ class Tag(models.Model):
     name = models.CharField(max_length=50, null=True, blank=False)
     owner = models.ForeignKey(Profile, on_delete=models.CASCADE)
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return str(self.name)
 
     @staticmethod
     def parse_tag_string(tag_string: str):
         if not tag_string:
             return []
+
         names = tag_string.strip().split(' ')
         # remove empty names, sanitize remaining names
         names = [name.strip() for name in names if name]
         # remove duplicates
         names = [name.replace('#', '').lower() for name in set(names)]
 
-        return names
+        return sorted(names)
 
 
 def get_file_path(instance, _):
@@ -51,7 +52,7 @@ class Pdf(models.Model):
     current_page = models.IntegerField(default=1)
 
     def __str__(self):
-        return self.name
+        return self.name  # pragma: no cover
 
     @property
     def natural_age(self) -> str:
@@ -63,6 +64,10 @@ class Pdf(models.Model):
         natural_time = naturaltime(self.creation_date)
 
         if ',' in natural_time:
-            return natural_time.split(sep=', ')[0]
+            natural_time = natural_time.split(sep=', ')[0]
         else:
-            return natural_time.replace(' ago', '')
+            natural_time = natural_time.replace(' ago', '')
+
+        # naturaltime will include space characters that will cause failed unit tests
+        # splitting and joining fixes that
+        return ' '.join(natural_time.split())

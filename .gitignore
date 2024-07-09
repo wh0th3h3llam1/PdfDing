@@ -2,13 +2,16 @@
 .idea/
 
 notes.md
-
 node_modules
 
 pdfding/db.sqlite3
+
 pdfding/media/
 pdfding/static/css/*
 !pdfding/static/css/input.css
 pdfding/static/js
 pdfding/static/pdfjs
+
 pdfding/core/settings.py
+
+pdfding/.coverage

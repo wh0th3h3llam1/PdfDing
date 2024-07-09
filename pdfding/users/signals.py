@@ -1,7 +1,8 @@
-from django.dispatch import receiver
-from django.db.models.signals import post_save
 from allauth.account.models import EmailAddress
 from django.contrib.auth.models import User
+from django.dispatch import receiver
+from django.db.models.signals import post_save
+
 from .models import Profile
 
 
@@ -13,9 +14,8 @@ def user_postsave(sender, instance, created, **kwargs):
 
     # add profile if user is created
     if created:
-        Profile.objects.create(
-            user=user,
-        )
+        Profile.objects.create(user=user)
+    # user email address was changed -> set it to unverified
     else:
         email_address = EmailAddress.objects.get_primary(user)
         if email_address.email != user.email:

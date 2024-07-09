@@ -13,8 +13,7 @@ def process_tag_names(tag_names: list[str], owner_profile: Profile) -> list[Tag]
         try:
             tag = Tag.objects.get(owner=owner_profile, name=tag_name)
         except Tag.DoesNotExist:
-            tag = Tag(name=tag_name, owner=owner_profile)
-            tag.save()
+            tag = Tag.objects.create(name=tag_name, owner=owner_profile)
 
         tags.append(tag)
 
