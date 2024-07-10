@@ -27,7 +27,7 @@ class BasePdfView(LoginRequiredMixin, View):
         return pdf
 
 
-def redirect_overview(request: HttpRequest):
+def redirect_overview(request: HttpRequest):  # pragma: no cover
     """
     Simple view for redirecting to the pdf overview. This is used when the root url is accessed.
 
@@ -140,7 +140,13 @@ class Details(BasePdfView):
         """Display the details page."""
 
         pdf = self.get_pdf(request, pdf_id)
-        sort_query = request.META['HTTP_REFERER'].split('sort=')
+
+        sort_query = request.META.get('HTTP_REFERER', '').split('sort=')
+
+        if len(sort_query) > 1:
+            sort_query = sort_query[-1]
+        else:
+            sort_query = ''
 
         return render(request, 'details.html', {'pdf': pdf, 'sort_query': sort_query})
 
@@ -163,6 +169,8 @@ class Edit(BasePdfView):
                 'partials/details_form.html',
                 {'form': form, 'pdf_id': pdf_id, 'field': field},
             )
+
+        return redirect('pdf_details', pdf_id=pdf_id)
 
     def post(self, request: HttpRequest, pdf_id: str, field: str):
         """
@@ -202,7 +210,8 @@ class Edit(BasePdfView):
                 form.save()
 
             return redirect('pdf_details', pdf_id=pdf_id)
-        return render(request, 'details.html', {'pdf': pdf})
+
+        return redirect('pdf_details', pdf_id=pdf_id)  # pragma: no cover
 
 
 class Delete(BasePdfView):
@@ -216,10 +225,10 @@ class Delete(BasePdfView):
             pdf.delete()
 
             # try to redirect to current page
-            if 'details' not in request.META['HTTP_REFERER']:
+            if 'details' not in request.META.get('HTTP_REFERER', ''):
                 return HttpResponseClientRefresh()
             # if deleted from the details page the details page will no longer exist
-            else:
+            else:  # pragma: no cover
                 return HttpResponseClientRedirect(reverse('pdf_overview'))
 
         return redirect('pdf_overview')

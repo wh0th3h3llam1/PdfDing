@@ -63,7 +63,7 @@ class ChangeEmail(BaseUserView):
 class Delete(BaseUserView):
     """View for deleting a user profile."""
 
-    def get(self, request: HttpRequest):   # pragma: no cover
+    def get(self, request: HttpRequest):  # pragma: no cover
         """Display the page for deleting the user"""
 
         return render(request, 'profile_delete.html')

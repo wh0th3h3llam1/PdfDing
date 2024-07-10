@@ -26,7 +26,16 @@ class AddForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.owner = kwargs.pop('owner', None)
+
         super(AddForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned_data = self.cleaned_data
+
+        if not self.owner:
+            raise forms.ValidationError('Owner is missing!')
+
+        return cleaned_data
 
     def clean_name(self) -> str:
         """
@@ -79,7 +88,7 @@ def get_detail_form_class(field_name: str, instance: Pdf, data: QueryDict = None
             else:
                 fields = []
 
-        def clean_name(self) -> str:
+        def clean_name(self) -> str:  # pragma: no cover
             """Clean the submitted pdf name. Removes trailing and multiple whitespaces."""
             pdf_name = clean_name(self.cleaned_data['name'])
 

@@ -43,9 +43,9 @@ class Pdf(models.Model):
     """Model for the pdf files."""
 
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    owner = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    owner = models.ForeignKey(Profile, on_delete=models.CASCADE, blank=False)
     name = models.CharField(max_length=50, null=True, blank=False)
-    file = models.FileField(upload_to=get_file_path)
+    file = models.FileField(upload_to=get_file_path, blank=False)
     description = models.TextField(null=True, blank=True, help_text='Optional')
     creation_date = models.DateTimeField(blank=False, editable=False, auto_now_add=True)
     tags = models.ManyToManyField(Tag, blank=True)
