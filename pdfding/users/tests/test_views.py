@@ -15,11 +15,7 @@ class TestProfileViews(TestCase):
 
     def setUp(self):
         self.client = Client()
-
-        # this will not create an email address object
         self.user = User.objects.create_user(username=self.username, password=self.password, email='a@a.com')
-        # so we need to create it
-        EmailAddress.objects.create(user=self.user, email=self.user.email, primary=True, verified=True)
 
     def test_login_required(self):
         response = self.client.get(reverse('profile-settings'))

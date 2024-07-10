@@ -12,11 +12,7 @@ from pdf.models import Pdf, Tag
 class TestForms(TestCase):
     def setUp(self):
         self.client = Client()
-
-        # this will not create an email address object
         self.user = User.objects.create_user(username='user', password='12345', email='a@a.com')
-        # so we need to create it
-        EmailAddress.objects.create(user=self.user, email=self.user.email, primary=True, verified=True)
 
     def test_add_form_valid(self):
         file_mock = mock.MagicMock(spec=File, name='FileMock')
