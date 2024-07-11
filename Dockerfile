@@ -56,7 +56,9 @@ RUN apt-get update \
 ARG USERNAME=nonroot
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
-RUN groupadd --gid $USER_GID $USERNAME && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME
+RUN groupadd --gid $USER_GID $USERNAME \
+     && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
+     && mkdir /home/$USERNAME/tmp && chown $USER_UID:$USER_GID /home/$USERNAME/tmp
 
 ENV PYTHONUNBUFFERED=1
 ENV VIRTUAL_ENV=/home/$USERNAME/.venv  PATH="/home/$USERNAME/.venv/bin:$PATH"
