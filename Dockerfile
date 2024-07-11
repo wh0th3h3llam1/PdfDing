@@ -6,6 +6,7 @@ ARG PDFJS_VERSION=4.4.168
 WORKDIR /build
 
 COPY package.json package-lock.json tailwind.config.js ./
+# pdfding is needed as tailwind creates the css files based on pdfding's html files
 COPY pdfding ./pdfding
 
 RUN apt-get update && apt-get install curl unzip -y
@@ -38,24 +39,34 @@ COPY pyproject.toml poetry.lock ./
 
 RUN poetry install --without dev --no-root && rm -rf $POETRY_CACHE_DIR
 
+COPY --from=npm-build /build/pdfding pdfding
+# prepare the static files for production
+RUN poetry run pdfding/manage.py collectstatic
+# remove the static files in another location
+RUN rm -r pdfding/static/*
+
 # The runtime image, used to just run the code provided its virtual environment
 FROM python:3.12.4-slim as runtime
+
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y netcat-traditional \
+    && apt-get clean
 
 # add user for running the container as non-root
 ARG USERNAME=nonroot
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
-
-RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME
+RUN groupadd --gid $USER_GID $USERNAME && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME
 
 ENV PYTHONUNBUFFERED=1
 ENV VIRTUAL_ENV=/home/$USERNAME/.venv  PATH="/home/$USERNAME/.venv/bin:$PATH"
 
 COPY --from=python-build /app/.venv ${VIRTUAL_ENV}
-COPY --from=npm-build /build/pdfding /home/$USERNAME/pdfding
+COPY --chown=$USERNAME --from=python-build /app/pdfding /home/$USERNAME/pdfding
 
-WORKDIR /home/$USERNAME/pdfding
+WORKDIR /home/$USERNAME
+COPY --chmod=0555 bootstrap.sh ./
 
-ENTRYPOINT ["python", "manage.py", "runserver", "0.0.0.0:5000"]
+USER $USERNAME
 
+CMD ["./bootstrap.sh"]

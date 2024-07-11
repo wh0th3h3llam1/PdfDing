@@ -1,6 +1,14 @@
 # PdfDing
 <hr>
 
+## Overview
+
+- [Introduction](#introduction)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Tech Stack](#tech-stack)
+- [Acknowledements](#acknowledements)
+
 ## Introduction
 <hr>
 
@@ -28,6 +36,27 @@ Remembers current position - continue where you stopped reading
 
 ## Installation
 <hr>
+
+### Admin user
+
+## Configuration
+
+| Name                            | Description                                                                               | Default / Example                                           |
+|---------------------------------|-------------------------------------------------------------------------------------------|-------------------------------------------------------------|
+| `SECRET_KEY`                    | This value is the key to securing signed data. (Should be a large random value.)          | `long_secret`                                               |
+| `HOST_NAME`                     | The host/domain name where PdfDing will be reachable                                      | `pdfding.com`                                               |
+| `DATABASE_TYPE`                 | Specify which database type should be used                                                | `SQLITE` (or `POSTGRES`)                                    |
+| `POSTGRES_PASSWORD`             | The password for the postgres db                                                          | `password`                                                  |
+| `POSTGRES_PORT`                 | The port of the postgres db                                                               | `5432`                                                      |
+| `ACCOUNT_EMAIL_VERIFICATION`    | Block users until they have verified their email address                                  | `TRUE` (or `FALSE`)                                         |
+| `CSRF_COOKIE_SECURE`            | Set this to True to avoid transmitting the CSRF cookie over HTTP accidentally.            | `TRUE` (or `FALSE`)                                         |
+| `SESSION_COOKIE_SECURE`         | Set this to True to avoid transmitting the session cookie over HTTP accidentally.         | `TRUE` (or `FALSE`)                                         |
+| `OIDC_CLIENT_ID`                | PdfDing's OIDC client id. By setting this value OIDC will be activated.                   | `pdfding`                                                   |
+| `OIDC_CLIENT_SECRET`            | PdfDing's OIDC client secret. (Should be a large random value.)                           | `long_secret`                                               |
+| `OIDC_AUTH_URL`                 | Set this to True to avoid transmitting the session cookie over HTTP accidentally.         | `https://auth.pdfding.com/.well-known/openid-configuration` |
+| `OIDC_ONLY`                     | By setting this to `TRUE` users will only be able to authenticate using OIDC              | `FALSE` (or `TRUE`)                                         |
+| `ACCOUNT_DEFAULT_HTTP_PROTOCOL` | The default protocol for account related URLs, e.g. for the password forgotten procedure. | `https` (or `http`)                                         |
+
 
 ## Tech Stack
 * The web app is build using the Python web framework [Django](https://www.djangoproject.com/)

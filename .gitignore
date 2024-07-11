@@ -3,15 +3,13 @@
 
 notes.md
 node_modules
+dev.docker-compose.yaml
 
-pdfding/db.sqlite3
-
+pdfding/core/settings/dev_secrets.py
+pdfding/db/db.sqlite3
 pdfding/media/
 pdfding/static/css/*
 !pdfding/static/css/input.css
 pdfding/static/js
 pdfding/static/pdfjs
-
-pdfding/core/settings.py
-
 pdfding/.coverage

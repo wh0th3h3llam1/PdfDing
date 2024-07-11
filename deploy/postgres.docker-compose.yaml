@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+  pdfding:
+    container_name: pdfding
+    image: mrmn/pdfding:0.1.0
+    volumes:
+      - media:/home/nonroot/pdfding/media
+    environment:
+      SECRET_KEY: "some secret"
+      HOST_NAME: "pdfding.com"
+      CSRF_COOKIE_SECURE: "False"
+      SESSION_COOKIE_SECURE: "False"
+      OIDC_CLIENT_ID: "pdfding"
+      OIDC_CLIENT_SECRET: "client_secret"
+      OIDC_AUTH_URL: "https://auth.pdfding.com/.well-known/openid-configuration"
+      DATABASE_TYPE: 'POSTGRES'
+      POSTGRES_PASSWORD: 'pdfding'
+    ports:
+      - "8000:8000"
+
+  postgres:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_DB: pdfding
+      POSTGRES_USER: pdfding
+      POSTGRES_PASSWORD: pdfding
+      POSTGRES_PORT: 5432
+
+volumes:
+  media:
+  postgres_data:

@@ -1,11 +1,13 @@
-# Ignore everything
+dev.docker-compose.yaml
 
-pdfding/db.sqlite3
+pdfding/core/settings/dev_secrets.py
+pdfding/core/settings/dev.py
+pdfding/db/db.sqlite3
 pdfding/media
-
 pdfding/static/js
 pdfding/static/css/*
 !pdfding/static/css/input.css
 pdfding/static/pdfjs
 
-pdfding/**/tests/*
+**/tests/
+**/__pycache__/

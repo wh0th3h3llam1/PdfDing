@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  pdfding:
+    container_name: pdfding
+    image: mrmn/pdfding:0.1.0
+    volumes:
+      - sqlite_data:/home/nonroot/pdfding/db
+      - media:/home/nonroot/pdfding/media
+    environment:
+      SECRET_KEY: "some secret"
+      HOST_NAME: "pdfding.com"
+      CSRF_COOKIE_SECURE: "False"
+      SESSION_COOKIE_SECURE: "False"
+      # use this if you
+      OIDC_CLIENT_ID: "pdfding"
+      OIDC_CLIENT_SECRET: "client_secret"
+      OIDC_AUTH_URL: "https://auth.pdfding.com/.well-known/openid-configuration"
+    ports:
+      - "8000:8000"
+
+volumes:
+  sqlite_data:
+  media:

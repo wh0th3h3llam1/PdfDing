@@ -11,6 +11,9 @@ django = "==5.0.6"
 django-allauth = {extras = ["socialaccount"], version = "==0.63.3"}
 django-cleanup = "==8.1.0"
 django-htmx = "==1.17.3"
+gunicorn = "==22.0.0"
+psycopg2-binary = "==2.9.9"
+whitenoise = {extras = ["brotli"], version = "==6.7.0 "}
 
 [tool.poetry.group.dev.dependencies]
 black = "==24.4.2"
