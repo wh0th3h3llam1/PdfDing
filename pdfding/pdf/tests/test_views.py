@@ -182,9 +182,7 @@ class TestViews(TestCase):
 
         # follow=True is needed for getting the message
         response = self.client.post(
-            reverse('edit_pdf', kwargs={'pdf_id': pdf.id, 'field': 'name'}),
-            data={'name': 'pdf_2'},
-            follow=True
+            reverse('edit_pdf', kwargs={'pdf_id': pdf.id, 'field': 'name'}), data={'name': 'pdf_2'}, follow=True
         )
 
         message = list(response.context['messages'])[0]

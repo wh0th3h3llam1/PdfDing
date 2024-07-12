@@ -16,4 +16,4 @@ then
 fi
 
 python manage.py migrate
-python -m gunicorn --bind 0.0.0.0:8000 --workers 3 --worker-tmp-dir /home/nonroot/tmp core.wsgi:application
+python -m gunicorn --bind 0.0.0.0:8000 --workers 3 core.wsgi:application
