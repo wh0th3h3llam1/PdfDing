@@ -15,5 +15,7 @@ then
     echo "PostgreSQL started"
 fi
 
+HOST_PORT="${HOST_PORT:-8000}"
+
 python manage.py migrate
-python -m gunicorn --bind 0.0.0.0:8000 --workers 3 core.wsgi:application
+python -m gunicorn --bind 0.0.0.0:$HOST_PORT --workers 3 core.wsgi:application

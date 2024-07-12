@@ -34,6 +34,17 @@ if os.environ.get('SECURE_HSTS_SECONDS'):
     SECURE_HSTS_SECONDS = os.environ.get('SECURE_HSTS_SECONDS')
 
 # mail settings
+if os.environ.get('EMAIL_BACKEND') == 'SMTP':
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    EMAIL_HOST = os.environ.get('SMTP_HOST')
+    EMAIL_PORT = os.environ.get('SMTP_PORT', 587)
+    EMAIL_HOST_USER = os.environ.get('SMTP_USER')
+    EMAIL_HOST_PASSWORD = os.environ.get('SMTP_PASSWORD')
+    if os.environ.get('SMTP_USE_TLS') == 'TRUE':
+        EMAIL_USE_TLS = True
+    if os.environ.get('SMTP_USE_SSL') == 'TRUE':
+        EMAIL_USE_SSL = True
+
 DEFAULT_FROM_EMAIL = f'info@{ALLOWED_HOSTS}'
 
 # authentication settings
