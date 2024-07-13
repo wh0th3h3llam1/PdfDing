@@ -35,8 +35,8 @@ Remembers current position - continue where you stopped reading
 ![Demo gif](demo.gif)
 
 ## Installation
-PdfDing is designed to be run with container solutions like Docker. The Docker image is compatible with ARM platforms,
-so it can be run on a Raspberry Pi.
+PdfDing is designed to be run with container solutions like Docker. The Docker image is compatible with ARM64 platforms,
+so it can be run on a Raspberry Pi 4.
 
 PdfDing uses an SQLite database by default. Alternatively PdfDing supports PostgreSQL.
 
