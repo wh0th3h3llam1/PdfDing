@@ -1,6 +1,5 @@
 from unittest.mock import patch
 
-from allauth.account.models import EmailAddress
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django.test import Client, TestCase

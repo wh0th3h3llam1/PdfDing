@@ -1,6 +1,5 @@
 from unittest import mock
 
-from allauth.account.models import EmailAddress
 from django.contrib.auth.models import User
 from django.core.files import File
 from django.test import Client, TestCase

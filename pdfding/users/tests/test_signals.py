@@ -19,7 +19,7 @@ class TestSignals(TestCase):
         email_address = EmailAddress.objects.get_primary(user)
 
         with self.assertRaises(AttributeError):
-            t = email_address.email
+            email_address.email
 
         # check that email address object is created when saving:
         user.save()

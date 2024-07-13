@@ -1,7 +1,6 @@
 from pathlib import Path
 from unittest.mock import patch
 
-from allauth.account.models import EmailAddress
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.http.response import Http404, HttpResponse

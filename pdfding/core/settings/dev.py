@@ -1,7 +1,7 @@
-from .base import *
+from .base import *  # noqa: F401 F403
 
 try:
-    from .dev_secrets import *
+    from .dev_secrets import *  # noqa: F401 F403
 except ModuleNotFoundError:  # pragma: no cover
     pass
 

@@ -24,6 +24,6 @@ def user_postsave(sender, instance, created, **kwargs):
                 email_address.email = user.email
                 email_address.verified = False
                 email_address.save()
-        except:
+        except AttributeError:
             # if allauth emailaddress doesn't exist create one
             EmailAddress.objects.create(user=user, email=user.email, primary=True, verified=False)
