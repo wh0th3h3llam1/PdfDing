@@ -3,19 +3,20 @@ version: '3'
 services:
   pdfding:
     container_name: pdfding
-    image: mrmn/pdfding:0.1.0
+    image: mrmn/pdfding:latest
     volumes:
       - media:/home/nonroot/pdfding/media
     environment:
-      SECRET_KEY: "some secret"
-      HOST_NAME: "pdfding.com"
-      CSRF_COOKIE_SECURE: "False"
-      SESSION_COOKIE_SECURE: "False"
-      OIDC_CLIENT_ID: "pdfding"
-      OIDC_CLIENT_SECRET: "client_secret"
-      OIDC_AUTH_URL: "https://auth.pdfding.com/.well-known/openid-configuration"
-      DATABASE_TYPE: 'POSTGRES'
-      POSTGRES_PASSWORD: 'pdfding'
+      SECRET_KEY: some_secret
+      HOST_NAME: 127.0.0.1
+      CSRF_COOKIE_SECURE: FALSE
+      SESSION_COOKIE_SECURE: FALSE
+      DATABASE_TYPE: POSTGRES
+      POSTGRES_PASSWORD: pdfding
+#      # use this if you want to use OIDC
+#      OIDC_CLIENT_ID: "pdfding"
+#      OIDC_CLIENT_SECRET: "client_secret"
+#      OIDC_AUTH_URL: "https://auth.pdfding.com/.well-known/openid-configuration"
     ports:
       - "8000:8000"
 

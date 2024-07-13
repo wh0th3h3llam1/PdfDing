@@ -14,7 +14,7 @@
 
 PdfDing is a browser based PDF viewer that you can host yourself. It's designed be to be minimal, fast, and easy to 
 set up using Docker. 
-[base.html](pdfding%2Ftemplates%2Fbase.html)
+
 PdfDing was created because I was searching for a selfhostable browser based PDF viewer. However, the existing solution
 were (at least for my use case) too heavy and feature rich. Thus, I focused on making PDfDing a "simple" with a focus on
 a single thing: viewing PDFs. This is also why you won't find any fancy AI or OCR in this project.
@@ -40,17 +40,37 @@ so it can be run on a Raspberry Pi.
 
 PdfDing uses an SQLite database by default. Alternatively PdfDing supports PostgreSQL.
 
+## Using Docker
+
+To install PdfDing using Docker you can just run the image from [Docker Hub](https://hub.docker.com/r/mrmn/pdfding):
+
+```
+docker run --name pdfding \
+    -p 8000:8000 \
+    -v sqlite_data:/home/nonroot/pdfding/db -v media:/home/nonroot/pdfding/media \
+    -e HOST_NAME=127.0.0.1 -e SECRET_KEY=some_secret -e CSRF_COOKIE_SECURE=FALSE -e SESSION_COOKIE_SECURE=FALSE \
+    -d \
+    mrmn/pdfding:latest
+```
+
+If everything completed successfully, the application should now be running
+and can be accessed at http://127.0.0.1:8000.
+
 ### Using Docker Compose
 To install linkding using Docker Compose, you can use one of the files in the
-[deploy](https://codeberg.org/mrmn/PdfDing/src/branch/master/deploy) directory and running
-e.g. `docker-compose -d -f sqlite.docker-compose.yaml`
+[deploy](https://codeberg.org/mrmn/PdfDing/src/branch/master/deploy) directory and run e.g.:
+
+```
+docker-compose -d -f sqlite.docker-compose.yaml
+```
 
 ### Admin user
 If needed or wished it is possible to create an admin user. The admin user can view + delete users and pdfs at the
-`/admin` path.
-
-To give an user admin rights execute
-`python pdfding/manage.py make_admin -e admin@pdfding.com` with the appropriate email address.
+`/admin` path. To give an user admin rights execute
+```
+python pdfding/manage.py make_admin -e admin@pdfding.com
+```
+with the correct email address.
 
 ## Configuration
 ### `SECRET_KEY` 
@@ -167,13 +187,13 @@ The password used for logging into the SMTP server.
 Values: `FALSE`, `TRUE` | Default: `FALSE`
 
 Secure the connection to the SMTP server with TLS. Some SMTP servers support only one kind and
-some support both.
+some support both. Note that `SMTP_USE_TLS`/`SMTP_USE_SSL` are mutually exclusive.
 
 ### `EMAIL_USE_SSL`
 Values: `FALSE`, `TRUE` | Default: `FALSE`
 
 Secure the connection to the SMTP server with SSL. Some SMTP servers support only one kind and
-some support both.
+some support both. Note that `SMTP_USE_TLS`/`SMTP_USE_SSL` are mutually exclusive.
 
 
 

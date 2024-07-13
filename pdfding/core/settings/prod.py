@@ -45,7 +45,7 @@ if os.environ.get('EMAIL_BACKEND') == 'SMTP':
     if os.environ.get('SMTP_USE_SSL') == 'TRUE':
         EMAIL_USE_SSL = True
 
-DEFAULT_FROM_EMAIL = f'info@{ALLOWED_HOSTS}'
+DEFAULT_FROM_EMAIL = f'info@{ALLOWED_HOSTS[0]}'
 
 # authentication settings
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = os.environ.get('ACCOUNT_DEFAULT_HTTP_PROTOCOL', 'https')
