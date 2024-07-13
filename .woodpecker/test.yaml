@@ -1,0 +1,24 @@
+when:
+  - event: manual
+    evaluate: 'TAG == ""'
+  - event: pull_request
+    branch: master
+    evaluate: 'CI_COMMIT_AUTHOR == CI_REPO_OWNER'
+
+steps:
+  code-quality:
+    image: python:3.12.4-slim
+    commands:
+      - pip install poetry==1.8.3
+      - poetry install
+      - poetry run flake8
+      - poetry run black . --check
+
+  test:
+    image: python:3.12.4-slim
+    commands:
+      - pip install poetry==1.8.3
+      - poetry install
+      - cd pdfding
+      - poetry run coverage run manage.py test
+      - poetry run coverage report --fail-under 100
