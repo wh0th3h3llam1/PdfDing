@@ -12,8 +12,7 @@
 ## Introduction
 <hr>
 
-PdfDing is a browser based PDF viewer that you can host yourself. It's designed be to be minimal, fast, and easy to 
-set up using Docker. 
+PdfDing is a like a cloud for your PDF files that you can host yourself. With it you can manage your PDFs and seamlessly view them in the browser on multiple devices. It's designed be to be minimal, fast, and easy to set up using Docker. 
 
 PdfDing was created because I was searching for a selfhostable browser based PDF viewer. However, the existing solution
 were (at least for my use case) too heavy and feature rich. Thus, I focused on making PDfDing a "simple" with a focus on
