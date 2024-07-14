@@ -28,7 +28,8 @@
                     <img class="h-8 w-8 bg-white rounded-full object-cover" src="{{ user.profile.avatar }}"/>                    
                     <img class="rotate-90 w-5" x-bind:class="dropdownOpen && '-rotate-90 duration-300'" src="{% static "images/arrow_right.svg" %}"/>
                 </a>
-                <div x-show="dropdownOpen" x-cloak class="absolute md:right-0 bg-white text-black shadow rounded-lg w-52 p-2 z-20"
+                <div x-show="dropdownOpen" x-cloak
+                     class="absolute md:right-0 bg-white dark:bg-slate-700 text-black dark:text-slate-50 shadow rounded-lg w-52 p-2 z-20"
                 x-transition:enter="duration-300 ease-out"
                 x-transition:enter-start="opacity-0 -translate-y-5 scale-90"
                 x-transition:enter-end="opacity-100 translate-y-0 scale-100"

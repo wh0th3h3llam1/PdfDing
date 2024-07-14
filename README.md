@@ -12,11 +12,13 @@
 ## Introduction
 <hr>
 
-PdfDing is a like a cloud for your PDF files that you can host yourself. With it you can manage your PDFs and seamlessly view them in the browser on multiple devices. It's designed be to be minimal, fast, and easy to set up using Docker. 
+PdfDing is a like a cloud for your PDF files that you can host yourself. With it you can manage your PDFs and seamlessly
+view them in the browser on multiple devices. It's designed be to be minimal, fast, and easy to set up using Docker. 
 
 PdfDing was created because I was searching for a selfhostable browser based PDF viewer. However, the existing solution
-were (at least for my use case) too heavy and feature rich. Thus, I focused on making PDfDing a "simple" with a focus on
-a single thing: viewing PDFs. This is also why you won't find any fancy AI or OCR in this project.
+were (at least for my use case) too heavy and feature rich. Thus, I am developing PDfDing as a simple webapp with a
+clear focus on a single thing: viewing and managing PDFs. This is also why you won't find any fancy AI or OCR in this
+project.
 
 The name is a combination of PDF and *ding*. Ding is the German word for thing. Thus, PdfDing is a thing for
 your PDFs. The name and the design of PdfDing are inspired by [linkding](https://github.com/sissbruecker/linkding).
@@ -26,6 +28,7 @@ Linkding is an excellent selfhostable bookmark manager. If you are unfamiliar wi
 * Browser based PDF viewing
 * Organize PDFs with tags
 * Clean and responsive UI
+* Dark Mode
 Remembers current position - continue where you stopped reading
 * SSO support via OIDC
 * Every user can upload its own PDFs. There is no admin curating the content.

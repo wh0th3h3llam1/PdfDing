@@ -1,15 +1,15 @@
 {% extends 'layouts/box.html' %}
 {% block content %}
 <div class="w-full [&>div]:flex [&>div]:justify-between [&>div]:border-b [&>div]:py-4
-            [&>div>div>span]:font-bold [&>div>div>span]:text-gray-900
-            [&>div>div>div>span]:text-sm [&>div>div>div>span]:text-gray-500
+            [&>div>div>span]:font-bold [&>div>div>span]:text-gray-900 dark:[&>div>div>span]:text-slate-200
+            [&>div>div>div>span]:text-sm [&>div>div>div>span]:text-gray-500 dark:[&>div>div>div>span]:text-slate-300
             [&>div>div>div>a]:text-sm [&>div>div>div>a]:cursor-pointer [&>div>div>div>a]:text-green-400">
-    <span class="text-3xl font-bold">{{ pdf.name }}</span>
     <div class="!pb-0 !border-none">
-        <a href="{% url 'view_pdf' pdf.id %}" class="text font-bold text-indigo-800 hover:underline">{{ request.get_host }}{% url 'view_pdf' pdf.id %}</a>
+        <a href="{% url 'view_pdf' pdf.id %}" class="flex text-3xl font-bold truncate hover:text-green-400 hover:underline">{{ pdf.name }}</a>
     </div>
-    <div>
-        <a href="{% url 'download_pdf' pdf.id %}" class="text-md !font-bold text-green-400 hover:text-green-500">Download</a>
+
+    <div class="!pb-6 !border-none">
+        <a href="{% url 'download_pdf' pdf.id %}" class="text-md !font-bold text-green-400 hover:text-green-500 hover:underline">Download</a>
     </div>
 
     <div>
@@ -20,7 +20,7 @@
             <div class="w-5/6">
                 <span id="name">{{ pdf.name }}</span>
             </div>
-            <div class="w-1/6">
+            <div class="w-1/6 pl-8">
                 <a id="name-edit" class="hover:underline"
                     hx-get="{% url 'edit_pdf' pdf_id=pdf.id field='name' %}"
                     hx-target="#name"
@@ -44,7 +44,7 @@
                 {% endif%}
                 </span>
             </div>
-            <div class="w-1/6">
+            <div class="w-1/6 pl-8">
                 <a id="description-edit" class="hover:underline"
                     hx-get="{% url 'edit_pdf' pdf_id=pdf.id field='description' %}"
                     hx-target="#description"
@@ -74,7 +74,7 @@
                 {% endif%}
                 </span>
             </div>
-            <div class="w-1/6">
+            <div class="w-1/6 pl-8">
                 <a id="tags-edit" class="hover:underline"
                     hx-get="{% url 'edit_pdf' pdf_id=pdf.id field='tags' %}"
                     hx-target="#tags"

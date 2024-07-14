@@ -15,10 +15,10 @@
     <div x-data="{ delete{{ loop_id }}: false }" class="pb-1">
       <ul>
         <div class="!-mb-1">
-          <a href="{% url 'view_pdf' pdf.id %}" class="text font-bold text-indigo-800 hover:underline">{{ pdf.name }}</a>
+          <a href="{% url 'view_pdf' pdf.id %}" class="text font-bold text-indigo-800 dark:text-green-200 hover:underline">{{ pdf.name }}</a>
         </div>
         {% if pdf.description or pdf.tags.all %}
-        <div class="truncate space-x-1 [&>span]: text-gray-800 -mb-1">
+        <div class="truncate [&>span]:text-gray-800 [&>span]:dark:text-slate-100 -mb-1">
           {% for tag in pdf.tags.all|dictsort:"name" %}
           <a x-data="{}"
              x-bind:href="combine_url_query('{% url 'pdf_overview' %}', construct_query_string('%23{{ tag.name }}', '{{ sorting_query }}'))"
@@ -32,17 +32,21 @@
           {% endif %}
         </div>
         {% endif %}
-        <div class="text-gray-500 space-x-1 text-sm">
-          <span>{{ pdf.natural_age }} |</span>
+        <div class="text-gray-500 space-x-1 text-sm [&>a]:dark:text-slate-400">
+          <span class="dark:text-slate-400">{{ pdf.natural_age }} |</span>
           <a href="{% url 'pdf_details' pdf.id %}" class="hover:text-green-500"> Details</a>
           <a href="{% url 'download_pdf' pdf.id %}" class="hover:text-green-400">Download</a>
           <a x-show="delete{{ loop_id }}" x-cloak
              hx-delete="{% url 'delete_pdf' pdf.id %}"
              hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-             class="button-text-delete cursor-pointer">Confirm
+             class="button-text-delete dark:!bg-slate-800 cursor-pointer">Confirm
           </a>
-          <button x-show="delete{{ loop_id }}" x-cloak @click="delete{{ loop_id }} = false" type="button" class="button-text-delete">Cancel</button>
-          <button x-show="!delete{{ loop_id }}" @click="delete{{ loop_id }} = true" type="button" class="button-text">Delete</button>
+          <button x-show="delete{{ loop_id }}" x-cloak @click="delete{{ loop_id }} = false" type="button"
+                  class="button-text-delete dark:!bg-slate-800">Cancel
+          </button>
+          <button x-show="!delete{{ loop_id }}" @click="delete{{ loop_id }} = true" type="button"
+                  class="button-text dark:!bg-slate-800 dark:!text-slate-400">Delete
+          </button>
         </div>
       </ul>
     </div>

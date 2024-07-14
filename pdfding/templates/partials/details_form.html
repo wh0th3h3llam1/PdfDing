@@ -1,9 +1,9 @@
 <form action="{% url 'edit_pdf' pdf_id field %}"
       method="post"
       {% if field != "description" %}
-      class="flex gap-2 text-black h-8 w-11/12"
+      class="flex gap-2 text-black dark:text-slate-200 h-8 w-11/12"
       {% else %}
-      class="flex gap-2 text-black w-11/12"
+      class="flex gap-2 text-black dark:text-slate-200 w-11/12"
       {% endif %}
       autocomplete="off">
     {% csrf_token %}

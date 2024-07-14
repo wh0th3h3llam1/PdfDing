@@ -31,13 +31,13 @@ hr {
     @apply bg-red-600
 }
 .button-text {
-    @apply !bg-white !px-0 !py-0 font-medium !text-gray-500 !shadow-none
+    @apply !bg-white !px-0 !py-0 font-normal !text-gray-500 !shadow-none
 }
 .button-text:hover {
     @apply !text-green-400
 }
 .button-text-delete {
-    @apply !bg-white !px-0 !py-0 font-medium !text-red-400 !shadow-none
+    @apply !bg-white dark:!bg-slate-700 !px-0 !py-0 font-medium !text-red-400 !shadow-none
 }
 .button-text-delete:hover {
     @apply !text-red-500
@@ -52,7 +52,7 @@ hr {
     @apply flex items-center gap-2 h-12 px-4 hover:bg-green-500 rounded-lg;
 }
 .hoverlist>* {
-    @apply hover:bg-green-200 rounded-md transition duration-150;
+    @apply dark:text-slate-50 dark:bg-slate-700 hover:bg-green-400 rounded-md transition duration-150;
 }
 .hoverlist>*>a {
     @apply flex items-center p-2;
@@ -70,10 +70,13 @@ label {
     @apply hidden
 }
 input[type=file] {
-    @apply  w-full text-gray-400 bg-gray-100 file:cursor-pointer cursor-pointer file:border-0 file:py-4 file:px-4 file:-my-7 file:-ml-5 file:mr-4 file:bg-green-400 file:hover:bg-green-500 file:text-white file:font-bold file:rounded-lg
+    @apply  w-full text-gray-400 dark:text-slate-200 bg-gray-100 dark:bg-slate-600 file:cursor-pointer cursor-pointer file:border-0 file:py-4 file:px-4 file:-my-7 file:-ml-5 file:mr-4 file:bg-green-400 file:hover:bg-green-500 file:text-white file:font-bold file:rounded-lg
+}
+input[type=checkbox] {
+    @apply  accent-green-400
 }
 .textarea, textarea, input {
-    @apply w-full rounded-lg py-4 px-5 bg-gray-100
+    @apply w-full rounded-lg py-4 px-5 bg-gray-100 dark:bg-slate-600
 }
 .textarea:focus, textarea:focus, input:focus {
     @apply outline outline-1 outline-green-400
@@ -111,4 +114,8 @@ input[name="remember"] {
 }
 .allauth .helptext {
     @apply block mt-4
+}
+
+.allauth content a:hover {
+    @apply text-green-400
 }
