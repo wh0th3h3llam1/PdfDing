@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from users.forms import EmailForm
+from users.forms import DarkModeForm, EmailForm
 
 
 class TestProfileViews(TestCase):
@@ -77,6 +77,38 @@ class TestProfileViews(TestCase):
         user = User.objects.get(username=self.username)
         mock_send.assert_called()
         self.assertEqual(user.email, 'a@c.com')
+
+    def test_change_dark_mode_get_no_htmx(self):
+        self.client.login(username=self.username, password=self.password)
+        response = self.client.get(reverse('profile-darkmode-change'))
+
+        # target_status_code=302 because the '/' will redirect to the pdf overview
+        self.assertRedirects(response, '/', status_code=302, target_status_code=302)
+
+    def test_change_dark_mode_get_htmx(self):
+        self.client.login(username=self.username, password=self.password)
+        headers = {'HTTP_HX-Request': 'true'}
+        response = self.client.get(reverse('profile-darkmode-change'), **headers)
+
+        self.assertIsInstance(response.context['form'], DarkModeForm)
+
+    def test_change_dark_mode_post_invalid_form(self):
+        self.client.login(username=self.username, password=self.password)
+        # follow=True is needed for getting the message
+        response = self.client.post(reverse('profile-darkmode-change'), data={'dark_mode': 'Blue'}, follow=True)
+        message = list(response.context['messages'])[0]
+
+        self.assertEqual(message.message, 'Form not valid')
+        self.assertEqual(message.tags, 'warning')
+
+    def test_change_dark_mode_post_correct(self):
+        self.client.login(username=self.username, password=self.password)
+        self.assertEqual(self.user.profile.dark_mode, 'Light')
+        self.client.post(reverse('profile-darkmode-change'), data={'dark_mode': 'Dark'})
+
+        # get the user and check if dark mode was changed
+        user = User.objects.get(username=self.username)
+        self.assertEqual(user.profile.dark_mode, 'Dark')
 
     def test_delete_post(self):
         self.client.login(username=self.username, password=self.password)

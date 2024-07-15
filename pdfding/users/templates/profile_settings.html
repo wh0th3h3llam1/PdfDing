@@ -22,7 +22,7 @@
                     {% endif %}
                 </div>
             </div>
-            <div class="w-1/6">
+            <div class="w-1/6 pl-4">
                 <a id="email-edit" class="hover:underline"
                     hx-get="{% url 'profile-emailchange' %}"
                     hx-target="#email-address"
@@ -40,14 +40,32 @@
             <div class="w-5/6">
                 <span>***</span>
             </div>
-            <div class="w-1/6">
+            <div class="w-1/6 pl-4">
                 <a href="{% url 'account_change_password' %}" class="hover:underline">
-                    Change
+                    Edit
                 </a>
             </div>
         </div>
     </div>
     {% endif %}
+    <div>
+        <div class="w-1/4">
+            <span>Theme</span>
+        </div>
+        <div class="flex justify-between w-3/4 pl-4">
+            <div class="w-5/6">
+                <span id="dark-mode">{{ user.profile.dark_mode }}</span>
+            </div>
+            <div class="w-1/6 pl-4">
+                <a id="dark-mode-edit" class="hover:underline"
+                    hx-get="{% url 'profile-darkmode-change' %}"
+                    hx-target="#dark-mode"
+                    hx-swap="innerHTML">
+                    Edit
+                </a>
+            </div>
+        </div>
+    </div>
     <div>
         <div class="w-1/4">
             <span>Delete Account</span>
@@ -56,7 +74,7 @@
             <div class="w-5/6">
                 <span>Delete your account and data</span>
             </div>
-            <div class="w-1/6">
+            <div class="w-1/6 pl-4">
                 <a href="{% url 'profile-delete' %}" class="!text-red-600 hover:underline">
                     Delete
                 </a>

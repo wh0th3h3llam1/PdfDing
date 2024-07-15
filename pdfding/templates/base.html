@@ -1,6 +1,10 @@
 {% load static %}
 <!DOCTYPE html>
+{% if request.user.profile.dark_mode == 'Dark' %}
 <html class="dark" lang="en">
+{% else %}
+<html lang="en">
+{% endif %}
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">

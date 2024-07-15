@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from django.http import HttpRequest
 from django.views import View
 
-from .forms import EmailForm
+from .forms import DarkModeForm, EmailForm
 
 
 class BaseUserView(LoginRequiredMixin, View):
@@ -29,7 +29,7 @@ class ChangeEmail(BaseUserView):
     """View for changing the email address."""
 
     def get(self, request: HttpRequest):
-        """For a htmx request this will load an email chage form as a partial"""
+        """For a htmx request this will load an email change form as a partial"""
 
         if request.htmx:
             form = EmailForm(instance=request.user)
@@ -53,6 +53,35 @@ class ChangeEmail(BaseUserView):
 
             # Then send confirmation email
             send_email_confirmation(request, request.user)
+
+            return redirect('profile-settings')
+        else:
+            messages.warning(request, 'Form not valid')
+            return redirect('profile-settings')
+
+
+class ChangeDarkMode(BaseUserView):
+    """View for changing dark mode."""
+
+    def get(self, request: HttpRequest):
+        """For a htmx request this will load an dark mode change form as a partial"""
+
+        if request.htmx:
+            form = DarkModeForm(instance=request.user)
+            return render(request, 'partials/dark_mode_form.html', {'form': form})
+
+        return redirect('home')
+
+    def post(self, request: HttpRequest):
+        """Process the submitted dark mode form"""
+
+        form = DarkModeForm(request.POST, instance=request.user)
+
+        if form.is_valid():
+            # for some reason form.save has no effect so we do it manually...
+            profile = request.user.profile
+            profile.dark_mode = form.cleaned_data['dark_mode']
+            profile.save()
 
             return redirect('profile-settings')
         else:

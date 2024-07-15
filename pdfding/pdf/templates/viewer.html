@@ -32,8 +32,8 @@
         PDFViewerApplicationOptions.set("workerSrc", "{% static 'pdfjs/build/pdf.worker.mjs' %}");
       });
 
-      // check every 10 seconds if remote page needs updating
-      setInterval(update_remote_page, 10000);
+      // check every 3 seconds if remote page needs updating
+      setInterval(update_remote_page, 3000);
 
       // function for updating the remote page
       function update_remote_page() {
@@ -78,7 +78,19 @@
           color: white !important;
       }
       :root{
+        {% if request.user.profile.dark_mode == 'Dark' %}
+        --body-bg-color:rgb(30 41 59); /* background around pdf, sets also sidebar color!*/
+        --scrollbar-bg-color:rgb(30 41 59);  /* scrollbar background color */
+        --treeitem-color:rgb(243,244,246);  /* table of contents text color */
+        --treeitem-bg-color:rgb(30 41 59);   ;  /* table of contents bg color */
+        --treeitem-selected-bg-color:rgb(30 41 59);  /* table of contents selected bg color */
+        {% else %}
         --body-bg-color:rgb(255 255 255); /* background around pdf, sets also sidebar color!*/
+        --scrollbar-bg-color:rgb(255 255 255);  /* scrollbar background color */
+        --treeitem-color:rgb(54 52 64);  /* table of contents text color */
+        --treeitem-bg-color:rgb(255 255 255);   ;  /* table of contents bg color */
+        --treeitem-selected-bg-color:rgb(255 255 255);  /* table of contents selected bg color */
+        {% endif %}
         --button-hover-color: rgb(74 222 128);  /* button hover */
         --main-color:rgb(255 255 255);   /* main text */
         --toolbar-bg-color:rgb(54 52 64);  /* toolbar color */
@@ -93,14 +105,10 @@
         --dropdown-btn-bg-color:rgb(64 64 67);  /* dropdown button color */
         --toggled-btn-bg-color:rgb(74 222 128 / 0.9);  /* dropdown toggled color */
         --sidebar-toolbar-bg-color:rgb(54 52 64);  /* sidebar toolbar bg color */
-        --scrollbar-bg-color:rgb(255 255 255);  /* scrollbar background color */
         --scrollbar-color:rgb(74 222 128);  /* scroll indicator color */
         --toolbar-border-color:rgb(54 52 64);  /* toolbar bottom separator color */
-        --treeitem-color:rgb(54 52 64);  /* table of contents text color */
         --treeitem-hover-color:rgb(74 222 128);  /* table of contents hover text color */
         --treeitem-selected-color:rgb(74 222 128);  /* table of contents selected text color */
-        --treeitem-selected-bg-color:rgb(255 255 255);  /* table of contents selected bg color */
-        --treeitem-bg-color:rgb(255 255 255);   ;  /* table of contents bg color */
         --thumbnail-hover-color:rgb(74 222 128 / 0.3);  /* thumbnail hover bg color */
         --thumbnail-selected-color:rgb(74 222 128 / 0.7);  /* thumbnail selected bg color */
       }
