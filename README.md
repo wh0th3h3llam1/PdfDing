@@ -76,12 +76,12 @@ with the correct email address.
 
 ## Configuration
 ### `SECRET_KEY` 
-Values: `string` | Default = None
+Values: `string` | Default = `None`
 
 This value is the key to securing signed data. Should be to a large random value! Example: `some_secret`
 
 ### `HOST_NAME`  
-Values: `string` | Default = None
+Values: `string` | Default = `None`
 
 The host/domain name where PdfDing will be reachable. Example: `pdfding.com`   
 
@@ -95,7 +95,7 @@ Values: `SQLITE`, `POSTGRES` | Default `POSTGRES`
 
 Specify which database type should be used.
 ### `POSTGRES_PASSWORD` 
-Values: `string` | Default = None
+Values: `string` | Default = `None`
 
 The password for the postgres DB: Example: `password`
 ### `POSTGRES_PORT` 
@@ -109,17 +109,17 @@ Values: `TRUE`, `FALSE` | Default: `TRUE`
 Block users until they have verified their email address.
 
 ### `OIDC_CLIENT_ID`   
-Values: `string` | Default = None
+Values: `string` | Default = `None`
 
 PdfDing's OIDC client id. By setting this value OIDC will be activated. Example: `pdfding`
 
 ### `OIDC_CLIENT_SECRET`   
-Values: `string` | Default = None
+Values: `string` | Default = `None`
 
 PdfDing's OIDC client secret. Should be a large random value! Example: `another_long_secret`
 
 ### `OIDC_AUTH_URL`  
-Values: `string` | Default = None
+Values: `string` | Default = `None`
 
 The URL to the OpenID configuration of the auth server. Example: 
 `https://auth.pdfding.com/.well-known/openid-configuration`
@@ -128,6 +128,12 @@ The URL to the OpenID configuration of the auth server. Example:
 Values: `TRUE`, `FALSE` | Default: `TRUE`
 
 By setting this to `TRUE` users will only be able to authenticate using OIDC.
+
+### `OIDC_PROVIDER_NAME`
+Values: `string` | Default = `OIDC`
+
+The name of the OIDC provider. The name will be displayed on the login screen as `OIDC_LOG IN VIA <PROVIDER_NAME>`.
+Example: `Authelia`
 
 ### `CSRF_COOKIE_SECURE`   
 Values: `TRUE`, `FALSE` | Default: `TRUE`
@@ -146,7 +152,7 @@ Redirects all non-HTTPS requests to HTTPS. If PdfDing is running behind a revers
 redirects.
 
 ### `SECURE_HSTS_SECONDS`
-Values: `integer` | Default: None
+Values: `integer` | Default: `None`
 
 For sites that should only be accessed over HTTPS, you can instruct modern browsers to refuse to connect to your domain
 name via an insecure connection (for a given period of time) by setting the “Strict-Transport-Security” header. 
@@ -166,7 +172,7 @@ Whether to send account related emails, e.g a password reset or account verifica
 server.
 
 ### `SMTP_HOST`
-Values: `string` | Default = None
+Values: `string` | Default = `None`
 
 The host/domain name of the SMTP server. Example: `pdfding.com`
 
@@ -176,12 +182,12 @@ Values: `integer` | Default: `587`
 The port of the SMTP server.
 
 ### `SMTP_USER`
-Values: `string` | Default = None
+Values: `string` | Default = `None`
 
 The username used for logging into the SMTP server.
 
 ### `SMTP_PASSWORD`
-Values: `string` | Default = None
+Values: `string` | Default = `None`
 
 The password used for logging into the SMTP server.
 

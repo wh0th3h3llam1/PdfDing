@@ -69,7 +69,7 @@ if os.environ.get('OIDC_CLIENT_ID'):
             'APPS': [
                 {
                     'provider_id': 'oidc',
-                    'name': 'OIDC',
+                    'name': os.environ.get('OIDC_PROVIDER_NAME', 'OIDC').upper(),
                     'client_id': os.environ['OIDC_CLIENT_ID'],
                     'secret': os.environ['OIDC_CLIENT_SECRET'],
                     'settings': {
