@@ -13,8 +13,10 @@
         {% endif %}
         
         {% provider_login_url socialaccount_providers.0 process="login" scope=scope auth_params=auth_params as href %}
-        <form action="{{ href }}">
-            <button type="submit" class="pt-50 button">SIGN IN VIA {{ socialaccount_providers.0.name }}</button>
+        <form action="{{ href }}" method="post">
+          {% csrf_token %}
+          <button type="submit">SIGN IN VIA {{ socialaccount_providers.0.name }}</button>
         </form>
+
     {% endif %}
 {% endif %}
