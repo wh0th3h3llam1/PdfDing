@@ -96,7 +96,10 @@ class View(BasePdfView):
     def get(self, request: HttpRequest, pdf_id: str):
         """Display the PDF file in the browser"""
 
-        self.get_pdf(request, pdf_id)
+        # increase view counter by 1
+        pdf = self.get_pdf(request, pdf_id)
+        pdf.views += 1
+        pdf.save()
 
         return render(request, 'viewer.html', {'pdf_id': pdf_id})
 

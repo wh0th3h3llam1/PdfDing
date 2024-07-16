@@ -83,8 +83,14 @@ class TestViews(TestCase):
 
     def test_view_get(self):
         pdf = Pdf.objects.create(owner=self.user.profile, name='pdf')
+        self.assertEqual(pdf.views, 0)
+
         self.client.login(username=self.username, password=self.password)
         response = self.client.get(reverse('view_pdf', kwargs={'pdf_id': pdf.id}))
+
+        # check that views increased by one
+        pdf = self.user.profile.pdf_set.get(name='pdf')
+        self.assertEqual(pdf.views, 1)
 
         self.assertEqual(response.context['pdf_id'], str(pdf.id))
 
