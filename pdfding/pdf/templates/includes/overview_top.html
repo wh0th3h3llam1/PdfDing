@@ -39,6 +39,10 @@
                    x-bind:class="get_active_sorting('{{ sorting_query }}') === 'title_asc' ? 'bg-green-400' : 'hower:bg-green-200'">A --- Z</a></li>
             <li><a x-bind:href="construct_query_string('{{ raw_search_query }}', 'title_desc')"
                    x-bind:class="get_active_sorting('{{ sorting_query }}') === 'title_desc' ? 'bg-green-400' : 'hower:bg-green-200'">Z --- A</a></li>
+            <li><a x-bind:href="construct_query_string('{{ raw_search_query }}', 'most_viewed')"
+                   x-bind:class="get_active_sorting('{{ sorting_query }}') === 'most_viewed' ? 'bg-green-400' : 'hower:bg-green-200'">Most Viewed</a></li>
+            <li><a x-bind:href="construct_query_string('{{ raw_search_query }}', 'least_viewed')"
+                   x-bind:class="get_active_sorting('{{ sorting_query }}') === 'least_viewed' ? 'bg-green-400' : 'hower:bg-green-200'">Least Viewed</a></li>
             </ul>
         </div>
         </div>

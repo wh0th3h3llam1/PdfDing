@@ -55,6 +55,8 @@ class Overview(BasePdfView):
             'oldest': 'creation_date',
             'title_asc': 'name',
             'title_desc': '-name',
+            'least_viewed': 'views',
+            'most_viewed': '-views',
         }
 
         pdfs = request.user.profile.pdf_set.all().order_by(sorting_dict[sorting_query])
