@@ -106,7 +106,8 @@ class TestViews(TestCase):
 
         self.assertIsInstance(response.context['form'], AddForm)
 
-    def test_add_post(self):
+    @patch('pdf.forms.magic.from_buffer', return_value='application/pdf')
+    def test_add_post(self, mock_from_buffer):
         self.client.login(username=self.username, password=self.password)
         simple_file = SimpleUploadedFile("simple.pdf", b"these are the file contents!")
 

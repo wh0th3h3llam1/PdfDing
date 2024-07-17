@@ -1,6 +1,8 @@
 from django.forms import ModelForm
 from django import forms
 from django.http.request import QueryDict
+import magic
+
 from .models import Pdf
 
 
@@ -58,6 +60,12 @@ class AddForm(ModelForm):
         file = self.cleaned_data['file']
 
         if file.name.lower().split('.')[-1] != 'pdf':
+            raise forms.ValidationError('Uploaded file is not a PDF!')
+
+        # recommend using at least the first 2048 bytes, as less can produce incorrect identification
+        file_type = magic.from_buffer(self.cleaned_data['file'].read(2048), mime=True)
+
+        if file_type.lower() != 'application/pdf':
             raise forms.ValidationError('Uploaded file is not a PDF!')
 
         return file
