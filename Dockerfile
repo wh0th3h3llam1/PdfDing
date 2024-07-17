@@ -49,7 +49,7 @@ RUN rm -r pdfding/static/*
 FROM python:3.12.4-slim as runtime
 
 RUN apt-get update \
-    && apt-get install --no-install-recommends -y netcat-traditional \
+    && apt-get install --no-install-recommends -y libmagic1 netcat-traditional \
     && apt-get clean
 
 # add user for running the container as non-root

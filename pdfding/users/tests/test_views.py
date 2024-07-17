@@ -8,6 +8,13 @@ from django.urls import reverse
 from users.forms import DarkModeForm, EmailForm
 
 
+class TestLoginRequired(TestCase):
+    def test_login_required(self):
+        response = self.client.get(reverse('profile-settings'))
+
+        self.assertRedirects(response, f'/accountlogin/?next={reverse('profile-settings')}', status_code=302)
+
+
 class TestProfileViews(TestCase):
     username = 'user'
     password = '12345'
@@ -15,15 +22,9 @@ class TestProfileViews(TestCase):
     def setUp(self):
         self.client = Client()
         self.user = User.objects.create_user(username=self.username, password=self.password, email='a@a.com')
-
-    def test_login_required(self):
-        response = self.client.get(reverse('profile-settings'))
-
-        self.assertRedirects(response, f'/accountlogin/?next={reverse('profile-settings')}', status_code=302)
-
-    def test_settings(self):
         self.client.login(username=self.username, password=self.password)
 
+    def test_settings(self):
         # test without social account
         response = self.client.get(reverse('profile-settings'))
         self.assertEqual(response.context['uses_social'], False)
@@ -36,21 +37,18 @@ class TestProfileViews(TestCase):
         self.assertEqual(response.context['uses_social'], True)
 
     def test_change_email_get_no_htmx(self):
-        self.client.login(username=self.username, password=self.password)
         response = self.client.get(reverse('profile-emailchange'))
 
         # target_status_code=302 because the '/' will redirect to the pdf overview
         self.assertRedirects(response, '/', status_code=302, target_status_code=302)
 
     def test_change_email_get_htmx(self):
-        self.client.login(username=self.username, password=self.password)
         headers = {'HTTP_HX-Request': 'true'}
         response = self.client.get(reverse('profile-emailchange'), **headers)
 
         self.assertIsInstance(response.context['form'], EmailForm)
 
     def test_change_email_post_invalid_form(self):
-        self.client.login(username=self.username, password=self.password)
         # follow=True is needed for getting the message
         response = self.client.post(reverse('profile-emailchange'), follow=True)
         message = list(response.context['messages'])[0]
@@ -60,7 +58,6 @@ class TestProfileViews(TestCase):
 
     def test_change_email_post_email_exists(self):
         User.objects.create_user(username='other_user', password=self.password, email='a@b.com')
-        self.client.login(username=self.username, password=self.password)
         # follow=True is needed for getting the message
         response = self.client.post(reverse('profile-emailchange'), data={"email": 'a@b.com'}, follow=True)
         message = list(response.context['messages'])[0]
@@ -70,7 +67,6 @@ class TestProfileViews(TestCase):
 
     @patch('users.views.send_email_confirmation')
     def test_change_email_post_correct(self, mock_send):
-        self.client.login(username=self.username, password=self.password)
         self.client.post(reverse('profile-emailchange'), data={'email': 'a@c.com'})
 
         # get the user and check if email was changed
@@ -79,21 +75,18 @@ class TestProfileViews(TestCase):
         self.assertEqual(user.email, 'a@c.com')
 
     def test_change_dark_mode_get_no_htmx(self):
-        self.client.login(username=self.username, password=self.password)
         response = self.client.get(reverse('profile-darkmode-change'))
 
         # target_status_code=302 because the '/' will redirect to the pdf overview
         self.assertRedirects(response, '/', status_code=302, target_status_code=302)
 
     def test_change_dark_mode_get_htmx(self):
-        self.client.login(username=self.username, password=self.password)
         headers = {'HTTP_HX-Request': 'true'}
         response = self.client.get(reverse('profile-darkmode-change'), **headers)
 
         self.assertIsInstance(response.context['form'], DarkModeForm)
 
     def test_change_dark_mode_post_invalid_form(self):
-        self.client.login(username=self.username, password=self.password)
         # follow=True is needed for getting the message
         response = self.client.post(reverse('profile-darkmode-change'), data={'dark_mode': 'Blue'}, follow=True)
         message = list(response.context['messages'])[0]
@@ -102,7 +95,6 @@ class TestProfileViews(TestCase):
         self.assertEqual(message.tags, 'warning')
 
     def test_change_dark_mode_post_correct(self):
-        self.client.login(username=self.username, password=self.password)
         self.assertEqual(self.user.profile.dark_mode, 'Light')
         self.client.post(reverse('profile-darkmode-change'), data={'dark_mode': 'Dark'})
 
@@ -111,8 +103,6 @@ class TestProfileViews(TestCase):
         self.assertEqual(user.profile.dark_mode, 'Dark')
 
     def test_delete_post(self):
-        self.client.login(username=self.username, password=self.password)
-
         # follow=True is needed for getting the message
         response = self.client.post(reverse('profile-delete'), follow=True)
         message = list(response.context['messages'])[0]
