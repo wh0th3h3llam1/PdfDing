@@ -49,7 +49,7 @@
             {% else %}
             <li><a href="{% url 'account_login' %}">Login</a></li>
             {% if not SOCIALACCOUNT_ONLY %}
-            <li><a href="/accountsignup">Signup</a></li>
+            <li><a href="{% url 'account_signup' %}">Signup</a></li>
             {% endif %}
             {% endif %}
         </ul>
