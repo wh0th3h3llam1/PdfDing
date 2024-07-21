@@ -8,6 +8,7 @@ when:
 steps:
   unit-test:
     image: python:3.12.4-slim
+    depends_on: []
     commands:
       - apt-get update && apt-get install --no-install-recommends -y libmagic1
       - pip install poetry==1.8.3
@@ -16,27 +17,9 @@ steps:
       - poetry run black . --check
       - cd pdfding
       - poetry run pytest pdf users --cov=pdf --cov=users --cov-fail-under=100
-  build-e2e-image:
-    when:
-      - event: manual
-        evaluate: 'BUILD_E2E == "TRUE"'
-      - event: pull_request
-        branch: master
-        evaluate: 'CI_COMMIT_AUTHOR == CI_REPO_OWNER'
-        path:
-          include: ['.woodpecker/e2e.Dockerfile', 'pyproject.toml', 'package.json']
-    image: woodpeckerci/plugin-docker-buildx
-    settings:
-      dockerfile: .woodpecker/e2e.Dockerfile
-      platforms: linux/amd64
-      repo: mrmn/pdfding_e2e
-      registry: docker.io
-      tags: latest
-      username: ${CI_REPO_OWNER}
-      password:
-        from_secret: DOCKER_TOKEN
   e2e-test:
     image: mrmn/pdfding_e2e:latest
+    depends_on: []
     commands:
       - cd /app
       - npx --yes tailwindcss -i pdfding/static/css/input.css -o pdfding/static/css/tailwind.css -c /build/tailwind.config.js --minify

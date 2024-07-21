@@ -17,10 +17,10 @@ RUN rm -rf pdfjs/web/locale pdfjs/web/standard_fonts pdfjs/web/compressed.tracem
 # get other dependecies
 RUN mkdir ./js && mkdir ./css
 RUN npm ci && npm run build
-RUN npx --yes tailwindcss -i pdfding/static/css/input.css -o css/tailwind.css -c tailwind.config.js --minify
+RUN npx tailwindcss -i pdfding/static/css/input.css -o css/tailwind.css -c tailwind.config.js --minify
 # minify pdfjs js files
 RUN for i in pdfjs/build/pdf.mjs pdfjs/build/pdf.sandbox.mjs pdfjs/build/pdf.worker.mjs pdfjs/web/viewer.mjs; \
-    do npx --yes terser $i --compress -o $i; done
+    do npx terser $i --compress -o $i; done
 RUN rm pdfding/static/css/input.css && mv -t pdfding/static js css pdfjs
 
 # The build image, used to build the virtual python environment

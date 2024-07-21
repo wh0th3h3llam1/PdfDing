@@ -1,7 +1,19 @@
 when:
   - event: tag
   - event: manual
+  - event: push
+  - event: pull_request
 steps:
+  publish_dry_run:
+    when:
+      - event: pull_request
+    image: woodpeckerci/plugin-docker-buildx
+    settings:
+      dockerfile: Dockerfile
+      platforms: linux/amd64
+      dry_run: true
+      repo: mrmn/pdfding
+      tags: latest
   publish_tag:
     when:
       - event: tag
@@ -26,6 +38,24 @@ steps:
       repo: mrmn/pdfding
       registry: docker.io
       tags: ${TAG}
+      username: ${CI_REPO_OWNER}
+      password:
+        from_secret: DOCKER_TOKEN
+  build-e2e-image:
+    when:
+      - event: manual
+        evaluate: 'BUILD_E2E == "TRUE"'
+      - event: push
+        evaluate: 'CI_COMMIT_AUTHOR == CI_REPO_OWNER'
+        path:
+          include: [ '.woodpecker/e2e.Dockerfile', 'pyproject.toml', 'package.json' ]
+    image: woodpeckerci/plugin-docker-buildx
+    settings:
+      dockerfile: .woodpecker/e2e.Dockerfile
+      platforms: linux/amd64
+      repo: mrmn/pdfding_e2e
+      registry: docker.io
+      tags: latest
       username: ${CI_REPO_OWNER}
       password:
         from_secret: DOCKER_TOKEN
