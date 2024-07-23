@@ -91,7 +91,7 @@
         --treeitem-bg-color:rgb(255 255 255);   ;  /* table of contents bg color */
         --treeitem-selected-bg-color:rgb(255 255 255);  /* table of contents selected bg color */
         {% endif %}
-        --button-hover-color: rgb(74 222 128);  /* button hover */
+        --button-hover-color: rgb({{ theme_color_rgb }});  /* button hover */
         --main-color:rgb(255 255 255);   /* main text */
         --toolbar-bg-color:rgb(54 52 64);  /* toolbar color */
         --toolbar-icon-bg-color:rgb(255 255 255);  /* toolbar icon image color */
@@ -101,20 +101,20 @@
         --field-color:rgb(255 255 255);  /* input field text color */
         --field-border-color:rgb(115 115 115);  /* input field bordercolor */
         --progressBar-bg-color:rgb(40 40 43);  /* progressbar background color */
-        --progressBar-color:rgb(74 222 128);  /* progressbar color */
+        --progressBar-color:rgb({{ theme_color_rgb }});  /* progressbar color */
         --dropdown-btn-bg-color:rgb(64 64 67);  /* dropdown button color */
-        --toggled-btn-bg-color:rgb(74 222 128 / 0.9);  /* dropdown toggled color */
+        --toggled-btn-bg-color:rgb({{ theme_color_rgb }} / 0.9);  /* dropdown toggled color */
         --sidebar-toolbar-bg-color:rgb(54 52 64);  /* sidebar toolbar bg color */
-        --scrollbar-color:rgb(74 222 128);  /* scroll indicator color */
+        --scrollbar-color:rgb({{ theme_color_rgb }});  /* scroll indicator color */
         --toolbar-border-color:rgb(54 52 64);  /* toolbar bottom separator color */
-        --treeitem-hover-color:rgb(74 222 128);  /* table of contents hover text color */
-        --treeitem-selected-color:rgb(74 222 128);  /* table of contents selected text color */
-        --thumbnail-hover-color:rgb(74 222 128 / 0.3);  /* thumbnail hover bg color */
-        --thumbnail-selected-color:rgb(74 222 128 / 0.7);  /* thumbnail selected bg color */
+        --treeitem-hover-color:rgb({{ theme_color_rgb }});  /* table of contents hover text color */
+        --treeitem-selected-color:rgb({{ theme_color_rgb }});  /* table of contents selected text color */
+        --thumbnail-hover-color:rgb({{ theme_color_rgb }} / 0.3);  /* thumbnail hover bg color */
+        --thumbnail-selected-color:rgb({{ theme_color_rgb }} / 0.7);  /* thumbnail selected bg color */
       }
       .textLayer .highlight {
-        --highlight-bg-color: rgb(74 222 128 / 0.2);  /* thumbnail hover bg color */
-        --highlight-selected-bg-color: rgb(74 222 128 / 0.5);  /* thumbnail hover bg color */
+        --highlight-bg-color: rgb({{ theme_color_rgb }} / 0.2);  /* thumbnail hover bg color */
+        --highlight-selected-bg-color: rgb({{ theme_color_rgb }} / 0.5);  /* thumbnail hover bg color */
       }
       .button1 {
         background-color:rgb(54 52 64);
@@ -123,8 +123,11 @@
         padding: 3px 4px 0;
       }
       .button1:hover {
-        background-color: rgb(74 222 128);
+        background-color: rgb({{ theme_color_rgb }});
         border-radius: 2px
+      }
+      .pdfSidebarNotification::after {
+        background-color: rgb({{ theme_color_rgb }});
       }
     </style>
   </head>

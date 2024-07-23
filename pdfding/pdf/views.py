@@ -103,7 +103,21 @@ class View(BasePdfView):
         pdf.views += 1
         pdf.save()
 
-        return render(request, 'viewer.html', {'pdf_id': pdf_id})
+        # set theme color rgb value
+        theme_color_rgb_dict = {
+            'Green': '74 222 128',
+            'Blue': '71 147 204',
+            'Gray': '151 170 189',
+            'Red': '248 113 113',
+            'Pink': '218 123 147',
+            'Orange': '255 203 133',
+        }
+
+        return render(
+            request,
+            'viewer.html',
+            {'pdf_id': pdf_id, 'theme_color_rgb': theme_color_rgb_dict[request.user.profile.theme_color]},
+        )
 
 
 class Add(BasePdfView):
