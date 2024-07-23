@@ -12,7 +12,8 @@ class UsersE2ETestCase(PdfDingE2ETestCase):
 
             # test that light theme is used
             expect(self.page.locator('html')).not_to_have_attribute('class', 'dark')
-            expect(self.page.locator("#dark-mode")).to_contain_text("Light")
+            expect(self.page.locator('#dark-mode')).to_contain_text('Light')
+            expect(self.page.locator('body')).to_have_css('background-color', 'rgba(0, 0, 0, 0)')
 
             # change to dark mode
             self.page.locator('#dark-mode-edit').click()
@@ -21,7 +22,8 @@ class UsersE2ETestCase(PdfDingE2ETestCase):
 
             # check that theme was changed to dark
             expect(self.page.locator('html')).to_have_attribute('class', 'dark')
-            expect(self.page.locator("#dark-mode")).to_contain_text("Dark")
+            expect(self.page.locator('#dark-mode')).to_contain_text('Dark')
+            expect(self.page.locator('body')).to_have_css('background-color', 'rgb(30, 41, 59)')
 
     def test_settings_email_change(self):
         with sync_playwright() as p:
@@ -47,22 +49,35 @@ class UsersE2ETestCase(PdfDingE2ETestCase):
             self.open(reverse('profile-settings'), p)
 
             # we just check if delete button is displayed, rest is covered by unit test
-            self.page.get_by_role("link", name="Delete").click()
-            expect(self.page.get_by_role("button")).to_contain_text("Yes, I want to delete my account")
+            self.page.get_by_role('link', name='Delete').click()
+            expect(self.page.get_by_role('button')).to_contain_text('Yes, I want to delete my account')
+
+    def test_settings_edit_cancel(self):
+        with sync_playwright() as p:
+            self.open(reverse('profile-settings'), p)
+            self.page.locator('#email-edit').click()
+            expect(self.page.locator('#email-edit')).to_contain_text('Cancel')
+            self.page.get_by_role('link', name='Cancel').click()
+            expect(self.page.locator('#email-edit')).to_contain_text('Edit')
+
+            self.page.locator('#dark-mode-edit').click()
+            expect(self.page.locator('#dark-mode-edit')).to_contain_text('Cancel')
+            self.page.get_by_role('link', name='Cancel').click()
+            expect(self.page.locator('#dark-mode-edit')).to_contain_text('Edit')
 
     def test_settings_change_password(self):
         with sync_playwright() as p:
             self.open(reverse('profile-settings'), p)
 
             # we just check if allauth change password is displayed
-            self.page.get_by_role("link", name="Edit").click()
-            expect(self.page.get_by_role("button")).to_contain_text("Change Password")
+            self.page.get_by_role('link', name='Edit').click()
+            expect(self.page.get_by_role('button')).to_contain_text('Change Password')
 
     def test_header_dropdown(self):
         with sync_playwright() as p:
             self.open(reverse('pdf_overview'), p)
-            self.page.get_by_role("list").locator("a").nth(2).click()
-            expect(self.page.get_by_role("navigation")).to_contain_text("a@a.com")
+            self.page.get_by_role('list').locator('a').nth(2).click()
+            expect(self.page.get_by_role('navigation')).to_contain_text('a@a.com')
 
 
 class UsersLoginE2ETestCase(PdfDingE2ENoLoginTestCase):

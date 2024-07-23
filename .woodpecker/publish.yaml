@@ -2,6 +2,8 @@ when:
   - event: tag
   - event: manual
   - event: push
+    path:
+      include: [ '.woodpecker/e2e.Dockerfile', 'pyproject.toml', 'package.json' ]
   - event: pull_request
 steps:
   publish_dry_run:

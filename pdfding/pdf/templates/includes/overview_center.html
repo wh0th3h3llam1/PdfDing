@@ -15,7 +15,11 @@
     <div x-data="{ delete{{ loop_id }}: false }" class="pb-1">
       <ul>
         <div class="!-mb-1">
-          <a href="{% url 'view_pdf' pdf.id %}" class="text font-bold text-indigo-800 dark:text-green-200 hover:underline">{{ pdf.name }}</a>
+          <a id="pdf-link-{{ loop_id }}"
+             href="{% url 'view_pdf' pdf.id %}"
+             class="text font-bold text-indigo-800 dark:text-green-200 hover:underline">
+              {{ pdf.name }}
+          </a>
         </div>
         {% if pdf.description or pdf.tags.all %}
         <div class="truncate [&>span]:text-gray-800 [&>span]:dark:text-slate-100 -mb-1">
