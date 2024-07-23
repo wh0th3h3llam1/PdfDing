@@ -5,7 +5,7 @@
       <span class="pt-4 text-lg">Please try a different search.</span>
       {% else %}
       <span class="text-2xl">You have no PDFs yet</span>
-      <span class="pt-4 text-lg">Get started by <a class="text-green-400 hover:text-green-500 px-1" href="{% url 'add_pdf' %}"> adding</a> PDFs.</span>
+      <span class="pt-4 text-lg">Get started by <a class="text-primary hover:text-secondary hover:underline px-1" href="{% url 'add_pdf' %}"> adding</a> PDFs.</span>
       {% endif %}
     </div>
     {% endif %}
@@ -17,7 +17,7 @@
         <div class="!-mb-1">
           <a id="pdf-link-{{ loop_id }}"
              href="{% url 'view_pdf' pdf.id %}"
-             class="text font-bold text-indigo-800 dark:text-green-200 hover:underline">
+             class="text font-bold text-tertiary1 dark:text-tertiary2 hover:underline">
               {{ pdf.name }}
           </a>
         </div>
@@ -26,7 +26,7 @@
           {% for tag in pdf.tags.all|dictsort:"name" %}
           <a x-data="{}"
              x-bind:href="combine_url_query('{% url 'pdf_overview' %}', construct_query_string('%23{{ tag.name }}', '{{ sorting_query }}'))"
-             class="text-green-400 hover:text-green-500 text-sm">#{{ tag.name }}</a>
+             class="text-primary hover:text-secondary hover:underline text-sm">#{{ tag.name }}</a>
           {% endfor %}
           {% if pdf.description %}
           {% if pdf.tags.all %}
@@ -38,8 +38,8 @@
         {% endif %}
         <div class="text-gray-500 space-x-1 text-sm [&>a]:dark:text-slate-400">
           <span class="dark:text-slate-400">{{ pdf.natural_age }} |</span>
-          <a href="{% url 'pdf_details' pdf.id %}" class="hover:text-green-500"> Details</a>
-          <a href="{% url 'download_pdf' pdf.id %}" class="hover:text-green-400">Download</a>
+          <a href="{% url 'pdf_details' pdf.id %}" class="hover:text-primary"> Details</a>
+          <a href="{% url 'download_pdf' pdf.id %}" class="hover:text-primary">Download</a>
           <a x-show="delete{{ loop_id }}" x-cloak
              hx-delete="{% url 'delete_pdf' pdf.id %}"
              hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
@@ -58,19 +58,19 @@
     {% endfor %}
     {% if page_obj %}
     <div class="flex-grow border-t border-gray-400 mt-2 mb-4"></div>
-    <div x-data="{}" class="flex [&>a]:text-green-400 [&>span]:text-green-400 [&>span]:cursor-default gap-x-3 pt-5">
+    <div x-data="{}" class="flex [&>a]:text-primary [&>span]:text-primary [&>span]:cursor-default gap-x-3 pt-5">
       {% if page_obj.has_previous %}
         <a x-bind:href="combine_url_query('{% url 'pdf_overview_page' page_obj.previous_page_number %}', construct_query_string('{{ raw_search_query }}', '{{ sorting_query }}'))"
-           class="hover:text-green-500">
+           class="hover:text-secondary">
             Prev
         </a>
       {% else %}
       <span>Prev</span>
       {% endif %}
-      <span class="bg-green-400 !text-gray-100 px-2 rounded-sm">{{ page_obj.number }}</span>
+      <span class="bg-primary !text-gray-100 px-2 rounded-sm">{{ page_obj.number }}</span>
       {% if page_obj.has_next %}
         <a x-bind:href="combine_url_query('{% url 'pdf_overview_page' page_obj.next_page_number %}', construct_query_string('{{ raw_search_query }}', '{{ sorting_query }}'))"
-           class="hover:text-green-500">
+           class="hover:text-secondary">
             Next
         </a>
       {% else %}

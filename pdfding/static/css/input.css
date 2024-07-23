@@ -2,6 +2,50 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+    html[data-theme="green"] {
+      --color-primary: #4ade80;
+      --color-secondary: #3bb166;
+      --color-tertiary1: #2c854c;
+      --color-tertiary2: #92ebb2;
+    }
+
+    html[data-theme="blue"] {
+      --color-primary: #4793cc;
+      --color-secondary: #3875a3;
+      --color-tertiary1: #2a587a;
+      --color-tertiary2: #90bee0;
+    }
+
+    html[data-theme="gray"] {
+      --color-primary: #97aabd;
+      --color-secondary: #788897;
+      --color-tertiary1: #5a6671;
+      --color-tertiary2: #c0ccd7;
+    }
+
+    html[data-theme="red"] {
+      --color-primary: #f87171;
+      --color-secondary: #c65a5a;
+      --color-tertiary1: #944343;
+      --color-tertiary2: #faa9a9;
+    }
+
+    html[data-theme="pink"] {
+      --color-primary: #da7b93;
+      --color-secondary: #ae6275;
+      --color-tertiary1: #824958;
+      --color-tertiary2: #e8afbe;
+    }
+
+    html[data-theme="orange"] {
+      --color-primary: #ffcb85;
+      --color-secondary: #cca26a;
+      --color-tertiary1: #99794f;
+      --color-tertiary2: #ffdfb5;
+    }
+}
+
 h1 {
     @apply text-4xl font-bold mb-4
 }
@@ -15,11 +59,11 @@ hr {
     @apply mt-6 mb-6
 }
 .button, button, [type='submit'], [type='button'] {
-    @apply bg-green-400 text-white font-bold px-6 py-4 inline-block
+    @apply bg-primary text-white font-bold px-6 py-4 inline-block
     rounded-lg shadow-lg transition-all cursor-pointer
 }
 .button:hover, button:hover, [type='submit']:hover, [type='button']:hover {
-    @apply bg-green-500
+    @apply bg-secondary
 }
 .button:active, button:active, [type='submit']:active, [type='button']:active {
     @apply scale-95
@@ -34,7 +78,7 @@ hr {
     @apply !bg-white !px-0 !py-0 font-normal !text-gray-500 !shadow-none
 }
 .button-text:hover {
-    @apply !text-green-400
+    @apply !text-primary
 }
 .button-text-delete {
     @apply !bg-white dark:!bg-slate-700 !px-0 !py-0 font-medium !text-red-400 !shadow-none
@@ -49,10 +93,10 @@ hr {
     @apply !bg-gray-300 hover:!bg-[#c3c9d0]
 }
 .navitems>li>a {
-    @apply flex items-center gap-2 h-12 px-4 hover:bg-green-500 rounded-lg;
+    @apply flex items-center gap-2 h-12 px-4 hover:bg-secondary rounded-lg;
 }
 .hoverlist>* {
-    @apply dark:text-slate-50 dark:bg-slate-700 hover:bg-green-400 rounded-md transition duration-150;
+    @apply dark:text-slate-50 dark:bg-slate-700 hover:bg-primary rounded-md transition duration-150;
 }
 .hoverlist>*>a {
     @apply flex items-center p-2;
@@ -70,16 +114,16 @@ label {
     @apply hidden
 }
 input[type=file] {
-    @apply  w-full text-gray-400 dark:text-slate-200 bg-gray-100 dark:bg-slate-600 file:cursor-pointer cursor-pointer file:border-0 file:py-4 file:px-4 file:-my-7 file:-ml-5 file:mr-4 file:bg-green-400 file:hover:bg-green-500 file:text-white file:font-bold file:rounded-lg
+    @apply  w-full text-gray-400 dark:text-slate-200 bg-gray-100 dark:bg-slate-600 file:cursor-pointer cursor-pointer file:border-0 file:py-4 file:px-4 file:-my-7 file:-ml-5 file:mr-4 file:bg-primary file:hover:bg-secondary file:text-white file:font-bold file:rounded-lg
 }
 input[type=checkbox] {
-    @apply  accent-green-400
+    @apply  accent-primary
 }
 .textarea, textarea, input {
     @apply w-full rounded-lg py-4 px-5 bg-gray-100 dark:bg-slate-600
 }
 .textarea:focus, textarea:focus, input:focus {
-    @apply outline outline-1 outline-green-400
+    @apply outline outline-1 outline-primary
 }
 .errorlist li {
     @apply p-1 pl-4 border-l-red-500 border-l-4 border-solid mb-2 text-red-500
@@ -90,10 +134,10 @@ label[for="id_remember"] {
 input[name="remember"] {
     @apply w-auto
 }
-.alert-info { @apply bg-blue-300 }
-.alert-success { @apply bg-green-400 }
-.alert-warning { @apply bg-amber-400 }
-.alert-danger { @apply bg-amber-500 }
+.alert-info { @apply bg-secondary }
+.alert-success { @apply bg-secondary }
+.alert-warning { @apply bg-red-500 }
+.alert-danger { @apply bg-red-500 }
 .allauth content a {
     @apply underline underline-offset-2
 }
@@ -117,5 +161,5 @@ input[name="remember"] {
 }
 
 .allauth content a:hover {
-    @apply text-green-400
+    @apply text-primary
 }

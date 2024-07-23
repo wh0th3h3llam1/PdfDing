@@ -4,7 +4,7 @@
 <div class="w-full [&>div]:flex [&>div]:justify-between [&>div]:border-b [&>div]:py-4
             [&>div>div>span]:font-bold [&>div>div>span]:text-gray-900 dark:[&>div>div>span]:text-slate-200
             [&>div>div>div>span]:text-sm [&>div>div>div>span]:text-gray-500 dark:[&>div>div>div>span]:text-slate-400
-            [&>div>div>div>a]:text-sm [&>div>div>div>a]:cursor-pointer [&>div>div>div>a]:text-green-400">
+            [&>div>div>div>a]:text-sm [&>div>div>div>a]:cursor-pointer [&>div>div>div>a]:text-primary">
     <h1 class="mb-8">Account Settings</h1>
     {% if not uses_social %}
     <div>
@@ -16,7 +16,7 @@
                 <span id="email-address">{{ user.email }}</span>
                 <div>
                     {% if user.emailaddress_set.first.verified %}
-                    <span class="text-green-500 text-sm">Verified</span>
+                    <span class="text-primary text-sm">Verified</span>
                     {% else %}
                     <span class="text-amber-500 text-sm">Not verified</span>
                     {% endif %}

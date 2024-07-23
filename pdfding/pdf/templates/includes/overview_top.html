@@ -3,7 +3,7 @@
     <span class="text-2xl font-bold pr-4">PDFs</span>
 <!--    x-data necessary otherwise alpine js will not trigger-->
     <div x-data="{}" class="flex justify-end h-10 mr-2">
-        <input class="border border-green-400 h-10 !rounded-r-none align-text-center"
+        <input class="border border-primary h-10 !rounded-r-none align-text-center"
                 type="text" placeholder="Search for words or #tags"
                 value="{{ raw_search_query }}"
                 id="search_input"
@@ -21,7 +21,7 @@
         </form>
         <div x-data="{ sortdropdownOpen: false }" class="relative">
         <a @click="sortdropdownOpen = !sortdropdownOpen" @click.away="sortdropdownOpen = false" class="cursor-pointer select-none">              
-            <img class="w-10 h-10 bg-green-400 rounded-md ml-2 px-2 mx-2 "
+            <img class="w-10 h-10 bg-primary hover:bg-secondary rounded-md ml-2 px-2 mx-2 "
                 x-bind:class="sortdropdownOpen && 'duration-300'"
                 src="{% static 'images/sort.svg' %}"/>
         </a>
@@ -32,17 +32,17 @@
             >                
             <ul class="hoverlist [&>li>*]:justify-left [&>li>*]:rounded-md">
             <li><a x-bind:href="construct_query_string('{{ raw_search_query }}', 'newest')"
-                   x-bind:class="get_active_sorting('{{ sorting_query }}') === 'newest' ? 'bg-green-400' : 'hower:bg-green-200'">Newest</a></li>
+                   x-bind:class="get_active_sorting('{{ sorting_query }}') === 'newest' ? 'bg-primary' : 'dummy'">Newest</a></li>
             <li><a x-bind:href="construct_query_string('{{ raw_search_query }}', 'oldest')"
-                   x-bind:class="get_active_sorting('{{ sorting_query }}') === 'oldest' ? 'bg-green-400' : 'hower:bg-green-200'">Oldest</a></li>
+                   x-bind:class="get_active_sorting('{{ sorting_query }}') === 'oldest' ? 'bg-primary' : 'dummy'">Oldest</a></li>
             <li><a x-bind:href="construct_query_string('{{ raw_search_query }}', 'title_asc')"
-                   x-bind:class="get_active_sorting('{{ sorting_query }}') === 'title_asc' ? 'bg-green-400' : 'hower:bg-green-200'">A --- Z</a></li>
+                   x-bind:class="get_active_sorting('{{ sorting_query }}') === 'title_asc' ? 'bg-primary' : 'dummy'">A --- Z</a></li>
             <li><a x-bind:href="construct_query_string('{{ raw_search_query }}', 'title_desc')"
-                   x-bind:class="get_active_sorting('{{ sorting_query }}') === 'title_desc' ? 'bg-green-400' : 'hower:bg-green-200'">Z --- A</a></li>
+                   x-bind:class="get_active_sorting('{{ sorting_query }}') === 'title_desc' ? 'bg-primary' : 'dummy'">Z --- A</a></li>
             <li><a x-bind:href="construct_query_string('{{ raw_search_query }}', 'most_viewed')"
-                   x-bind:class="get_active_sorting('{{ sorting_query }}') === 'most_viewed' ? 'bg-green-400' : 'hower:bg-green-200'">Most Viewed</a></li>
+                   x-bind:class="get_active_sorting('{{ sorting_query }}') === 'most_viewed' ? 'bg-primary' : 'dummy'">Most Viewed</a></li>
             <li><a x-bind:href="construct_query_string('{{ raw_search_query }}', 'least_viewed')"
-                   x-bind:class="get_active_sorting('{{ sorting_query }}') === 'least_viewed' ? 'bg-green-400' : 'hower:bg-green-200'">Least Viewed</a></li>
+                   x-bind:class="get_active_sorting('{{ sorting_query }}') === 'least_viewed' ? 'bg-primary' : 'dummy'">Least Viewed</a></li>
             </ul>
         </div>
         </div>
