@@ -25,7 +25,8 @@
             <li><a href="{% url 'pdf_overview' %}">PDFs</a></li>
             <li x-data="{ dropdownOpen: false }" class="relative">
                 <a @click="dropdownOpen = !dropdownOpen" @click.away="dropdownOpen = false" class="cursor-pointer select-none">
-                    <img class="h-8 w-8 bg-white rounded-full object-cover" src="{{ user.profile.avatar }}"/>                    
+                    <!-- bg-primary needed as profile image will flicker otherwise -->
+                    <img class="h-8 w-8 bg-primary rounded-full object-cover" src="{% static "images/profile.svg" %}"/>
                     <img class="rotate-90 w-5" x-bind:class="dropdownOpen && '-rotate-90 duration-300'" src="{% static "images/arrow_right.svg" %}"/>
                 </a>
                 <div x-show="dropdownOpen" x-cloak

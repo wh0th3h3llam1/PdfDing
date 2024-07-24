@@ -24,9 +24,3 @@ class Profile(models.Model):
 
     def __str__(self):  # pragma: no cover
         return str(self.user.email)
-
-    @property
-    def avatar(self):  # pragma: no cover
-        """Returns the path to the avatar image"""
-
-        return static("images/avatar.png")
