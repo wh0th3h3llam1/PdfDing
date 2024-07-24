@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from users.forms import DarkModeForm, EmailForm
+from users.forms import ThemeForm, EmailForm
 
 
 class TestLoginRequired(TestCase):
@@ -75,20 +75,20 @@ class TestProfileViews(TestCase):
         self.assertEqual(user.email, 'a@c.com')
 
     def test_change_dark_mode_get_no_htmx(self):
-        response = self.client.get(reverse('profile-darkmode-change'))
+        response = self.client.get(reverse('profile-theme-change'))
 
         # target_status_code=302 because the '/' will redirect to the pdf overview
         self.assertRedirects(response, '/', status_code=302, target_status_code=302)
 
     def test_change_dark_mode_get_htmx(self):
         headers = {'HTTP_HX-Request': 'true'}
-        response = self.client.get(reverse('profile-darkmode-change'), **headers)
+        response = self.client.get(reverse('profile-theme-change'), **headers)
 
-        self.assertIsInstance(response.context['form'], DarkModeForm)
+        self.assertIsInstance(response.context['form'], ThemeForm)
 
     def test_change_dark_mode_post_invalid_form(self):
         # follow=True is needed for getting the message
-        response = self.client.post(reverse('profile-darkmode-change'), data={'dark_mode': 'Blue'}, follow=True)
+        response = self.client.post(reverse('profile-theme-change'), data={'dark_mode': 'Blue'}, follow=True)
         message = list(response.context['messages'])[0]
 
         self.assertEqual(message.message, 'Form not valid')
@@ -96,11 +96,13 @@ class TestProfileViews(TestCase):
 
     def test_change_dark_mode_post_correct(self):
         self.assertEqual(self.user.profile.dark_mode, 'Light')
-        self.client.post(reverse('profile-darkmode-change'), data={'dark_mode': 'Dark'})
+        self.assertEqual(self.user.profile.theme_color, 'Green')
+        self.client.post(reverse('profile-theme-change'), data={'dark_mode': 'Dark', 'theme_color': 'Blue'})
 
         # get the user and check if dark mode was changed
         user = User.objects.get(username=self.username)
         self.assertEqual(user.profile.dark_mode, 'Dark')
+        self.assertEqual(user.profile.theme_color, 'Blue')
 
     def test_delete_post(self):
         # follow=True is needed for getting the message

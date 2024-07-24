@@ -3,42 +3,42 @@
 @tailwind utilities;
 
 @layer base {
-    html[data-theme="green"] {
+    html[data-theme="Green"] {
       --color-primary: #4ade80;
       --color-secondary: #3bb166;
       --color-tertiary1: #2c854c;
       --color-tertiary2: #92ebb2;
     }
 
-    html[data-theme="blue"] {
+    html[data-theme="Blue"] {
       --color-primary: #4793cc;
       --color-secondary: #3875a3;
       --color-tertiary1: #2a587a;
       --color-tertiary2: #90bee0;
     }
 
-    html[data-theme="gray"] {
+    html[data-theme="Gray"] {
       --color-primary: #97aabd;
       --color-secondary: #788897;
       --color-tertiary1: #5a6671;
       --color-tertiary2: #c0ccd7;
     }
 
-    html[data-theme="red"] {
+    html[data-theme="Red"] {
       --color-primary: #f87171;
       --color-secondary: #c65a5a;
       --color-tertiary1: #944343;
       --color-tertiary2: #faa9a9;
     }
 
-    html[data-theme="pink"] {
+    html[data-theme="Pink"] {
       --color-primary: #da7b93;
       --color-secondary: #ae6275;
       --color-tertiary1: #824958;
       --color-tertiary2: #e8afbe;
     }
 
-    html[data-theme="orange"] {
+    html[data-theme="Orange"] {
       --color-primary: #ffcb85;
       --color-secondary: #cca26a;
       --color-tertiary1: #99794f;

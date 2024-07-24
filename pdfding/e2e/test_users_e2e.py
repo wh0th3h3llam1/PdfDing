@@ -6,24 +6,38 @@ from helpers import PdfDingE2ETestCase, PdfDingE2ENoLoginTestCase
 
 
 class UsersE2ETestCase(PdfDingE2ETestCase):
-    def test_settings_dark_mode(self):
+    def test_settings_change_theme(self):
         with sync_playwright() as p:
             self.open(reverse('profile-settings'), p)
 
             # test that light theme is used
             expect(self.page.locator('html')).not_to_have_attribute('class', 'dark')
-            expect(self.page.locator('#dark-mode')).to_contain_text('Light')
+            expect(self.page.locator('html')).to_have_attribute('data-theme', 'Green')
+            expect(self.page.locator("#theme")).to_contain_text("Light + Green")
             expect(self.page.locator('body')).to_have_css('background-color', 'rgba(0, 0, 0, 0)')
+            expect(self.page.locator('header')).to_have_css('background-color', 'rgb(74, 222, 128)')
 
             # change to dark mode
-            self.page.locator('#dark-mode-edit').click()
-            self.page.locator('#id_dark_mode').select_option('Dark')
-            self.page.get_by_role('button', name='Submit').click()
+            self.page.locator("#theme-edit").click()
+            # check that selected option is correct
+            expect(self.page.locator("#id_dark_mode")).to_have_value("Light")
+            expect(self.page.locator("#id_theme_color")).to_have_value("Green")
+            self.page.locator("#id_dark_mode").select_option("Dark")
+            self.page.locator("#id_theme_color").select_option("Blue")
+            self.page.get_by_role("button", name="Submit").click()
 
             # check that theme was changed to dark
             expect(self.page.locator('html')).to_have_attribute('class', 'dark')
-            expect(self.page.locator('#dark-mode')).to_contain_text('Dark')
+            expect(self.page.locator('html')).to_have_attribute('data-theme', 'Blue')
+            expect(self.page.locator("#theme")).to_contain_text("Dark + Blue")
             expect(self.page.locator('body')).to_have_css('background-color', 'rgb(30, 41, 59)')
+            expect(self.page.locator('header')).to_have_css('background-color', 'rgb(71, 147, 204)')
+
+            # trigger dropdown again
+            self.page.locator("#theme-edit").click()
+            # check that selected option is correct
+            expect(self.page.locator("#id_dark_mode")).to_have_value("Dark")
+            expect(self.page.locator("#id_theme_color")).to_have_value("Blue")
 
     def test_settings_email_change(self):
         with sync_playwright() as p:
@@ -60,10 +74,10 @@ class UsersE2ETestCase(PdfDingE2ETestCase):
             self.page.get_by_role('link', name='Cancel').click()
             expect(self.page.locator('#email-edit')).to_contain_text('Edit')
 
-            self.page.locator('#dark-mode-edit').click()
-            expect(self.page.locator('#dark-mode-edit')).to_contain_text('Cancel')
+            self.page.locator('#theme-edit').click()
+            expect(self.page.locator('#theme-edit')).to_contain_text('Cancel')
             self.page.get_by_role('link', name='Cancel').click()
-            expect(self.page.locator('#dark-mode-edit')).to_contain_text('Edit')
+            expect(self.page.locator('#theme-edit')).to_contain_text('Edit')
 
     def test_settings_change_password(self):
         with sync_playwright() as p:
@@ -105,3 +119,13 @@ class UsersLoginE2ETestCase(PdfDingE2ENoLoginTestCase):
             expect(self.page.get_by_role('navigation')).to_contain_text('Login')
             # signup should not be displayed in oidc only mode
             expect(self.page.get_by_role('navigation')).not_to_contain_text('Signup')
+
+    def test_login_theme(self):
+        with sync_playwright() as p:
+            self.open(reverse('home'), p)
+
+            # test that light theme is used
+            expect(self.page.locator('html')).not_to_have_attribute('class', 'dark')
+            expect(self.page.locator('html')).to_have_attribute('data-theme', 'Green')
+            expect(self.page.locator('body')).to_have_css('background-color', 'rgba(0, 0, 0, 0)')
+            expect(self.page.locator('header')).to_have_css('background-color', 'rgb(74, 222, 128)')

@@ -1,4 +1,4 @@
-<form action="{% url 'profile-darkmode-change' %}"
+<form action="{% url 'profile-theme-change' %}"
       method="post"
       class="flex gap-2 text-black dark:text-slate-200 h-8 w-11/12 [&>select]:bg-white dark:[&>select]:bg-slate-700"
       autocomplete="off">
@@ -8,6 +8,6 @@
     <button class="!flex items-center justify-center w-16" type="submit">Submit</button>
 </form>
 
-<a hx-swap-oob="true" id="dark-mode-edit" href="{% url 'profile-settings' %}" class="font-medium hover:underline">
+<a hx-swap-oob="true" id="theme-edit" href="{% url 'profile-settings' %}" class="font-medium hover:underline">
     Cancel
 </a>

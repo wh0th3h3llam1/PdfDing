@@ -15,9 +15,9 @@ class EmailForm(ModelForm):
         fields = ['email']
 
 
-class DarkModeForm(ModelForm):
+class ThemeForm(ModelForm):
     """The form for setting dark mode"""
 
     class Meta:
         model = Profile
-        fields = ['dark_mode']
+        fields = ['dark_mode', 'theme_color']

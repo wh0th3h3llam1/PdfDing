@@ -1,9 +1,11 @@
 {% load static %}
 <!DOCTYPE html>
-{% if request.user.profile.dark_mode == 'Dark' %}
-<html class="dark" data-theme="orange" lang="en">
+{% if not request.user.is_authenticated %}
+<html data-theme="Green" lang="en">
+{% elif request.user.profile.dark_mode == 'Dark' %}
+<html class="dark" data-theme="{{ request.user.profile.theme_color }}" lang="en">
 {% else %}
-<html data-theme="orange" lang="en">
+<html data-theme="{{ request.user.profile.theme_color }}" lang="en">
 {% endif %}
 <head>
     <meta charset="UTF-8">

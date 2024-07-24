@@ -79,6 +79,11 @@ class TestViews(TestCase):
         mock_serve.assert_called_with(response.wsgi_request, document_root=MEDIA_ROOT, path=f'{self.user}/pdf_name')
 
     def test_view_get(self):
+        # set color to blue
+        profile = self.user.profile
+        profile.theme_color = 'Blue'
+        profile.save()
+
         pdf = Pdf.objects.create(owner=self.user.profile, name='pdf')
         self.assertEqual(pdf.views, 0)
 
@@ -89,6 +94,7 @@ class TestViews(TestCase):
         self.assertEqual(pdf.views, 1)
 
         self.assertEqual(response.context['pdf_id'], str(pdf.id))
+        self.assertEqual(response.context['theme_color_rgb'], '71 147 204')
 
     def test_add_get(self):
         response = self.client.get(reverse('add_pdf'))

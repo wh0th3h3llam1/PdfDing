@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from django.http import HttpRequest
 from django.views import View
 
-from .forms import DarkModeForm, EmailForm
+from .forms import ThemeForm, EmailForm
 
 
 class BaseUserView(LoginRequiredMixin, View):
@@ -60,27 +60,31 @@ class ChangeEmail(BaseUserView):
             return redirect('profile-settings')
 
 
-class ChangeDarkMode(BaseUserView):
-    """View for changing dark mode."""
+class ChangeTheme(BaseUserView):
+    """View for changing the theme."""
 
     def get(self, request: HttpRequest):
-        """For a htmx request this will load an dark mode change form as a partial"""
+        """For a htmx request this will load a change theme form as a partial"""
 
         if request.htmx:
-            form = DarkModeForm(instance=request.user)
-            return render(request, 'partials/dark_mode_form.html', {'form': form})
+            form = ThemeForm(
+                instance=request.user,
+                initial={'dark_mode': request.user.profile.dark_mode, 'theme_color': request.user.profile.theme_color},
+            )
+            return render(request, 'partials/theme_form.html', {'form': form})
 
         return redirect('home')
 
     def post(self, request: HttpRequest):
-        """Process the submitted dark mode form"""
+        """Process the submitted change theme form"""
 
-        form = DarkModeForm(request.POST, instance=request.user)
+        form = ThemeForm(request.POST, instance=request.user)
 
         if form.is_valid():
-            # for some reason form.save has no effect so we do it manually...
+            # for some reason form.save has no effect, so we do it manually...
             profile = request.user.profile
             profile.dark_mode = form.cleaned_data['dark_mode']
+            profile.theme_color = form.cleaned_data['theme_color']
             profile.save()
 
             return redirect('profile-settings')
