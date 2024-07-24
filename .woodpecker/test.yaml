@@ -25,6 +25,7 @@ steps:
       - rm -rf pdfding/e2e && cp -R $CI_WORKSPACE/pdfding/e2e/ pdfding
       - rm -rf pdfding/core && cp -R $CI_WORKSPACE/pdfding/core/ pdfding
       - rm -rf pdfding/pdf && cp -R $CI_WORKSPACE/pdfding/pdf/ pdfding
+      - rm -rf pdfding/users && cp -R $CI_WORKSPACE/pdfding/users/ pdfding
       - rm -rf pdfding/templates && cp -R $CI_WORKSPACE/pdfding/templates/ pdfding
-      - npx --yes tailwindcss -i pdfding/static/css/input.css -o pdfding/static/css/tailwind.css -c /build/tailwind.config.js --minify
+      - npx --yes tailwindcss -i $CI_WORKSPACE/pdfding/static/css/input.css -o pdfding/static/css/tailwind.css -c $CI_WORKSPACE/tailwind.config.js --minify
       - poetry run python -m pytest pdfding/e2e
