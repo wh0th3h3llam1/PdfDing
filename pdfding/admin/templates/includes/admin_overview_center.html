@@ -1,0 +1,77 @@
+{% for user in page_obj %}
+{% with loop_id=forloop.counter %}
+<div x-data="{ delete{{ loop_id }}: false, admin{{ loop_id }}: false }" class="pb-1">
+  <ul>
+    <div class="text font-bold text-tertiary1 dark:text-tertiary2">
+        {% if user.is_superuser and request.user.is_staff %}
+        <span id="user-{{ loop_id }}">{{ user.email }} | Admin</span>
+        {% else %}
+        <span id="user-{{ loop_id }}">{{ user.email }}</span>
+        {% endif %}
+    </div>
+    <div class="text-gray-500  text-sm">
+      <span>Registered: {{ user.date_joined.date }} | PDFs: {{ user.profile.pdf_set.all.count }}</span>
+    </div>
+    <div class="text-gray-500 text-sm [&>a]:dark:text-slate-400">
+      <a id="admin-confirm-{{ loop_id }}"
+         x-show="admin{{ loop_id }}" x-cloak
+         hx-post="{% url 'admin_adjust_rights' user.id %}"
+         hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+         class="button-text-delete dark:!bg-slate-800 cursor-pointer">Confirm
+      </a>
+      <button id="admin-cancel-{{ loop_id }}" x-show="admin{{ loop_id }}"
+              x-cloak @click="admin{{ loop_id }} = false" type="button"
+              class="button-text-delete dark:!bg-slate-800">Cancel
+      </button>
+      <button id="admin-action-{{ loop_id }}"
+              x-show="!admin{{ loop_id }}" @click="admin{{ loop_id }} = true" type="button"
+              class="button-text dark:!bg-slate-800 dark:!text-slate-400">
+              {% if user.is_superuser and request.user.is_staff %}
+              Remove Admin Rights
+              {% else %}
+              Add Admin Rights
+              {% endif %}
+      </button>
+    </div>
+    <div class="text-gray-500 text-sm [&>a]:dark:text-slate-400">
+      <a id="delete-confirm-{{ loop_id }}"
+         x-show="delete{{ loop_id }}" x-cloak
+         hx-delete="{% url 'admin_delete_profile' user.id %}"
+         hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+         class="button-text-delete dark:!bg-slate-800 cursor-pointer">Confirm
+      </a>
+      <button id="delete-cancel-{{ loop_id }}"
+              x-show="delete{{ loop_id }}" x-cloak @click="delete{{ loop_id }} = false" type="button"
+              class="button-text-delete dark:!bg-slate-800">Cancel
+      </button>
+      <button id="delete-action-{{ loop_id }}"
+              x-show="!delete{{ loop_id }}" @click="delete{{ loop_id }} = true" type="button"
+              class="button-text dark:!bg-slate-800 dark:!text-slate-400">Delete
+      </button>
+    </div>
+  </ul>
+</div>
+{% endwith %}
+{% endfor %}
+{% if page_obj %}
+<div class="flex-grow border-t border-gray-400 mt-2 mb-4"></div>
+<div x-data="{}" class="flex [&>a]:text-primary [&>span]:text-primary [&>span]:cursor-default gap-x-3 pt-5">
+  {% if page_obj.has_previous %}
+    <a x-bind:href="combine_url_query('{% url 'admin_overview_page' page_obj.previous_page_number %}', construct_query_string('{{ raw_search_query }}', '{{ sorting_query }}'))"
+       class="hover:text-secondary">
+        Prev
+    </a>
+  {% else %}
+  <span>Prev</span>
+  {% endif %}
+  <span class="bg-primary !text-gray-100 px-2 rounded-sm">{{ page_obj.number }}</span>
+  {% if page_obj.has_next %}
+    <a x-bind:href="combine_url_query('{% url 'admin_overview_page' page_obj.next_page_number %}', construct_query_string('{{ raw_search_query }}', '{{ sorting_query }}'))"
+       class="hover:text-secondary">
+        Next
+    </a>
+  {% else %}
+    <span>Next</span>
+  {% endif %}
+</div>
+{% endif %}

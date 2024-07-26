@@ -17,6 +17,8 @@ class NoPdfE2ETestCase(PdfDingE2ETestCase):
 
     @patch('pdf.forms.magic.from_buffer', return_value='application/pdf')
     def test_add_pdf(self, mock_from_buffer):
+        # this also tests the overview
+
         # just use some dummy file for uploading
         dummy_file_path = Path(__file__).parent / 'dummy.pdf'
         with open(dummy_file_path, 'w') as f:
@@ -49,7 +51,6 @@ class NoPdfE2ETestCase(PdfDingE2ETestCase):
 
 class PdfE2ETestCase(PdfDingE2ETestCase):
     def setUp(self, login: bool = True) -> None:
-        # super(PdfDingE2ETestCase, self).setUp()
         super().setUp()
 
         # create some pdfs

@@ -15,19 +15,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-from django.contrib import admin
 from django.urls import path, include
 from pdf.views import redirect_overview
 
-
-from allauth.account.decorators import secure_admin_login
-
-admin.autodiscover()
-admin.site.login = secure_admin_login(admin.site.login)
-
 # to do exclude not needed allauth urls
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin/', include('admin.urls')),
     path('account', include('allauth.urls')),
     path('', redirect_overview, name='home'),
     path('profile/', include('users.urls')),

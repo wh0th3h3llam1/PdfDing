@@ -16,13 +16,14 @@ steps:
       - poetry run flake8
       - poetry run black . --check
       - cd pdfding
-      - poetry run pytest pdf users --cov=pdf --cov=users --cov-fail-under=100
+      - poetry run pytest admin pdf users --cov=admin --cov=pdf --cov=users --cov-fail-under=100
   e2e-test:
     image: mrmn/pdfding_e2e:latest
     depends_on: []
     commands:
       - cd /app
       - rm -rf pdfding/e2e && cp -R $CI_WORKSPACE/pdfding/e2e/ pdfding
+      - rm -rf pdfding/admin && cp -R $CI_WORKSPACE/pdfding/admin/ pdfding
       - rm -rf pdfding/core && cp -R $CI_WORKSPACE/pdfding/core/ pdfding
       - rm -rf pdfding/pdf && cp -R $CI_WORKSPACE/pdfding/pdf/ pdfding
       - rm -rf pdfding/users && cp -R $CI_WORKSPACE/pdfding/users/ pdfding

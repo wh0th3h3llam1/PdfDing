@@ -236,7 +236,7 @@ class Edit(BasePdfView):
 class Delete(BasePdfView):
     """View for deleting the PDF specified by its ID."""
 
-    def delete(self, request: HttpRequest, pdf_id):
+    def delete(self, request: HttpRequest, pdf_id: str):
         """Delete the specified PDF."""
 
         if request.htmx:

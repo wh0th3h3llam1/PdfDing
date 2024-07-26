@@ -66,6 +66,8 @@ class TestViews(TestCase):
         pdf_names = [pdf.name for pdf in response.context['page_obj']]
 
         self.assertEqual(pdf_names, ['pdf_2_2', 'pdf_2_7'])
+        self.assertEqual(response.context['raw_search_query'], 'pdf_2 #tag')
+        self.assertEqual(response.context['sorting_query'], 'oldest')
 
     @patch('pdf.views.serve')
     def test_serve_get(self, mock_serve):
@@ -262,7 +264,7 @@ class TestDelete(TransactionTestCase):
         self.user = None
         set_up(self)
 
-    def test_delete_delete_htmx(self):
+    def test_delete_htmx(self):
         # create a file for the test, so we can check that it was deleted by django_cleanup
         simple_file = SimpleUploadedFile("simple.pdf", b"these are the file contents!")
         pdf = Pdf.objects.create(owner=self.user.profile, name='pdf', file=simple_file)
@@ -274,7 +276,7 @@ class TestDelete(TransactionTestCase):
         self.assertFalse(self.user.profile.pdf_set.filter(id=pdf.id).exists())
         self.assertFalse(pdf_path.exists())
 
-    def test_delete_delete_no_htmx(self):
+    def test_delete_no_htmx(self):
         pdf = Pdf.objects.create(owner=self.user.profile, name='pdf')
 
         response = self.client.delete(reverse('delete_pdf', kwargs={'pdf_id': pdf.id}))

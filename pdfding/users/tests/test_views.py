@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 from django.test import Client, TestCase
 from django.urls import reverse
 
+from pdf.models import Pdf, Tag
+from users.models import Profile
 from users.forms import ThemeForm, EmailForm
 
 
@@ -105,6 +107,16 @@ class TestProfileViews(TestCase):
         self.assertEqual(user.profile.theme_color, 'Blue')
 
     def test_delete_post(self):
+        # in this test we test that the user is successfully deleted
+        # we also test that the associated profile, pdfs, and tags are also deleted
+        pdf = Pdf.objects.create(owner=self.user.profile, name='pdf_1')
+        tags = [Tag.objects.create(name='tag', owner=pdf.owner)]
+        pdf.tags.set(tags)
+
+        for model_class in [Profile, Pdf, Tag]:
+            # assert there is a profile, pdf and tag
+            self.assertEqual(model_class.objects.all().count(), 1)
+
         # follow=True is needed for getting the message
         response = self.client.post(reverse('profile-delete'), follow=True)
         message = list(response.context['messages'])[0]
@@ -112,3 +124,6 @@ class TestProfileViews(TestCase):
         self.assertFalse(User.objects.filter(username=self.username).exists())
         self.assertEqual(message.message, 'Your Account was successfully deleted.')
         self.assertEqual(message.tags, 'success')
+        for model_class in [Profile, Pdf, Tag]:
+            # assert there is no profile, pdf and tag
+            self.assertEqual(model_class.objects.all().count(), 0)

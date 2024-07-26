@@ -23,6 +23,9 @@
             {% if request.user.is_authenticated %}
             <li><a href="{% url 'add_pdf' %}">Add PDF</a></li>
             <li><a href="{% url 'pdf_overview' %}">PDFs</a></li>
+            {% if request.user.is_superuser and request.user.is_staff %}
+            <li><a href="{% url 'admin_overview' %}">Admin</a></li>
+            {% endif %}
             <li x-data="{ dropdownOpen: false }" class="relative">
                 <a @click="dropdownOpen = !dropdownOpen" @click.away="dropdownOpen = false" class="cursor-pointer select-none">
                     <!-- bg-primary needed as profile image will flicker otherwise -->

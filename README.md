@@ -28,7 +28,7 @@ Linkding is an excellent selfhostable bookmark manager. If you are unfamiliar wi
 * Seamless browser based PDF viewing on multiple devices
 * Organize PDFs with tags
 * Clean and responsive UI
-* Dark Mode
+* Dark Mode and colored themes
 * Remembers current position - continue where you stopped reading
 * SSO support via OIDC
 * Every user can upload its own PDFs. There is no admin curating the content.

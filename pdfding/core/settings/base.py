@@ -31,7 +31,6 @@ ALLOWED_HOSTS = []
 
 # Application definition
 INSTALLED_APPS = [
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.humanize',
@@ -43,6 +42,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.openid_connect',
     'django_htmx',
+    'admin',
     'pdf',
     'users',
     # django_cleanup needs to be placed last in INSTALLED_APPS

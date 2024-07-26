@@ -1,3 +1,4 @@
+from allauth.socialaccount.models import SocialAccount
 from django.test import override_settings
 from django.urls import reverse
 from playwright.sync_api import sync_playwright, expect
@@ -87,11 +88,37 @@ class UsersE2ETestCase(PdfDingE2ETestCase):
             self.page.get_by_role('link', name='Edit').click()
             expect(self.page.get_by_role('button')).to_contain_text('Change Password')
 
+    def test_settings_social_only(self):
+        # test that email and password settings are not present for oidc users
+        social_account = SocialAccount.objects.create(user=self.user)
+        self.user.socialaccount_set.set([social_account])
+
+        with sync_playwright() as p:
+            self.open(reverse('profile-settings'), p)
+
+            expect(self.page.locator('#email-edit')).to_have_count(0)
+            expect(self.page.get_by_text("Password")).to_have_count(0)
+
     def test_header_dropdown(self):
         with sync_playwright() as p:
             self.open(reverse('pdf_overview'), p)
             self.page.get_by_role('list').locator('a').nth(2).click()
             expect(self.page.get_by_role('navigation')).to_contain_text('a@a.com')
+
+    def test_header_non_admin(self):
+        with sync_playwright() as p:
+            self.open(reverse('pdf_overview'), p)
+            expect(self.page.get_by_role("list")).not_to_contain_text("Admin")
+
+    def test_header_admin(self):
+        self.user.is_staff = True
+        self.user.is_superuser = True
+
+        self.user.save()
+
+        with sync_playwright() as p:
+            self.open(reverse('pdf_overview'), p)
+            expect(self.page.get_by_role("list")).to_contain_text("Admin")
 
 
 class UsersLoginE2ETestCase(PdfDingE2ENoLoginTestCase):
