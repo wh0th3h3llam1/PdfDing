@@ -1,7 +1,19 @@
 # Changelog
 <hr>
 
-## 0.1.2 - Colored Themes (Jul 15, 2024)
+## 0.2.0 - New Admin Area (Jul 27, 2024)
+<hr>
+
+* Add new Admin Area - admins can delete users and grant + remove admin rights
+* Remove standard Django Admin Area
+* Add `OIDC_ENABLE` environment variable for enabling SSO via OIDC
+
+### Breaking Changes
+
+* In order to use SSO via OIDC the environment variable `OIDC_ENABLE` needs to be set to `TRUE`.
+  For more information refer to the [configuration](https://codeberg.org/mrmn/PdfDing#configuration) section of the README.
+
+## 0.1.2 - Colored Themes (Jul 24, 2024)
 <hr>
 
 * Add theme colors
