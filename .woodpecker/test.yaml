@@ -18,15 +18,11 @@ steps:
       - cd pdfding
       - poetry run pytest admin pdf users --cov=admin --cov=pdf --cov=users --cov-fail-under=100
   e2e-test:
-    image: mrmn/pdfding_e2e:latest
+    image: mrmn/pdfding_e2e:2024.07.01
     depends_on: []
     commands:
       - cd /app
-      - rm -rf pdfding/e2e && cp -R $CI_WORKSPACE/pdfding/e2e/ pdfding
-      - rm -rf pdfding/admin && cp -R $CI_WORKSPACE/pdfding/admin/ pdfding
-      - rm -rf pdfding/core && cp -R $CI_WORKSPACE/pdfding/core/ pdfding
-      - rm -rf pdfding/pdf && cp -R $CI_WORKSPACE/pdfding/pdf/ pdfding
-      - rm -rf pdfding/users && cp -R $CI_WORKSPACE/pdfding/users/ pdfding
-      - rm -rf pdfding/templates && cp -R $CI_WORKSPACE/pdfding/templates/ pdfding
+      - for i in admin core e2e pdf templates users; do cp -R $CI_WORKSPACE/pdfding/$i/ pdfding; done
+      - cp $CI_WORKSPACE/pdfding/manage.py pdfding
       - npx --yes tailwindcss -i $CI_WORKSPACE/pdfding/static/css/input.css -o pdfding/static/css/tailwind.css -c $CI_WORKSPACE/tailwind.config.js --minify
       - poetry run python -m pytest pdfding/e2e
