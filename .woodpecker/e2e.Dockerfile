@@ -18,7 +18,6 @@ ENV POETRY_NO_INTERACTION=1 \
     POETRY_CACHE_DIR=/tmp/poetry_cache
 
 WORKDIR /app
-RUN ls
 
 RUN apt-get update \
     && apt-get install --no-install-recommends -y python3 pipx libmagic1  \
