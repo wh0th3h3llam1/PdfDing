@@ -8,6 +8,10 @@ pdfding/static/js
 pdfding/static/css/*
 !pdfding/static/css/input.css
 pdfding/static/pdfjs
+pdfding/conftest.py
+
+**/htmlcov
+**/.coverage
 
 **/tests/
 **/e2e/

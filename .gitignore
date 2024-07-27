@@ -12,4 +12,6 @@ pdfding/static/css/*
 !pdfding/static/css/input.css
 pdfding/static/js
 pdfding/static/pdfjs
+
+**/htmlcov
 **/.coverage

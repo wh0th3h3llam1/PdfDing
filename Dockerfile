@@ -12,16 +12,17 @@ COPY pdfding ./pdfding
 RUN apt-get update && apt-get install curl unzip -y
 # get pdfjs
 RUN curl -L https://github.com/mozilla/pdf.js/releases/download/v$PDFJS_VERSION/pdfjs-$PDFJS_VERSION-dist.zip > pdfjs.zip
-RUN unzip pdfjs.zip -d pdfjs
-RUN rm -rf pdfjs/web/locale pdfjs/web/standard_fonts pdfjs/web/compressed.tracemonkey-pldi-09.pdf
+RUN unzip pdfjs.zip -d pdfding/static/pdfjs
+RUN rm -rf pdfding/static/pdfjs/web/locale \
+    pdfding/static/pdfjs/web/standard_fonts \
+    pdfding/static/pdfjs/web/compressed.tracemonkey-pldi-09.pdf
 # get other dependecies
-RUN mkdir ./js && mkdir ./css
 RUN npm ci && npm run build
-RUN npx tailwindcss -i pdfding/static/css/input.css -o css/tailwind.css -c tailwind.config.js --minify
+RUN npx tailwindcss -i pdfding/static/css/input.css -o pdfding/static/css/tailwind.css -c tailwind.config.js --minify
 # minify pdfjs js files
-RUN for i in pdfjs/build/pdf.mjs pdfjs/build/pdf.sandbox.mjs pdfjs/build/pdf.worker.mjs pdfjs/web/viewer.mjs; \
-    do npx terser $i --compress -o $i; done
-RUN rm pdfding/static/css/input.css && mv -t pdfding/static js css pdfjs
+RUN for i in build/pdf.mjs build/pdf.sandbox.mjs build/pdf.worker.mjs web/viewer.mjs; \
+    do npx terser pdfding/static/pdfjs/$i --compress -o pdfding/static/pdfjs/$i; done
+RUN rm pdfding/static/css/input.css
 
 # The build image, used to build the virtual python environment
 FROM python:3.12.4-slim as python-build
