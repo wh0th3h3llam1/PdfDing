@@ -55,7 +55,7 @@ else:
     ACCOUNT_EMAIL_VERIFICATION = 'optional'
 
 # configure the oidc provider
-if os.environ.get('OIDC_CLIENT_ID'):
+if os.environ.get('OIDC_ENABLE') == 'TRUE':
     # enable social logins only
     if os.environ.get('OIDC_ONLY') == 'TRUE':
         SOCIALACCOUNT_ONLY = True
