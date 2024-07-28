@@ -17,6 +17,7 @@ python-magic = "==0.4.27"
 whitenoise = {extras = ["brotli"], version = "==6.7.0 "}
 
 [tool.poetry.group.dev.dependencies]
+bandit = "==1.7.9"
 black = "==24.4.2"
 flake8 = "==7.1.0"
 pytest = "==8.2.2"
@@ -46,6 +47,9 @@ exclude = '''
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "pdfding.core.settings"
+
+[tool.bandit]
+exclude_dirs = ["tests", "path/to/file"]
 
 [build-system]
 requires = ["poetry-core"]

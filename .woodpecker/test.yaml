@@ -6,18 +6,25 @@ when:
     evaluate: 'CI_COMMIT_AUTHOR == CI_REPO_OWNER'
 
 steps:
-  unit-test:
+  code-quality:
     image: python:3.12.4-slim
     depends_on: []
     commands:
-      - apt-get update && apt-get install --no-install-recommends -y libmagic1
       - pip install poetry==1.8.3
       - poetry install --without e2e
       - poetry run flake8
       - poetry run black . --check
+      - poetry run bandit -x "**/tests/*,**/e2e/*" -r .
+  unit-tests:
+    image: python:3.12.4-slim
+    depends_on: [ ]
+    commands:
+      - apt-get update && apt-get install --no-install-recommends -y libmagic1
+      - pip install poetry==1.8.3
+      - poetry install --without e2e
       - cd pdfding
       - poetry run pytest admin pdf users --cov=admin --cov=pdf --cov=users --cov-fail-under=100
-  e2e-test:
+  e2e-tests:
     image: mrmn/pdfding_e2e:2024.07.01
     depends_on: []
     commands:
