@@ -5,9 +5,9 @@
 
 - [Introduction](#introduction)
 - [Installation](#installation)
-  - [Using Docker](#using-docker) 
+  - [Using Docker](#using-docker)
   - [Using Docker Compose](#using-docker-compose)
-  - [Admin User](#admin-user) 
+  - [Admin User](#admin-user)
   - [SSO](#single-sign-on-sso)
 - [Configuration](#configuration)
 - [Tech Stack](#tech-stack)
@@ -18,12 +18,12 @@
 <hr>
 
 PdfDing is a PDF manager and viewer that you can host yourself. It offers a seamless user experience on multiple
-devices. It's designed be to be minimal, fast, and easy to set up using Docker.
+devices. It's designed be to be minimal, fast, and easy to set up using Docker. As all data stays on your server
+you have full control over your data and privacy.
 
-PdfDing was created because I was searching for a selfhostable browser based PDF viewer that I can seamlessly use on my
-desktop and my mobiles. However, the existing solution were either too heavy and feature rich or did
-not match my use case. Thus, I am developing PDfDing as a simple webapp with a clear focus on a single thing: viewing
-and managing PDFs. This is also why you won't find any fancy AI or OCR in this project.
+With its simple, intuitive and adjustable UI, PdfDing makes it easy for users to keep track of their PDFs
+and access them whenever they need to. With a dark mode and colored themes users can style the app to
+their liking. As PdfDing offers SSO support via OIDC it can be easily integrated into existing setups.
 
 The name is a combination of PDF and *ding*. Ding is the German word for thing. Thus, PdfDing is a thing for
 your PDFs. The name and the design of PdfDing are inspired by [linkding](https://github.com/sissbruecker/linkding).
@@ -40,7 +40,31 @@ Linkding is an excellent selfhostable bookmark manager. If you are unfamiliar wi
 * Simple Admin area for user management
 
 ### Demo Video
-![Demo gif](demo.gif)
+![Demo gif](screenshots/demo.gif)
+
+More screenshots can be found [here](https://codeberg.org/mrmn/PdfDing/src/branch/master/screenshots).
+
+### Why PdfDing?
+I started developing PdfDing as I was searching for a solution for viewing and managing PDF files.
+I had a few simple requirements:
+
+* view PDFs seamlessly in the browser of my desktop and mobile devices
+* every user can upload files
+* can be self-hosted via Docker
+* minimal and resource-friendly
+* SSO support
+
+I was quite surprised to find out that there was no app matching my simple requirements. While there
+were some existing solutions they still had some problems:
+
+* They are using the inbuilt PDF viewer of the browser. This works fine on desktops and laptops but on smartphones
+  it will simply download the PDF file and not display it in the browser.
+* They are really feature rich and therefore resource-hungry. I do not need fancy AI or OCR. I just want
+  to view and organize my PDFs.
+* The content needs to be curated by an admin user. Normal users are not allowed to add PDFs.
+* PDFs can not be uploaded via the UI.
+
+Thus, I am developing PDfDing as a simple webapp with a clear focus on a single thing: viewing and managing PDFs.
 
 ## Installation
 PdfDing is designed to be run with container solutions like Docker. The Docker image is compatible with ARM64 platforms,
@@ -82,7 +106,7 @@ inside the shell of the running container and specify the correct email address.
 Admin users can can also give other users admin rights via the ui.
 
 ### Single Sign on (SSO)
-PdfDing supports SSO via OIDC. OIDC is set up by using environment variables: 
+PdfDing supports SSO via OIDC. OIDC is set up by using environment variables:
 ```
 OIDC_ENABLE: "TRUE"
 OIDC_CLIENT_ID: "pdfding"
@@ -93,7 +117,7 @@ OIDC_PROVIDER_NAME: "Authelia"
 
 More information about the environment variables can be found in the [Configuration](#configuration) section.
 
-Once PdfDing is set up for using OIDC the same needs to be done on the OIDC identity provider's side. Of course, this 
+Once PdfDing is set up for using OIDC the same needs to be done on the OIDC identity provider's side. Of course, this
 configuration depends on the used identity provider. Here is an example configuration
 for [Authelia](https://www.authelia.com/):
 ```
@@ -125,12 +149,12 @@ This value is the key to securing signed data. Should be to a large random value
 ### `HOST_NAME`
 Values: `string` | Default = `None`
 
-The host/domain name where PdfDing will be reachable. Example: `pdfding.com`   
+The host/domain name where PdfDing will be reachable. Example: `pdfding.com`
 
 ### `HOST_PORT`
 Values: `integer` | Default: `8000`
 
-Allows to set a custom port for the PdfDing server. 
+Allows to set a custom port for the PdfDing server.
 
 ### `DATABASE_TYPE`
 Values: `SQLITE`, `POSTGRES` | Default `POSTGRES`
@@ -170,7 +194,7 @@ PdfDing's OIDC client secret. Should be a large random value! Example: `another_
 ### `OIDC_AUTH_URL`
 Values: `string` | Default = `None`
 
-The URL to the OpenID configuration of the auth server. Example: 
+The URL to the OpenID configuration of the auth server. Example:
 `https://auth.pdfding.com/.well-known/openid-configuration`
 
 ### `OIDC_ONLY`
@@ -192,19 +216,19 @@ Set this to True to avoid transmitting the CSRF cookie over HTTP accidentally.
 ### `SESSION_COOKIE_SECURE`
 Values: `TRUE`, `FALSE` | Default: `TRUE`
 
-Set this to True to avoid transmitting the session cookie over HTTP accidentally. 
+Set this to True to avoid transmitting the session cookie over HTTP accidentally.
 
 ### `SECURE_SSL_REDIRECT`
 Values: `FALSE`, `TRUE` | Default: `FALSE`
 
-Redirects all non-HTTPS requests to HTTPS. If PdfDing is running behind a reverse proxy this can cause infinite 
+Redirects all non-HTTPS requests to HTTPS. If PdfDing is running behind a reverse proxy this can cause infinite
 redirects.
 
 ### `SECURE_HSTS_SECONDS`
 Values: `integer` | Default: `None`
 
 For sites that should only be accessed over HTTPS, you can instruct modern browsers to refuse to connect to your domain
-name via an insecure connection (for a given period of time) by setting the “Strict-Transport-Security” header. 
+name via an insecure connection (for a given period of time) by setting the “Strict-Transport-Security” header.
 `SECURE_HSTS_SECONDS` will set this header for you on all HTTPS responses for the specified number of seconds. Test this
 with a small value first. If everything works it can be set to a large value, e.g. `31536000` (1 year) , in order to
 protect infrequent visitors.
@@ -265,8 +289,8 @@ some support both. Note that `SMTP_USE_TLS`/`SMTP_USE_SSL` are mutually exclusiv
 
 ## Contributing
 PdfDing is open source, so you are free to modify or contribute. PdfDing is built using the Django web framework. You
-can get started by checking out the excellent [Django docs](https://docs.djangoproject.com/en/stable/). Currently, 
-PdfDing consists of four applications: 
+can get started by checking out the excellent [Django docs](https://docs.djangoproject.com/en/stable/). Currently,
+PdfDing consists of four applications:
 * Inside the `pdf` folder is the one related to managing and viewing PDFs
 * the folder `users` contains the logic related to users
 * the admin area is implemented inside the `admin` folder
@@ -280,6 +304,19 @@ Other than that the code should be self-explanatory / standard Django stuff 🙂
 * pipx
 * Poetry: `pipx install poetry`
 * Node.js
+
+### Pre-Commit
+This project has support for `pre-commit` hooks. They are used for checking the code quality,
+e.g. with: `black`, `flake8` and `bandit`. If `pre-commit` is installed on your system just run
+```
+pre-commit install
+```
+Now whenever you commit your changes the pre-commit hooks will be triggered. If you want to bypass
+`pre-commit` for some reason just add `--no-verify` to your commit command, e.g.:
+```
+git commit -m 'some commit message' --no-verify
+```
+
 
 ### Setup
 
@@ -331,7 +368,7 @@ npx tailwindcss -i pdfding/static/css/input.css -o pdfding/static/css/tailwind.c
 The frontend is now available under http://127.0.0.1:8000. Any changes in regard to Tailwind CSS will be automatically
 reflected.
 
-### Testing 
+### Testing
 
 Run all tests with:
 ```
@@ -347,7 +384,7 @@ pytest pdfding/e2e
 ```
 
 ### Code Quality
-Formatting is done via `black`: 
+Formatting is done via `black`:
 ```
 black .
 ```
@@ -356,10 +393,3 @@ Further code quality checks are done via `flake8`:
 ```
 flake8
 ```
-
-
-
-
-
-
-
