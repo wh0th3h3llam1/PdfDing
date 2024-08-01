@@ -24,6 +24,21 @@ if os.environ.get('HOST_NAME'):
 
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
+
+if os.environ.get('BACKUP_ENABLE') == 'TRUE':
+    BACKUP_ENABLE = True
+    BACKUP_ENDPOINT = os.environ.get('BACKUP_ENDPOINT')
+    BACKUP_ACCESS_KEY = os.environ.get('BACKUP_ACCESS_KEY')
+    BACKUP_SECRET_KEY = os.environ.get('BACKUP_SECRET_KEY')
+    BACKUP_BUCKET_NAME = os.environ.get('BACKUP_BUCKET_NAME', 'pdfding')
+    BACKUP_SCHEDULE = os.environ.get('BACKUP_SCHEDULE', '0 2 * * *')
+    if os.environ.get('BACKUP_SECURE') == 'TRUE':
+        BACKUP_SECURE = True
+    else:
+        BACKUP_SECURE = False
+else:
+    BACKUP_ENABLE = False
+
 if os.environ.get('CSRF_COOKIE_SECURE', 'TRUE') == 'TRUE':
     CSRF_COOKIE_SECURE = True
 if os.environ.get('SESSION_COOKIE_SECURE', 'TRUE') == 'TRUE':
@@ -84,19 +99,3 @@ if os.environ.get('OIDC_ENABLE') == 'TRUE':
             ],
         }
     }
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': True,
-    'formatters': {
-        'verbose': {'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'},
-    },
-    'handlers': {'console': {'level': 'NOTSET', 'class': 'logging.StreamHandler', 'formatter': 'verbose'}},
-    'loggers': {
-        '': {
-            'handlers': ['console'],
-            'level': 'NOTSET',
-        },
-        'django.request': {'handlers': ['console'], 'propagate': False, 'level': 'ERROR'},
-    },
-}

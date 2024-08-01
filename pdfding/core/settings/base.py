@@ -20,9 +20,6 @@ BASE_DIR = Path(__file__).resolve().parents[2]
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'some-key'  # nosec B105
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
@@ -41,7 +38,9 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.openid_connect',
     'django_htmx',
+    'huey.contrib.djhuey',
     'admin',
+    'backup',
     'pdf',
     'users',
     # django_cleanup needs to be placed last in INSTALLED_APPS
@@ -106,6 +105,9 @@ else:
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db' / 'db.sqlite3',
+            'TEST': {
+                'NAME': BASE_DIR / 'db' / 'test.sqlite3',
+            },
         }
     }
 
@@ -193,3 +195,45 @@ SOCIALACCOUNT_OPENID_CONNECT_URL_PREFIX = ''
 #         ],
 #     }
 # }
+
+# Huey task queue
+HUEY = {
+    'huey_class': 'huey.SqliteHuey',
+    'filename': BASE_DIR / 'db' / 'tasks.sqlite3',
+    'immediate': False,  # settings.DEBUG,  # If DEBUG=True, run synchronously.
+    'results': False,  # Store return values of tasks.
+    'store_none': False,  # If a task returns None, do not save to results.
+    'utc': True,  # Use UTC for all times internally.
+    'consumer': {
+        'workers': 1,
+        'worker_type': 'thread',
+        'initial_delay': 5,
+        'backoff': 1.15,
+        'max_delay': 10,
+        'scheduler_interval': 10,
+        'periodic': True,
+        'check_worker_health': True,
+        'health_check_interval': 10,
+    },
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'django': {
+        'handlers': ['console'],
+        'level': 'WARN',
+        'propagate': True,
+    },
+    'django.request': {
+        'handlers': ['mail_admins'],
+        'filters': ['require_debug_false'],
+        'level': 'ERROR',
+        'propagate': False,
+    },
+}

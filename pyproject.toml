@@ -12,6 +12,8 @@ django-allauth = {extras = ["socialaccount"], version = "==0.63.6"}
 django-cleanup = "==8.1.0"
 django-htmx = "==1.18.0"
 gunicorn = "==22.0.0"
+huey = "==2.5.1"
+minio = "==7.2.7"
 psycopg2-binary = "==2.9.9"
 python-magic = "==0.4.27"
 whitenoise = {extras = ["brotli"], version = "==6.7.0 "}
