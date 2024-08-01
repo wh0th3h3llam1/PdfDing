@@ -4,6 +4,8 @@ when:
   - event: pull_request
     branch: master
     evaluate: 'CI_COMMIT_AUTHOR == CI_REPO_OWNER'
+    path:
+      include: [ '*/*.py', '*/*.html' ]
 
 steps:
   code-quality:
