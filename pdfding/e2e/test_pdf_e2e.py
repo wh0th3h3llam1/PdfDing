@@ -2,10 +2,9 @@ from pathlib import Path
 from unittest.mock import patch
 
 from django.urls import reverse
-from playwright.sync_api import sync_playwright, expect
-
 from helpers import PdfDingE2ETestCase
 from pdf.models import Pdf, Tag
+from playwright.sync_api import expect, sync_playwright
 
 
 class NoPdfE2ETestCase(PdfDingE2ETestCase):
@@ -156,7 +155,10 @@ class PdfE2ETestCase(PdfDingE2ETestCase):
         pdf.save()
 
         # only check for date, time is not easily reproducible
-        creation_date = pdf.creation_date.strftime('%B %d, %Y')
+        creation_date = pdf.creation_date.strftime('%b. %-d, %Y')
+        # months that are not shortened do not need the dot
+        if 'May' in creation_date or 'July' in creation_date or 'June' in creation_date:
+            creation_date.replace('.', '')
 
         with sync_playwright() as p:
             self.open(reverse('pdf_details', kwargs={'pdf_id': pdf.id}), p)

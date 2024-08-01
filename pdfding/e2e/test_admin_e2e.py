@@ -1,9 +1,8 @@
 from django.contrib.auth.models import User
 from django.urls import reverse
-from playwright.sync_api import sync_playwright, expect
-
 from helpers import PdfDingE2ETestCase
 from pdf.models import Pdf
+from playwright.sync_api import expect, sync_playwright
 
 
 class AdminE2ETestCase(PdfDingE2ETestCase):
@@ -28,7 +27,10 @@ class AdminE2ETestCase(PdfDingE2ETestCase):
             expect(self.page.locator("#number_pdfs")).to_contain_text("PDFs: 6")
 
     def test_overview(self):
-        date_joined = self.user.date_joined.strftime("%B %d, %Y")
+        date_joined = self.user.date_joined.strftime("%b. %-d, %Y")
+        # months that are not shortened do not need the dot
+        if 'May' in date_joined or 'July' in date_joined or 'June' in date_joined:
+            date_joined.replace('.', '')
 
         with sync_playwright() as p:
             self.open(reverse("admin_overview"), p)
