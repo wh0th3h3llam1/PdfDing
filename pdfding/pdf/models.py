@@ -1,8 +1,7 @@
 from uuid import uuid4
 
-from django.db import models
 from django.contrib.humanize.templatetags.humanize import naturaltime
-
+from django.db import models
 from users.models import Profile
 
 
@@ -31,7 +30,11 @@ class Tag(models.Model):
 
 
 def get_file_path(instance, _):
-    """Get the file path for a PDF by generating a UUID and using the user id. File paths are user_id/<uuid>.pdf"""
+    """
+    Get the file path for a PDF by generating a UUID and using the user id. File paths are user_id/<uuid>.pdf
+
+    User uploaded files will always be placed inside MEDIA_ROOT.
+    """
 
     file_name = f'{uuid4()}.pdf'
     file_path = '/'.join([str(instance.owner.user.id), file_name])

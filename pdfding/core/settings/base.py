@@ -105,6 +105,7 @@ else:
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db' / 'db.sqlite3',
+            'BACKUP_NAME': BASE_DIR / 'db' / 'backup.sqlite3',
             'TEST': {
                 'NAME': BASE_DIR / 'db' / 'test.sqlite3',
             },
@@ -235,5 +236,12 @@ LOGGING = {
         'filters': ['require_debug_false'],
         'level': 'ERROR',
         'propagate': False,
+    },
+    'loggers': {
+        'recover_data': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
     },
 }

@@ -1,9 +1,9 @@
-from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
+from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
-    help = "Closes the specified poll for voting"
+    help = "Give the user specified by the email address admin rights."
 
     def add_arguments(self, parser):
         parser.add_argument('-e', '--email', type=str, help='The email of the user who should be admin')

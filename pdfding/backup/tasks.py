@@ -26,9 +26,7 @@ def parse_cron_schedule(cron_schedule: str) -> dict[str, str]:
     """
 
     cron_schedule_split = cron_schedule.split()
-
     key_list = ['minute', 'hour', 'day', 'month', 'day_of_week']
-
     return_dict = {key: value for key, value in zip(key_list, cron_schedule_split)}
 
     return return_dict
@@ -38,6 +36,15 @@ def parse_cron_schedule(cron_schedule: str) -> dict[str, str]:
 def backup_task():  # pragma: no cover
     """
     Periodic huey task for backing up the PDF files and (if used) the sqlite database.
+    """
+
+    backup_function()
+
+
+def backup_function():
+    """
+    Function for backing up the PDF files and (if used) the sqlite database. This is a separate function in order
+    to make the unit tests easier.
     """
 
     logger.info('----------------------------------------------------')
@@ -51,8 +58,8 @@ def backup_task():  # pragma: no cover
         # backup sqlite db
         if settings.DATABASES['default']['ENGINE'] == 'django.db.backends.sqlite3':
             logger.info('Backing up sqlite db')
-            backup_path = settings.BASE_DIR / 'db' / 'backup.sqlite3'
-            backup_sqlite(settings.BASE_DIR / 'db' / 'db.sqlite3', backup_path)
+            backup_path = settings.DATABASES['default']['BACKUP_NAME']
+            backup_sqlite(settings.DATABASES['default']['NAME'], backup_path)
             minio_client.fput_object(settings.BACKUP_BUCKET_NAME, backup_path.name, backup_path)
             backup_path.unlink()
 
@@ -62,16 +69,20 @@ def backup_task():  # pragma: no cover
         logger.info(f'Need to backup {len(to_be_added)} files.')
         logger.info(f'Need to remove {len(to_be_deleted)} files from backup.')
 
-        for pdf_name in to_be_added:
+        for i, pdf_name in enumerate(to_be_added):
+            if i % 10 == 0:
+                logger.info(f'Added {i + 1} / {len(to_be_added)} files')
             minio_client.fput_object(settings.BACKUP_BUCKET_NAME, pdf_name, settings.MEDIA_ROOT / pdf_name)
 
-        for pdf_name in to_be_deleted:
+        for i, pdf_name in enumerate(to_be_deleted):
+            if i % 10 == 0:
+                logger.info(f'Removed {i + 1} / {len(to_be_deleted)} files')
+
             minio_client.remove_object(settings.BACKUP_BUCKET_NAME, pdf_name)
 
         logger.info('Backup completed successfully.')
         logger.info('----------------------------------------------------')
 
-        return None
     except Exception as error:  # noqa: E722
         logger.error(f'There was an error during the backup: "{repr(error)}"!')
         logger.error('Backup aborted!')
@@ -88,8 +99,6 @@ def backup_sqlite(db_path: Path, backup_path: Path):
     backup_conn.close()
     conn.close()
 
-    return None
-
 
 def difference_local_minio() -> tuple[set[str], set[str]]:
     """
@@ -105,7 +114,7 @@ def difference_local_minio() -> tuple[set[str], set[str]]:
     set_of_minio_files = {
         object.object_name
         for object in minio_client.list_objects(settings.BACKUP_BUCKET_NAME, recursive=True)
-        if object.object_name != 'backup.sqlite3'
+        if object.object_name != settings.DATABASES['default']['BACKUP_NAME'].name
     }
 
     to_be_deleted = set_of_minio_files.difference(set_of_local_files)

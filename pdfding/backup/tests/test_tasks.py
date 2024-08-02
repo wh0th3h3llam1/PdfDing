@@ -1,4 +1,6 @@
+import logging
 import sqlite3
+from pathlib import Path
 from unittest import mock
 
 from allauth.account.models import EmailAddress
@@ -7,6 +9,8 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
 from pdf.models import Pdf, Tag
+
+logger = logging.getLogger('huey')
 
 
 class TestPeriodicBackup(TestCase):
@@ -20,8 +24,42 @@ class TestPeriodicBackup(TestCase):
         mock_object.object_name = f'2/pdf_{i}{i}.pdf'
         mock_objects.append(mock_object)
 
-    def test_backup_task(self):
-        pass
+    mock_object = mock.Mock()
+    mock_object.object_name = 'backup.sqlite3'
+
+    @mock.patch('backup.tasks.Minio.bucket_exists', side_effect=ValueError('some error'))
+    def test_backup_function_exception(self, mock_bucket_exists):
+        with self.assertLogs(logger) as cm:
+            tasks.backup_function()
+
+            expected_logs = [
+                'INFO:huey:----------------------------------------------------',
+                'INFO:huey:Backup is being started',
+                'ERROR:huey:There was an error during the backup: "ValueError(\'some ' 'error\')"!',
+                'ERROR:huey:Backup aborted!',
+                'INFO:huey:----------------------------------------------------',
+            ]
+
+            self.assertListEqual(cm.output, expected_logs)
+
+    @mock.patch('backup.tasks.difference_local_minio', return_value=({'add_1.pdf', 'add_2.pdf'}, {'remove.pdf'}))
+    @mock.patch('backup.tasks.Minio.fput_object')
+    @mock.patch('backup.tasks.Minio.make_bucket')
+    @mock.patch('backup.tasks.Minio.bucket_exists', return_value=False)
+    def test_backup_function(self, mock_bucket_exists, mock_make_bucket, mock_fput_object, mock_difference_local_minio):
+        tasks.backup_function()
+
+        mock_make_bucket.assert_called_with('pdfding')
+        mock_bucket_exists.assert_called_with('pdfding')
+        self.assertEqual(mock_fput_object.call_count, 3)
+        mock_fput_object.assert_has_calls(
+            [
+                mock.call('pdfding', 'backup.sqlite3', Path(__file__).parents[2] / 'db' / 'backup.sqlite3'),
+                mock.call('pdfding', 'add_1.pdf', Path(__file__).parents[2] / 'media' / 'add_1.pdf'),
+                mock.call('pdfding', 'add_2.pdf', Path(__file__).parents[2] / 'media' / 'add_2.pdf'),
+            ],
+            any_order=True,
+        )
 
     def test_parse_cron_schedule(self):
         expected_dict = {'minute': '3', 'hour': '*/2', 'day': '6', 'month': '7', 'day_of_week': '*'}
