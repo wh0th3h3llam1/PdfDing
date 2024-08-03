@@ -9,6 +9,7 @@
   - [Using Docker Compose](#using-docker-compose)
   - [Admin User](#admin-user)
   - [SSO](#single-sign-on-sso)
+  - [Backups](#backups)
 - [Configuration](#configuration)
 - [Tech Stack](#tech-stack)
 - [Acknowledgements](#acknowledements)
@@ -36,6 +37,7 @@ Linkding is an excellent selfhostable bookmark manager. If you are unfamiliar wi
 * Dark Mode and colored themes
 * Remembers current position - continue where you stopped reading
 * SSO support via OIDC
+* Automated backups to S3 compatible storage
 * Every user can upload its own PDFs. There is no admin curating the content.
 * Simple Admin area for user management
 
@@ -139,6 +141,36 @@ oidc:
             redirect_uris:
               - https://pdfding.com/accountoidc/login/callback/
 ```
+
+## Backups
+
+### Enabling Backups
+
+PdfDing supports automated backups to S3 compatible storage. During backups the Sqlite database and uploaded
+PDF files will be backed up.
+
+**IMPORTANT**: The backup of Postgres databases is as of now not supported. Postgres databases should be
+backed up by using `pg_dump`.
+
+Backups are enabled by using environment variables:
+```
+BACKUP_ENABLE: "TRUE"
+BACKUP_SCHEDULE: "0 2 * * *"
+BACKUP_ENDPOINT: 'minio.pdfding.com'
+BACKUP_ACCESS_KEY: 'some_access_key'
+BACKUP_SECRET_KEY: 'some_secret_key'
+BACKUP_SECURE: 'FALSE'
+```
+
+More information about the environment variables can be found in the [Configuration](#configuration) section.
+
+### Recovering Data from Backups
+
+PDFs and the Sqlite database can easily be recovered from the backups by executing
+```
+python pdfding/manage.py recover_data
+```
+inside the shell of the running container.
 
 ## Configuration
 ### `SECRET_KEY`
@@ -275,6 +307,44 @@ Values: `FALSE`, `TRUE` | Default: `FALSE`
 
 Secure the connection to the SMTP server with SSL. Some SMTP servers support only one kind and
 some support both. Note that `SMTP_USE_TLS`/`SMTP_USE_SSL` are mutually exclusive.
+
+### `BACKUP_ENABLE`
+Values: `TRUE`, `FALSE` | Default: `FALSE`
+
+Flag for enabling periodic backups to S3 compatible storage. By setting this value to `TRUE`
+periodic backups will be activated.
+
+### `BACKUP_ENDPOINT`
+Values: `string` | Default: `None`
+
+The endpoint of the S3 compatible storage. Example: `minio.pdfding.com`
+
+### `BACKUP_ACCESS_KEY`
+Values: `string` | Default: `None`
+
+The access key of the S3 compatible storage. Example: `random_access_key`
+
+### `BACKUP_SECRET_KEY`
+Values: `string` | Default: `None`
+
+The secret key of the S3 compatible storage. Example: `random_secret_key`
+
+### `BACKUP_BUCKET_NAME`
+Values: `string` | Default: `pdfding`
+
+The name of the bucket where PdfDing should be backed up to. Example: `pdfding`
+
+### `BACKUP_SCHEDULE`
+Values: `string` | Default: `0 2 * * *`
+
+The schedule for the periodic backups. Example: `0 2 * * *`. This schedule will start the backup
+every night at 2:00. More information can be found [here](https://crontab.guru/#0_2_*_*_*).
+
+### `BACKUP_SECURE`
+Values: `TRUE`, `FALSE` | Default: `FALSE`
+
+Flag to indicate to use secure (TLS) connection to S3 service or not.
+
 
 ## Tech Stack
 * The web app is build using the Python web framework [Django](https://www.djangoproject.com/)

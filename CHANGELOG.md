@@ -1,6 +1,11 @@
 # Changelog
 <hr>
 
+## 0.3.0 - Periodic Backups to S3 Compatible Storage (Aug 03, 2024)
+<hr>
+
+* Add periodic backups to S3 compatible storage
+
 ## 0.2.0 - New Admin Area (Jul 27, 2024)
 <hr>
 
@@ -36,4 +41,3 @@
 * Clean and responsive UI Remembers current position - continue where you stopped reading
 * SSO support via OIDC
 * Every user can upload its own PDFs. There is no admin curating the content.
-
