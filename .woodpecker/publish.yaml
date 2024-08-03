@@ -57,7 +57,7 @@ steps:
       platforms: linux/amd64
       repo: mrmn/pdfding_e2e
       registry: docker.io
-      tags: 2024.08.01
+      tags: 2024.08.02
       username: ${CI_REPO_OWNER}
       password:
         from_secret: DOCKER_TOKEN

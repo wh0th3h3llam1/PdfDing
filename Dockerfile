@@ -1,5 +1,5 @@
 # The frontend build image , used to create the css and js files
-FROM node:22.4.1-bookworm-slim as npm-build
+FROM node:22.4.1-bookworm-slim AS npm-build
 
 ARG PDFJS_VERSION=4.4.168
 
@@ -25,7 +25,7 @@ RUN for i in build/pdf.mjs build/pdf.sandbox.mjs build/pdf.worker.mjs web/viewer
 RUN rm pdfding/static/css/input.css
 
 # The build image, used to build the virtual python environment
-FROM python:3.12.4-slim as python-build
+FROM python:3.12.4-slim AS python-build
 
 RUN pip install poetry==1.8.3
 
@@ -47,7 +47,7 @@ RUN poetry run pdfding/manage.py collectstatic
 RUN rm -r pdfding/static/*
 
 # The runtime image, used to just run the code provided its virtual environment
-FROM python:3.12.4-slim as runtime
+FROM python:3.12.4-slim AS runtime
 
 RUN apt-get update \
     && apt-get install --no-install-recommends -y libmagic1 netcat-traditional \
@@ -67,6 +67,7 @@ COPY --from=python-build /app/.venv ${VIRTUAL_ENV}
 COPY --chown=$USERNAME --from=python-build /app/pdfding /home/$USERNAME/pdfding
 
 WORKDIR /home/$USERNAME
+COPY supervisord.conf ./
 COPY --chmod=0555 bootstrap.sh ./
 
 USER $USERNAME

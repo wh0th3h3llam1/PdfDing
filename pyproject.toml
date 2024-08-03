@@ -16,6 +16,7 @@ huey = "==2.5.1"
 minio = "==7.2.7"
 psycopg2-binary = "==2.9.9"
 python-magic = "==0.4.27"
+supervisor = "==4.2.5"
 whitenoise = {extras = ["brotli"], version = "==6.7.0 "}
 
 [tool.poetry.group.dev.dependencies]

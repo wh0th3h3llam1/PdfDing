@@ -26,8 +26,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 
 if os.environ.get('BACKUP_ENABLE') == 'TRUE':
-    BACKUP_ENABLE = True
-    BACKUP_ENDPOINT = os.environ.get('BACKUP_ENDPOINT')
+    # without a dummy value, huey will not start
+    BACKUP_ENDPOINT = os.environ.get('BACKUP_ENDPOINT', 'minio.pdfding.com')
     BACKUP_ACCESS_KEY = os.environ.get('BACKUP_ACCESS_KEY')
     BACKUP_SECRET_KEY = os.environ.get('BACKUP_SECRET_KEY')
     BACKUP_BUCKET_NAME = os.environ.get('BACKUP_BUCKET_NAME', 'pdfding')
@@ -36,8 +36,6 @@ if os.environ.get('BACKUP_ENABLE') == 'TRUE':
         BACKUP_SECURE = True
     else:
         BACKUP_SECURE = False
-else:
-    BACKUP_ENABLE = False
 
 if os.environ.get('CSRF_COOKIE_SECURE', 'TRUE') == 'TRUE':
     CSRF_COOKIE_SECURE = True

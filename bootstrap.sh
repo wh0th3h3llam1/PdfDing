@@ -1,6 +1,10 @@
 #!/bin/sh
 set -e
 
+if [ "$BACKUP_ENABLE" = "TRUE" ]; then
+  python .venv/bin/supervisord -c supervisord.conf
+fi
+
 cd pdfding
 
 if [ "$DATABASE_TYPE" = "POSTGRES" ]
