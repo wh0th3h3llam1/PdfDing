@@ -47,6 +47,11 @@ INSTALLED_APPS = [
     'django_cleanup.apps.CleanupConfig',
 ]
 
+# remove these apps for the e2e tests as they cause problems and are not needed
+if os.environ.get('E2E_TESTS'):
+    INSTALLED_APPS.remove('huey.contrib.djhuey')
+    INSTALLED_APPS.remove('backup')
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -111,6 +116,10 @@ else:
             },
         }
     }
+
+    # remove entry for the e2e tests as it causes problems and is not needed
+    if os.environ.get('E2E_TESTS'):
+        DATABASES['default'].pop('TEST')
 
 
 # Password validation

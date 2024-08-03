@@ -5,7 +5,7 @@ when:
     branch: master
     evaluate: 'CI_COMMIT_AUTHOR == CI_REPO_OWNER'
     path:
-      include: [ '*/*.py', '*/*.html' ]
+      include: [ 'pdfding/**/*.py', 'pdfding/**/*.html' ]
 
 steps:
   code-quality:
@@ -29,6 +29,8 @@ steps:
   e2e-tests:
     image: mrmn/pdfding_e2e:2024.08.02
     depends_on: []
+    environment:
+      E2E_TESTS: E2E_TESTS
     commands:
       - cd /app
       - for i in admin core e2e pdf templates users; do cp -R $CI_WORKSPACE/pdfding/$i/ pdfding; done
