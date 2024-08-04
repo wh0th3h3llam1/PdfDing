@@ -25,4 +25,6 @@ RUN apt-get update \
     && poetry install --no-root \
     && poetry run playwright install-deps chromium \
     && poetry run playwright install chromium \
-    && apt-get clean && rm -rf $POETRY_CACHE_DIR
+    && apt-get clean  \
+    && rm -rf $POETRY_CACHE_DIR \
+    && rm -rf /var/lib/apt/lists/*

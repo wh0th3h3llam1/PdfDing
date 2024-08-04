@@ -15,6 +15,15 @@ STORAGES = {
     },
 }
 
+# By default, Django’s hashed static files system creates two copies of each file in STATIC_ROOT:
+# one using the original name, e.g. app.js, and one using the hashed name, e.g. app.db8f2edc0c8a.js.
+# If WhiteNoise’s compression backend is being used this will create another two copies of each of
+# these files (using Gzip and Brotli compression) resulting in six output files for each input file.
+# In some deployment scenarios it can be important to reduce the size of the build artifact as much as possible.
+# This setting removes the “un-hashed” version of the file (which should be not be referenced in any case)
+# which should reduce the space required for static files by half.
+WHITENOISE_KEEP_ONLY_HASHED_FILES = True
+
 # web security settings
 ALLOWED_HOSTS = [os.environ.get('HOST_NAME')]
 

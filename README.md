@@ -90,6 +90,9 @@ docker run --name pdfding \
 If everything completed successfully, the application should now be running
 and can be accessed at http://127.0.0.1:8000.
 
+If you use selinux it might be necessary to add the `:Z` after the volumes, e.g.
+`sqlite_data:/home/nonroot/pdfding/db:Z`.
+
 ### Using Docker Compose
 To install linkding using Docker Compose, you can use one of the files in the
 [deploy](https://codeberg.org/mrmn/PdfDing/src/branch/master/deploy) directory and run e.g.:
@@ -144,15 +147,14 @@ oidc:
 
 ## Backups
 
-### Enabling Backups
-
 PdfDing supports automated backups to S3 compatible storage. During backups the Sqlite database and uploaded
 PDF files will be backed up.
 
 **IMPORTANT**: The backup of Postgres databases is as of now not supported. Postgres databases should be
 backed up by using `pg_dump`.
 
-Backups are enabled by using environment variables:
+### Enabling Backups
+Backups are set up by using environment variables:
 ```
 BACKUP_ENABLE: "TRUE"
 BACKUP_SCHEDULE: "0 2 * * *"
@@ -365,6 +367,7 @@ PdfDing consists of four applications:
 * the folder `users` contains the logic related to users
 * the admin area is implemented inside the `admin` folder
 * `core` is the Django root application
+* backups are handled inside `backup`
 
 Other than that the code should be self-explanatory / standard Django stuff 🙂.
 
