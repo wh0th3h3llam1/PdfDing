@@ -1,18 +1,18 @@
-from django.shortcuts import render, redirect
+from core.settings import MEDIA_ROOT
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.forms import ValidationError
-from django.http import FileResponse, HttpRequest, HttpResponse, JsonResponse, Http404
-from django_htmx.http import HttpResponseClientRefresh, HttpResponseClientRedirect
+from django.http import FileResponse, Http404, HttpRequest, HttpResponse, JsonResponse
+from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.views.static import serve
 from django.views import View
+from django.views.static import serve
+from django_htmx.http import HttpResponseClientRedirect, HttpResponseClientRefresh
 
 from .forms import AddForm, get_detail_form_class
 from .models import Pdf, Tag
-from .service import process_tag_names, process_raw_search_query
-from core.settings import MEDIA_ROOT
+from .service import process_raw_search_query, process_tag_names
 
 
 class BasePdfView(LoginRequiredMixin, View):
@@ -71,7 +71,7 @@ class Overview(BasePdfView):
         if search:
             pdfs = pdfs.filter(name__icontains=search)
 
-        paginator = Paginator(pdfs, per_page=15, allow_empty_first_page=True)
+        paginator = Paginator(pdfs, per_page=request.user.profile.pdfs_per_page, allow_empty_first_page=True)
         page_object = paginator.get_page(page)
 
         return render(

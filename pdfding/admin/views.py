@@ -1,11 +1,10 @@
-from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
-from django_htmx.http import HttpResponseClientRefresh
-from django.http import HttpRequest, Http404
+from django.http import Http404, HttpRequest
+from django.shortcuts import redirect, render
 from django.views import View
-
+from django_htmx.http import HttpResponseClientRefresh
 from pdf.models import Pdf
 
 
@@ -52,7 +51,7 @@ class Overview(BaseAdminView):
             search_query = ' '.join(search_words)
             users = users.filter(email__icontains=search_query)
 
-        paginator = Paginator(users, per_page=15, allow_empty_first_page=True)
+        paginator = Paginator(users, per_page=request.user.profile.pdfs_per_page, allow_empty_first_page=True)
         page_object = paginator.get_page(page)
 
         number_of_users = User.objects.all().count()

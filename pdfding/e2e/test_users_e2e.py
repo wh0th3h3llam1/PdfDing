@@ -1,9 +1,8 @@
 from allauth.socialaccount.models import SocialAccount
 from django.test import override_settings
 from django.urls import reverse
-from playwright.sync_api import sync_playwright, expect
-
-from helpers import PdfDingE2ETestCase, PdfDingE2ENoLoginTestCase
+from helpers import PdfDingE2ENoLoginTestCase, PdfDingE2ETestCase
+from playwright.sync_api import expect, sync_playwright
 
 
 class UsersE2ETestCase(PdfDingE2ETestCase):
@@ -58,6 +57,22 @@ class UsersE2ETestCase(PdfDingE2ETestCase):
             # check email address after changing
             expect(self.page.locator('#email-address')).to_contain_text('a@b.com')
             expect(self.page.locator('content')).to_contain_text('Not verified')
+
+    def test_settings_change_pdf_per_page(self):
+        with sync_playwright() as p:
+            self.open(reverse('profile-settings'), p)
+
+            # check pdfs per page before changing
+            expect(self.page.locator("#pdfs-per-page")).to_contain_text("25")
+
+            # change pdfs per page
+            self.page.locator("#pdfs-per-page-edit").click()
+            self.page.locator("#id_pdfs_per_page").select_option("50")
+            self.page.get_by_role("button", name="Submit").click()
+            expect(self.page.locator("#pdfs-per-page")).to_contain_text("50")
+
+            # check pdfs per page after changing
+            expect(self.page.locator("#pdfs-per-page")).to_contain_text("50")
 
     def test_settings_delete(self):
         with sync_playwright() as p:

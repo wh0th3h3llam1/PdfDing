@@ -57,3 +57,9 @@ exclude_dirs = ["tests", "path/to/file"]
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+atomic = true
+profile = "black"
+line_length = 120
+skip_gitignore = true

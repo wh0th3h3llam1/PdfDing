@@ -1,7 +1,6 @@
-from django.forms import ModelForm
 from django import forms
 from django.contrib.auth.models import User
-
+from django.forms import ModelForm
 from users.models import Profile
 
 
@@ -13,6 +12,14 @@ class EmailForm(ModelForm):
     class Meta:
         model = User
         fields = ['email']
+
+
+class PdfsPerPageForm(ModelForm):
+    """The form for setting the pdfs per page"""
+
+    class Meta:
+        model = Profile
+        fields = ['pdfs_per_page']
 
 
 class ThemeForm(ModelForm):

@@ -1,14 +1,15 @@
-from django.shortcuts import render, redirect
 from allauth.account.utils import send_email_confirmation
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.http import HttpRequest
+from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.views import View
 
-from .forms import ThemeForm, EmailForm
+from .forms import EmailForm, PdfsPerPageForm, ThemeForm
 
 
 class BaseUserView(LoginRequiredMixin, View):
@@ -25,72 +26,60 @@ def settings(request):
     return render(request, 'profile_settings.html', {'uses_social': uses_social})
 
 
-class ChangeEmail(BaseUserView):
-    """View for changing the email address."""
-
-    def get(self, request: HttpRequest):
-        """For a htmx request this will load an email change form as a partial"""
-
-        if request.htmx:
-            form = EmailForm(instance=request.user)
-            return render(request, 'partials/email_form.html', {'form': form})
-
-        return redirect('home')
-
-    def post(self, request: HttpRequest):
-        """Process the submitted email form"""
-
-        form = EmailForm(request.POST, instance=request.user)
-
-        if form.is_valid():
-            # Check if the email already exists
-            email = form.cleaned_data['email']
-            if User.objects.filter(email=email).exclude(id=request.user.id).exists():
-                messages.warning(request, f'{email} is already in use.')
-                return redirect('profile-settings')
-
-            form.save()
-
-            # Then send confirmation email
-            send_email_confirmation(request, request.user)
-
-            return redirect('profile-settings')
-        else:
-            messages.warning(request, 'Form not valid')
-            return redirect('profile-settings')
-
-
-class ChangeTheme(BaseUserView):
+class ChangeSetting(BaseUserView):
     """View for changing the theme."""
 
-    def get(self, request: HttpRequest):
-        """For a htmx request this will load a change theme form as a partial"""
+    form_dict = {'email': EmailForm, 'pdfs_per_page': PdfsPerPageForm, 'theme': ThemeForm}
+
+    def get(self, request: HttpRequest, field_name: str):
+        """For a htmx request this will load a change pdfs per page form as a partial"""
+
+        initial_dict = {
+            'email': {'email': request.user.email},
+            'pdfs_per_page': {'pdfs_per_page': request.user.profile.pdfs_per_page},
+            'theme': {'dark_mode': request.user.profile.dark_mode, 'theme_color': request.user.profile.theme_color},
+        }
 
         if request.htmx:
-            form = ThemeForm(
-                instance=request.user,
-                initial={'dark_mode': request.user.profile.dark_mode, 'theme_color': request.user.profile.theme_color},
+            form = self.form_dict[field_name](initial=initial_dict[field_name])
+
+            return render(
+                request,
+                'partials/settings_form.html',
+                {
+                    'form': form,
+                    'action_url': reverse('profile-setting-change', kwargs={'field_name': field_name}),
+                    'edit_id': f'{field_name}-edit',
+                },
             )
-            return render(request, 'partials/theme_form.html', {'form': form})
 
         return redirect('home')
 
-    def post(self, request: HttpRequest):
-        """Process the submitted change theme form"""
+    def post(self, request: HttpRequest, field_name: str):
+        """Process the submitted change settings form"""
 
-        form = ThemeForm(request.POST, instance=request.user)
+        if field_name == 'email':
+            form = self.form_dict[field_name](request.POST, instance=request.user)
+        else:
+            form = self.form_dict[field_name](request.POST, instance=request.user.profile)
 
         if form.is_valid():
-            # for some reason form.save has no effect, so we do it manually...
-            profile = request.user.profile
-            profile.dark_mode = form.cleaned_data['dark_mode']
-            profile.theme_color = form.cleaned_data['theme_color']
-            profile.save()
+            if field_name == 'email':
+                email = form.cleaned_data['email']
+                if User.objects.filter(email=email).exclude(id=request.user.id).exists():
+                    messages.warning(request, f'{email} is already in use.')
+                    return redirect('profile-settings')
+                form.save()
 
-            return redirect('profile-settings')
+                # Then send confirmation email
+                send_email_confirmation(request, request.user)
+            else:
+                form.save()
+
         else:
             messages.warning(request, 'Form not valid')
-            return redirect('profile-settings')
+
+        return redirect('profile-settings')
 
 
 class Delete(BaseUserView):
