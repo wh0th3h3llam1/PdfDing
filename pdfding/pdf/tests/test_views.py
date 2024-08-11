@@ -1,16 +1,15 @@
 from pathlib import Path
 from unittest.mock import patch
 
+from core.settings import MEDIA_ROOT
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.http.response import Http404, HttpResponse
 from django.test import Client, TestCase, TransactionTestCase
 from django.urls import reverse
-
-from core.settings import MEDIA_ROOT
+from pdf.forms import AddForm
 from pdf.models import Pdf, Tag
 from pdf.views import BasePdfView
-from pdf.forms import AddForm
 
 
 class TestLoginRequired(TestCase):
@@ -153,23 +152,38 @@ class TestViews(TestCase):
     def test_edit_get_no_htmx(self):
         pdf = Pdf.objects.create(owner=self.user.profile, name='pdf')
 
-        response = self.client.get(reverse('edit_pdf', kwargs={'pdf_id': pdf.id, 'field': 'description'}))
+        response = self.client.get(reverse('edit_pdf', kwargs={'pdf_id': pdf.id, 'field_name': 'description'}))
         self.assertRedirects(response, reverse('pdf_details', kwargs={'pdf_id': pdf.id}), status_code=302)
 
     def test_edit_get_htmx(self):
         pdf = Pdf.objects.create(owner=self.user.profile, name='pdf')
         headers = {'HTTP_HX-Request': 'true'}
 
-        response = self.client.get(reverse('edit_pdf', kwargs={'pdf_id': pdf.id, 'field': 'description'}), **headers)
+        response = self.client.get(
+            reverse('edit_pdf', kwargs={'pdf_id': pdf.id, 'field_name': 'description'}), **headers
+        )
 
         self.assertEqual(response.context['pdf_id'], str(pdf.id))
-        self.assertEqual(response.context['field'], 'description')
+        self.assertEqual(response.context['field_name'], 'description')
+
+    def test_edit_post_invalid_form(self):
+        pdf = Pdf.objects.create(owner=self.user.profile, name='pdf', description='something')
+
+        # follow=True is needed for getting the message
+        response = self.client.post(
+            reverse('edit_pdf', kwargs={'pdf_id': pdf.id, 'field_name': 'name'}),
+            follow=True,
+        )
+        message = list(response.context['messages'])[0]
+
+        self.assertEqual(message.message, 'Form not valid')
+        self.assertEqual(message.tags, 'warning')
 
     def test_edit_post_description(self):
         pdf = Pdf.objects.create(owner=self.user.profile, name='pdf', description='something')
 
         self.client.post(
-            reverse('edit_pdf', kwargs={'pdf_id': pdf.id, 'field': 'description'}),
+            reverse('edit_pdf', kwargs={'pdf_id': pdf.id, 'field_name': 'description'}),
             data={'description': 'new'},
         )
 
@@ -184,7 +198,7 @@ class TestViews(TestCase):
 
         # follow=True is needed for getting the message
         response = self.client.post(
-            reverse('edit_pdf', kwargs={'pdf_id': pdf.id, 'field': 'name'}), data={'name': 'pdf_2'}, follow=True
+            reverse('edit_pdf', kwargs={'pdf_id': pdf.id, 'field_name': 'name'}), data={'name': 'pdf_2'}, follow=True
         )
 
         message = list(response.context['messages'])[0]
@@ -194,7 +208,7 @@ class TestViews(TestCase):
         pdf = Pdf.objects.create(owner=self.user.profile, name='pdf', description='something')
 
         self.client.post(
-            reverse('edit_pdf', kwargs={'pdf_id': pdf.id, 'field': 'name'}),
+            reverse('edit_pdf', kwargs={'pdf_id': pdf.id, 'field_name': 'name'}),
             data={'name': 'new'},
         )
 
@@ -211,7 +225,7 @@ class TestViews(TestCase):
         pdf.tags.set([tag_1, tag_2])
 
         self.client.post(
-            reverse('edit_pdf', kwargs={'pdf_id': pdf.id, 'field': 'tags'}),
+            reverse('edit_pdf', kwargs={'pdf_id': pdf.id, 'field_name': 'tags'}),
             data={'tag_string': 'tag_1 tag_3'},
         )
 

@@ -10,7 +10,7 @@ from django.views import View
 from django.views.static import serve
 from django_htmx.http import HttpResponseClientRedirect, HttpResponseClientRefresh
 
-from .forms import AddForm, get_detail_form_class
+from .forms import AddForm, DescriptionForm, NameForm, TagsForm
 from .models import Pdf, Tag
 from .service import process_raw_search_query, process_tag_names
 
@@ -176,33 +176,48 @@ class Edit(BasePdfView):
     'field' argument.
     """
 
-    def get(self, request: HttpRequest, pdf_id: str, field: str):
+    form_dict = {'description': DescriptionForm, 'name': NameForm, 'tags': TagsForm}
+
+    def get(self, request: HttpRequest, pdf_id: str, field_name: str):
         """Triggered by htmx. Display an inline form for editing the correct field."""
 
-        if request.htmx:
-            pdf = self.get_pdf(request, pdf_id)
+        pdf = self.get_pdf(request, pdf_id)
 
-            form = get_detail_form_class(field, instance=pdf)
+        initial_dict = {
+            'name': {'name': pdf.name},
+            'description': {'description': pdf.description},
+            'tags': {'tag_string': ' '.join(sorted([tag.name for tag in pdf.tags.all()]))},
+        }
+
+        if request.htmx:
+            form = self.form_dict[field_name](initial=initial_dict[field_name])
+
             return render(
                 request,
                 'partials/details_form.html',
-                {'form': form, 'pdf_id': pdf_id, 'field': field},
+                {
+                    'action_url': reverse('edit_pdf', kwargs={'field_name': field_name, 'pdf_id': pdf_id}),
+                    'edit_id': f'{field_name}-edit',
+                    'form': form,
+                    'field_name': field_name,
+                    'pdf_id': pdf_id,
+                },
             )
 
         return redirect('pdf_details', pdf_id=pdf_id)
 
-    def post(self, request: HttpRequest, pdf_id: str, field: str):
+    def post(self, request: HttpRequest, pdf_id: str, field_name: str):
         """
         POST: Change the specified field by submitting the form.
         """
 
         pdf = self.get_pdf(request, pdf_id)
-        form = get_detail_form_class(field, instance=pdf, data=request.POST)
+        form = self.form_dict[field_name](request.POST, instance=pdf)
 
         if form.is_valid():
             # if tags are changed the provided tag string needs to processed, the PDF's tags need updating and orphaned
             # tags need to be deleted.
-            if field == 'tags':
+            if field_name == 'tags':
                 tag_string = form.data['tag_string']
                 tag_names = Tag.parse_tag_string(tag_string)
 
@@ -216,7 +231,7 @@ class Edit(BasePdfView):
                 pdf.tags.set(tags)
 
             # if the name is changed we need to check that it is a unique name not used by another pdf of this user.
-            elif field == 'name':
+            elif field_name == 'name':
                 existing_pdf = Pdf.objects.filter(owner=request.user.profile, name__iexact=form.data['name']).first()
 
                 if existing_pdf and str(existing_pdf.id) != pdf_id:
@@ -227,10 +242,9 @@ class Edit(BasePdfView):
             # if description is changed save it
             else:
                 form.save()
-
-            return redirect('pdf_details', pdf_id=pdf_id)
-
-        return redirect('pdf_details', pdf_id=pdf_id)  # pragma: no cover
+        else:
+            messages.warning(request, 'Form not valid')
+        return redirect('pdf_details', pdf_id=pdf_id)
 
 
 class Delete(BasePdfView):

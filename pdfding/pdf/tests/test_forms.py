@@ -4,9 +4,8 @@ from django.contrib.auth.models import User
 from django.core.files import File
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase
-
 from pdf import forms
-from pdf.models import Pdf, Tag
+from pdf.models import Pdf
 
 
 class TestForms(TestCase):
@@ -56,45 +55,6 @@ class TestForms(TestCase):
 
         self.assertFalse(form.is_valid())
         self.assertEqual(form.errors['file'], ['Uploaded file is not a PDF!'])
-
-    def test_get_detail_form_class_not_tags(self):
-        field_name = 'name'
-        field_value = 'pdf_name'
-
-        pdf = Pdf.objects.create(owner=self.user.profile, name=field_value)
-
-        form = forms.get_detail_form_class(field_name, pdf)
-        self.assertEqual(
-            str(form[field_name]),
-            f'<input type="text" name="{field_name}" '
-            f'value="{field_value}" maxlength="50" required id="id_{field_name}">',
-        )
-
-    def test_get_detail_form_class_tags(self):
-        field_name = 'tags'
-        field_value = ['tag_x', 'tag_a', 'tag_3']
-
-        pdf = Pdf.objects.create(owner=self.user.profile, name=field_value)
-        tags = [Tag.objects.create(name=tag_name, owner=pdf.owner) for tag_name in field_value]
-        pdf.tags.set(tags)
-
-        form = forms.get_detail_form_class(field_name, pdf)
-
-        self.assertEqual(
-            str(form['tag_string']),
-            f'<input type="text" name="tag_string" value="{' '.join(sorted(field_value))}"'
-            f' rows="3" class="form-control" required id="id_tag_string">',
-        )
-        self.assertEqual(form.initial, {'tag_string': ' '.join(sorted(field_value))})
-
-    def test_get_detail_form_class_with_data(self):
-        field_name = 'description'
-        field_value = 'new description'
-        pdf = Pdf.objects.create(owner=self.user.profile, name='pdf')
-
-        form = forms.get_detail_form_class(field_name=field_name, instance=pdf, data={field_name: field_value})
-        form.save()
-        self.assertEqual(Pdf.objects.get(name='pdf').description, field_value)
 
     def test_clean_name(self):
         inputs = ['  this is some    name with whitespaces ', 'simple']
