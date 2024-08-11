@@ -43,7 +43,7 @@ RUN poetry install --without dev --without e2e --no-root \
     && rm -rf $POETRY_CACHE_DIR \
     && apt-get update \
     && apt-get install --no-install-recommends -y rename \
-    && for i in pip setuptools wheel; do rm -rf /app/.venv/lib/python3.12/site-packages/$i*; done \
+    && for i in pip wheel; do rm -rf /app/.venv/lib/python3.12/site-packages/$i*; done \
     && for i in pip pip-3.12 pip3 pip3.12; do rm /app/.venv/bin/$i; done
 
 COPY --from=npm-build /build/pdfding pdfding
