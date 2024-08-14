@@ -7,10 +7,17 @@ when:
     path:
       include: [ 'pdfding/**/*.py', 'pdfding/**/*.html' ]
 
+clone:
+  git:
+    image: woodpeckerci/plugin-git
+    settings:
+      depth: 1
+      lfs: false
+
 steps:
   code-quality:
     image: python:3.12.4-slim
-    depends_on: []
+    depends_on: [clone]
     commands:
       - pip install poetry==1.8.3
       - poetry install --without e2e
@@ -19,7 +26,7 @@ steps:
       - poetry run bandit -x "**/tests/*,**/e2e/*" -r .
   unit-tests:
     image: python:3.12.4-slim
-    depends_on: [ ]
+    depends_on: [clone]
     commands:
       - apt-get update && apt-get install --no-install-recommends -y libmagic1
       - pip install poetry==1.8.3
@@ -28,7 +35,7 @@ steps:
       - poetry run pytest admin pdf users --cov=admin --cov=pdf --cov=users --cov-fail-under=100
   e2e-tests:
     image: mrmn/pdfding_e2e:2024.08.03
-    depends_on: []
+    depends_on: [clone]
     environment:
       E2E_TESTS: E2E_TESTS
     commands:

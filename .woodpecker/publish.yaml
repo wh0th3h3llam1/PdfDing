@@ -5,6 +5,14 @@ when:
     path:
       include: [ '.woodpecker/e2e.Dockerfile', 'pyproject.toml', 'package.json' ]
   - event: pull_request
+
+clone:
+  git:
+    image: woodpeckerci/plugin-git
+    settings:
+      depth: 1
+      lfs: false
+
 steps:
   publish_dry_run:
     when:
