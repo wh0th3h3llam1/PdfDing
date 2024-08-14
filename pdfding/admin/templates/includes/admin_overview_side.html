@@ -6,7 +6,7 @@
     <div id="number_users" class="pb-3">Users: {{ number_of_users }}</div>
     <div id="number_pdfs" class="pb-3">PDFs: {{ number_of_pdfs }}</div>
     <div id="current_version" class="pb-3">Version: {{ current_version }}</div>
-    {% if latest_version and if current_version != 'UNKNOWN' and current_version != latest_version %}
+    {% if latest_version and current_version != 'UNKNOWN' and current_version != latest_version %}
     <div class="pt-4">
     <a href="https://codeberg.org/mrmn/PdfDing/src/branch/master/CHANGELOG.md"
        id="new_version"
