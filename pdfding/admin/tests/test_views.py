@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.contrib.auth.models import User
 from django.test import Client, TestCase
 from django.urls import reverse
@@ -20,7 +22,8 @@ class TestAdminViews(TestCase):
 
         self.client.login(username='admin', password='password')
 
-    def test_overview(self):
+    @patch('admin.views.get_latest_version', return_value='0.0.0')
+    def test_overview(self, mock_get_latest_version):
         for i in range(1, 4):
             User.objects.create_user(username=f'user_{i}', password='12345', email=f'{i}_b@a.com')
 
@@ -34,6 +37,8 @@ class TestAdminViews(TestCase):
         self.assertEqual(response.context['sorting_query'], 'oldest')
         self.assertEqual(response.context['number_of_users'], 4)
         self.assertEqual(response.context['number_of_pdfs'], 0)
+        self.assertEqual(response.context['current_version'], 'DEV')
+        self.assertEqual(response.context['latest_version'], '0.0.0')
 
         # test admin search also add some spaces
         response = self.client.get(f'{reverse('admin_overview')}?q=@a++++%23admins')

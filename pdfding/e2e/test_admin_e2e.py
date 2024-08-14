@@ -1,4 +1,7 @@
+from unittest.mock import patch
+
 from django.contrib.auth.models import User
+from django.test import override_settings
 from django.urls import reverse
 from helpers import PdfDingE2ETestCase
 from pdf.models import Pdf
@@ -48,6 +51,36 @@ class AdminE2ETestCase(PdfDingE2ETestCase):
             expect(self.page.get_by_role("button", name="Delete")).to_have_count(4)
             expect(self.page.get_by_role("button", name="Remove Admin Rights")).to_have_count(1)
             expect(self.page.get_by_role("button", name="Add Admin Rights")).to_have_count(3)
+            expect(self.page.locator("#current_version")).to_contain_text("Version: DEV")
+
+    @patch('admin.views.get_latest_version', return_value='0.0.0')
+    def test_new_version_available(self, mock_get_latest_version):
+        with sync_playwright() as p:
+            self.open(reverse("admin_overview"), p)
+
+            expect(self.page.locator("#new_version")).to_contain_text("0.0.0 available!")
+
+    @patch('admin.views.get_latest_version', return_value='DEV')
+    def test_new_version_same(self, mock_get_latest_version):
+        with sync_playwright() as p:
+            self.open(reverse("admin_overview"), p)
+
+            expect(self.page.locator("#new_version")).to_have_count(0)
+
+    @patch('admin.views.get_latest_version', return_value='0.0.0')
+    @override_settings(VERSION='UNKNOWN')
+    def test_new_version_unknown(self, mock_get_latest_version):
+        with sync_playwright() as p:
+            self.open(reverse("admin_overview"), p)
+
+            expect(self.page.locator("#new_version")).to_have_count(0)
+
+    @patch('admin.views.get_latest_version', return_value='')
+    def test_new_version_empty(self, mock_get_latest_version):
+        with sync_playwright() as p:
+            self.open(reverse("admin_overview"), p)
+
+            expect(self.page.locator("#new_version")).to_have_count(0)
 
     def test_search_admin(self):
         with sync_playwright() as p:

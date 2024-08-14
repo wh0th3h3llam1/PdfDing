@@ -65,6 +65,10 @@ RUN sh -x \
 # remove the static files in another location
 RUN rm -r pdfding/static/*
 
+ARG CI_COMMIT_TAG
+# add version to settings
+RUN if [[ $CI_COMMIT_TAG != "" ]]; then echo "VERSION = '$CI_COMMIT_TAG'" > /app/pdfding/core/settings/version.py; fi
+
 # The runtime image, used to just run the code provided its virtual environment
 FROM python:3.12.4-alpine AS runtime
 

@@ -2,6 +2,11 @@ import os
 
 from .base import *  # noqa: F401 F403
 
+try:
+    from .version import VERSION
+except ModuleNotFoundError:
+    VERSION = 'unknown'
+
 # security related settings
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False

@@ -1,3 +1,5 @@
+from admin.service import get_latest_version
+from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
@@ -56,6 +58,7 @@ class Overview(BaseAdminView):
 
         number_of_users = User.objects.all().count()
         number_of_pdfs = Pdf.objects.all().count()
+        latest_version = get_latest_version()
 
         return render(
             request,
@@ -66,6 +69,8 @@ class Overview(BaseAdminView):
                 'sorting_query': sorting_query,
                 'number_of_users': number_of_users,
                 'number_of_pdfs': number_of_pdfs,
+                'current_version': settings.VERSION,
+                'latest_version': latest_version,
             },
         )
 

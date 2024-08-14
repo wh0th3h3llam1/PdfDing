@@ -3,6 +3,7 @@
 
 ## 0.3.2 - Fix backup functionality (Aug 11, 2024)
 <hr>
+
 * Fix backup functionality by re-adding setuptools to virtual environment
 
 ## 0.3.1 - Reduce image size and add PDFs per page setting (Aug 11, 2024)
