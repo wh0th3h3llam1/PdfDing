@@ -34,7 +34,7 @@ steps:
       - cd pdfding
       - poetry run pytest admin pdf users --cov=admin --cov=pdf --cov=users --cov-fail-under=100
   e2e-tests:
-    image: mrmn/pdfding_e2e:2024.08.03
+    image: mrmn/pdfding_e2e:2024.08.04
     depends_on: []
     environment:
       E2E_TESTS: E2E_TESTS

@@ -1,5 +1,5 @@
 # The frontend build image , used to create the css and js files
-FROM node:22.4.1-bookworm-slim as npm-build
+FROM node:22.6.0-bookworm-slim as npm-build
 
 WORKDIR /build
 
