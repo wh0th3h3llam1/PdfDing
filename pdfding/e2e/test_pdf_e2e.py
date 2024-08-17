@@ -33,18 +33,27 @@ class NoPdfE2ETestCase(PdfDingE2ETestCase):
             self.page.get_by_label("File:").click()
             self.page.get_by_label("File:").set_input_files(dummy_file_path)
             self.page.get_by_placeholder("Add Tags").click()
-            self.page.get_by_placeholder("Add Tags").fill("Some Tag")
+            self.page.get_by_placeholder("Add Tags").fill("bread tag_1 banana tag_0 1")
             self.page.get_by_role("button", name="Submit").click()
 
             # check center
             expect(self.page.locator("body")).to_contain_text("Some Name")
-            expect(self.page.locator("body")).to_contain_text("#some")
-            expect(self.page.locator("body")).to_contain_text("#tag")
+            expect(self.page.locator("body")).to_contain_text("#1 #banana #bread #tag_0 #tag_1")
             expect(self.page.locator("body")).to_contain_text("Some Description")
             expect(self.page.locator("body")).to_contain_text("now |")
+
             # check tag sidebar
-            expect(self.page.get_by_role("link", name="some", exact=True)).to_contain_text("some")
-            expect(self.page.get_by_role("link", name="tag", exact=True)).to_contain_text("tag")
+            for i, tag_string in enumerate(["1", "banana bread", "tag_0 tag_1"]):
+                expect(self.page.locator(f"#tags_{i}")).to_contain_text(tag_string)
+
+            # check sidebar links
+            # first tag starting with character
+            expect(self.page.get_by_role("link", name="1", exact=True)).to_have_attribute("href", "/pdf/?q=%231")
+            # non first tag starting with character
+            expect(self.page.get_by_role("link", name="bread", exact=True)).to_have_attribute(
+                "href", "/pdf/?q=%23bread"
+            )
+
         dummy_file_path.unlink()
 
 

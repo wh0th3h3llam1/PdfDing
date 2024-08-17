@@ -1,8 +1,7 @@
+import pdf.service as service
 from django.contrib.auth.models import User
 from django.test import TestCase
-
-import pdf.service as service
-from pdf.models import Tag
+from pdf.models import Pdf, Tag
 
 
 class TestService(TestCase):
@@ -42,3 +41,19 @@ class TestService(TestCase):
             generated_search, generated_tags = service.process_raw_search_query(input_str)
             self.assertEqual(generated_search, expected_search)
             self.assertEqual(generated_tags, expected_tags)
+
+    def test_get_tag_dict(self):
+        user = self.create_user()
+        pdf = Pdf.objects.create(owner=user.profile, name='pdf_1')
+        tags = [
+            Tag.objects.create(name=tag_name, owner=pdf.owner) for tag_name in ['tag3', 'bread', 'tag1', 'banana', 'a']
+        ]
+        pdf.tags.set(tags)
+
+        expected_tag_dict = {'a': [''], 'b': ['anana', 'read'], 't': ['ag1', 'ag3']}
+        generated_tag_dict = service.get_tag_dict(user.profile)
+
+        self.assertEqual(expected_tag_dict, generated_tag_dict)
+
+        # make sure first characters are sorted correctly
+        self.assertEqual(['a', 'b', 't'], list(generated_tag_dict.keys()))

@@ -12,7 +12,7 @@ from django_htmx.http import HttpResponseClientRedirect, HttpResponseClientRefre
 
 from .forms import AddForm, DescriptionForm, NameForm, TagsForm
 from .models import Pdf, Tag
-from .service import process_raw_search_query, process_tag_names
+from .service import get_tag_dict, process_raw_search_query, process_tag_names
 
 
 class BasePdfView(LoginRequiredMixin, View):
@@ -73,11 +73,17 @@ class Overview(BasePdfView):
 
         paginator = Paginator(pdfs, per_page=request.user.profile.pdfs_per_page, allow_empty_first_page=True)
         page_object = paginator.get_page(page)
+        tag_dict = get_tag_dict(request.user.profile)
 
         return render(
             request,
             'overview.html',
-            {'page_obj': page_object, 'raw_search_query': raw_search_query, 'sorting_query': sorting_query},
+            {
+                'page_obj': page_object,
+                'raw_search_query': raw_search_query,
+                'sorting_query': sorting_query,
+                'tag_dict': tag_dict,
+            },
         )
 
 

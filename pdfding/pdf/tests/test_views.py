@@ -52,21 +52,21 @@ class TestViews(TestCase):
         for i in range(1, 15):
             pdf = Pdf.objects.create(owner=self.user.profile, name=f'pdf_{i % 5}_{i}')
 
-            tag = Tag.objects.create(name='tag', owner=self.user.profile)
-
             # add a tag to pdf 2, 7
             if i % 5 == 2 and i < 10:
+                tag = Tag.objects.create(name=f'tag_{i}', owner=self.user.profile)
                 pdf.tags.set([tag])
 
         # get the pdf files that start with pdf_2 and have the tag 'tag'
         # also sort them oldest to newest
-        response = self.client.get(f'{reverse('pdf_overview')}?q=pdf_2+%23tag&sort=oldest')
+        response = self.client.get(f'{reverse('pdf_overview')}?q=pdf_2+%23tag_2&sort=oldest')
 
         pdf_names = [pdf.name for pdf in response.context['page_obj']]
 
-        self.assertEqual(pdf_names, ['pdf_2_2', 'pdf_2_7'])
-        self.assertEqual(response.context['raw_search_query'], 'pdf_2 #tag')
+        self.assertEqual(pdf_names, ['pdf_2_2'])
+        self.assertEqual(response.context['raw_search_query'], 'pdf_2 #tag_2')
         self.assertEqual(response.context['sorting_query'], 'oldest')
+        self.assertEqual(response.context['tag_dict'], {'t': ['ag_2', 'ag_7']})
 
     @patch('pdf.views.serve')
     def test_serve_get(self, mock_serve):

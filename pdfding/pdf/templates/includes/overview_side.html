@@ -1,24 +1,23 @@
-<div class="pt-1">
+<div class="pt-1" xmlns:x-bind="http://www.w3.org/1999/xhtml">
     <span class="text-2xl font-bold">Tags</span>
 </div>
 <div class="flex-grow border-t border-gray-400 mt-3 mb-4"></div>
 <div>
-    <p class="leading-9">
-    {% for tag in request.user.profile.tag_set.all|dictsort:"name" %}
-        {% if tag.pdf_set.all %}
-            {% if request.user.profile.tag_set.all|length < 15 %}
-            <div x-data="{}" class="py-1">
-                <a x-bind:href="combine_url_query('{% url 'pdf_overview' %}', construct_query_string('%23{{ tag.name }}', '{{ sorting_query }}'))"
-                   class="base font-semibold text-primary hover:text-secondary hover:underline">{{ tag.name }}
-                </a>
-            </div>
-            {% else %}
-            <a x-data="{}" x-bind:href="combine_url_query('{% url 'pdf_overview' %}', construct_query_string('%23{{ tag.name }}', '{{ sorting_query }}'))"
-                    class="base font-semibold text-primary hover:text-secondary hover:underline px-1">{{ tag.name }}
+    {% for character, tag_list in tag_dict.items %}
+    <div id="tags_{{ forloop.counter0 }}" class="-indent-1 py-1">
+        {% for tag in tag_list %}
+        {%  if forloop.counter0 == 0 %}
+            <a x-data="{}" x-bind:href="combine_url_query('{% url 'pdf_overview' %}', construct_query_string('%23{{ character }}{{ tag }}', '{{ sorting_query }}'))"
+               class="text-primary hover:text-secondary hover:underline px-1 font-semibold">
+               <span class="dark:text-tertiary1 dark:text-tertiary2 uppercase font-bold text-lg">{{ character }}</span>{{ tag }}
             </a>
-
-            {% endif %}
-        {% endif %}
+        {%  else %}
+            <a x-data="{}" x-bind:href="combine_url_query('{% url 'pdf_overview' %}', construct_query_string('%23{{ character }}{{ tag }}', '{{ sorting_query }}'))"
+               class="text-primary hover:text-secondary hover:underline px-1 font-semibold">
+               {{ character }}{{ tag }}
+            </a>
+        {%  endif %}
+        {% endfor %}
+    </div>
     {% endfor %}
-    </p>
 </div>

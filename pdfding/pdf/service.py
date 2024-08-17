@@ -1,5 +1,8 @@
-from .models import Tag
+from collections import defaultdict
+
 from users.models import Profile
+
+from .models import Tag
 
 
 def process_tag_names(tag_names: list[str], owner_profile: Profile) -> list[Tag]:
@@ -45,3 +48,27 @@ def process_raw_search_query(raw_search_query: str) -> tuple[str, list[str]]:
     search = ' '.join(search)
 
     return search, tags
+
+
+def get_tag_dict(profile: Profile) -> dict[str, list[str]]:
+    """
+    Get the tag dict used for displaying the tags in the pdf overview.
+
+    Keys of the returned dict are the first characters, values the tags without the first character, e.g:
+    {'b': ['anana', 'read'], 't': ['ag_1', 'ag_3']}. This format was chosen, so it is possible to capitalize, change
+     the font weight and color the first occurrence of character. In the frontend the example will look:
+
+     **B**anana bread
+     **T**ag_1, tag_3
+    """
+
+    # relies on deterministic 3.7+ key ordering
+    tags = profile.tag_set.all().order_by('name')
+    tag_dict = defaultdict(list)
+
+    for tag in tags:
+        if tag.pdf_set.all():
+            tag_dict[str(tag)[0]].append(str(tag)[1:])
+
+    # needs to be a normal dict, so that the template can handle it
+    return dict(tag_dict)
