@@ -1,6 +1,14 @@
 # Changelog
 <hr>
 
+## 0.3.3 - Revamp tag sidebar, new version available and further image size reduction (Aug 17, 2024)
+<hr>
+
+* Revamp the tag sidebar section, so that tags will be grouped by their starting character
+* Add a new version available banner in admin section
+* Further image size reduction by over 30% by switching to alpine
+* Update dependencies
+
 ## 0.3.2 - Fix backup functionality (Aug 11, 2024)
 <hr>
 
