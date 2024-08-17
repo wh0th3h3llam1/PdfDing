@@ -7,11 +7,11 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.11"
-django = "==5.0.7"
-django-allauth = {extras = ["socialaccount"], version = "==0.63.6"}
+django = "==5.1.0"
+django-allauth = {extras = ["socialaccount"], version = "==64.1.0"}
 django-cleanup = "==8.1.0"
-django-htmx = "==1.18.0"
-gunicorn = "==22.0.0"
+django-htmx = "==1.19.0"
+gunicorn = "==23.0.0"
 huey = "==2.5.1"
 minio = "==7.2.7"
 psycopg2-binary = "==2.9.9"
