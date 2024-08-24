@@ -51,6 +51,13 @@ if os.environ.get('BACKUP_ENABLE') == 'TRUE':
     else:
         BACKUP_SECURE = False
 
+    if os.environ.get('BACKUP_ENCRYPTION_ENABLE') == 'TRUE':
+        BACKUP_ENCRYPTION_ENABLED = True
+        BACKUP_ENCRYPTION_PASSWORD = os.environ['BACKUP_ENCRYPTION_PASSWORD']
+        BACKUP_ENCRYPTION_SALT = os.environ.get('BACKUP_ENCRYPTION_SALT', 'pdfding')
+    else:
+        BACKUP_ENCRYPTION_ENABLED = False
+
 if os.environ.get('CSRF_COOKIE_SECURE', 'TRUE') == 'TRUE':
     CSRF_COOKIE_SECURE = True
 if os.environ.get('SESSION_COOKIE_SECURE', 'TRUE') == 'TRUE':

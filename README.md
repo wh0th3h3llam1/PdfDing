@@ -37,7 +37,7 @@ Linkding is an excellent selfhostable bookmark manager. If you are unfamiliar wi
 * Dark Mode and colored themes
 * Remembers current position - continue where you stopped reading
 * SSO support via OIDC
-* Automated backups to S3 compatible storage
+* Automated and encrypted backups to S3 compatible storage
 * Every user can upload its own PDFs. There is no admin curating the content.
 * Simple Admin area for user management
 
@@ -165,6 +165,19 @@ BACKUP_SECURE: 'FALSE'
 ```
 
 More information about the environment variables can be found in the [Configuration](#configuration) section.
+
+### Enabling Encrypted Backups
+PDfDing supports encrypted backups. Encryption is done via Fernet, a symmetric encryption algorithm
+provided by the [cryptography](https://cryptography.io/en/stable/fernet/#cryptography.fernet.Fernet)
+library. Encrypted backups can be enabled by using environment variables:
+```
+BACKUP_ENCRYPTION_ENABLED: "TRUE"
+BACKUP_ENCRYPTION_PASSWORD: 'some_password'
+BACKUP_ENCRYPTION_SALT: 'some_salt'
+```
+
+**IMPORTANT: If you enable encrypted backups or change the encryption password/salt, it is absolutely necessary
+to delete your existing backups in the S3 compatible storage. Not doing so will destroy your backup!**
 
 ### Recovering Data from Backups
 
@@ -346,6 +359,27 @@ every night at 2:00. More information can be found [here](https://crontab.guru/#
 Values: `TRUE`, `FALSE` | Default: `FALSE`
 
 Flag to indicate to use secure (TLS) connection to S3 service or not.
+
+### `BACKUP_ENCRYPTION_ENABLE`
+Values: `TRUE`, `FALSE` | Default: `FALSE`
+
+Flag to enable encrypted backups.
+
+**IMPORTANT: If you enable encrypted backups or change the encryption password/salt, it is absolutely necessary
+to delete your existing backups in the S3 compatible storage. Not doing so will destroy your backup!**
+
+### `BACKUP_ENCRYPTION_PASSWORD`
+Values: `string` | Default: `None`
+
+Password used for generating the encryption key. The encryption key generation is done via PBKDF2
+with 1000000 iterations.
+
+Should be to a large random value! Example: `some_secret`
+
+### `BACKUP_ENCRYPTION_SALT`
+Values: `string` | Default: `pdfding`
+
+Salt used for generating the encryption key. Example: `some_salt`
 
 
 ## Tech Stack
