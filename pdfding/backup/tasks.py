@@ -77,12 +77,12 @@ def backup_function():
     for i, pdf_name in enumerate(to_be_added):
         add_file_to_minio(pdf_name, settings.MEDIA_ROOT, encryption_key)
 
-        if (i + 1) % 10 == 0:
+        if (i + 1) % 10 == 0:  # pragma: no cover
             logger.info(f'Added {i + 1} / {len(to_be_added)} files')
 
     for i, pdf_name in enumerate(to_be_deleted):
         minio_client.remove_object(settings.BACKUP_BUCKET_NAME, pdf_name)
-        if (i + 1) % 10 == 0:
+        if (i + 1) % 10 == 0:  # pragma: no cover
             logger.info(f'Removed {i + 1} / {len(to_be_deleted)} files')
 
     logger.info('Backup completed successfully.')

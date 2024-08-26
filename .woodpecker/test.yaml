@@ -32,7 +32,7 @@ steps:
       - pip install poetry==1.8.3
       - poetry install --without e2e
       - cd pdfding
-      - poetry run pytest admin pdf users --cov=admin --cov=pdf --cov=users --cov-fail-under=100
+      - poetry run pytest admin backup pdf users --cov=admin --cov=backup --cov=pdf --cov=users --cov-fail-under=100
   e2e-tests:
     image: mrmn/pdfding_e2e:2024.08.04
     depends_on: []

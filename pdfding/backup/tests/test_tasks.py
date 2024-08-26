@@ -26,22 +26,30 @@ class TestPeriodicBackup(TestCase):
 
     @mock.patch('backup.tasks.Minio.remove_object')
     @mock.patch('backup.tasks.difference_local_minio', return_value=({'add_1.pdf', 'add_2.pdf'}, {'remove.pdf'}))
-    @mock.patch('backup.tasks.Minio.fput_object')
+    @mock.patch('backup.tasks.add_file_to_minio')
+    @mock.patch('backup.tasks.get_encryption_key', return_value=b'key')
     @mock.patch('backup.tasks.Minio.make_bucket')
     @mock.patch('backup.tasks.Minio.bucket_exists', return_value=False)
     def test_backup_function(
-        self, mock_bucket_exists, mock_make_bucket, mock_fput_object, mock_difference_local_minio, mock_remove_object
+        self,
+        mock_bucket_exists,
+        mock_make_bucket,
+        mock_get_encryption_key,
+        mock_add_file_to_minio,
+        mock_difference_local_minio,
+        mock_remove_object,
     ):
         tasks.backup_function()
 
         mock_make_bucket.assert_called_with('pdfding')
         mock_bucket_exists.assert_called_with('pdfding')
-        self.assertEqual(mock_fput_object.call_count, 3)
-        mock_fput_object.assert_has_calls(
+        mock_get_encryption_key.assert_called_with(True, 'password', 'pdfding')
+        self.assertEqual(mock_add_file_to_minio.call_count, 3)
+        mock_add_file_to_minio.assert_has_calls(
             [
-                mock.call('pdfding', 'backup.sqlite3', Path(__file__).parents[2] / 'db' / 'backup.sqlite3'),
-                mock.call('pdfding', 'add_1.pdf', Path(__file__).parents[2] / 'media' / 'add_1.pdf'),
-                mock.call('pdfding', 'add_2.pdf', Path(__file__).parents[2] / 'media' / 'add_2.pdf'),
+                mock.call('backup.sqlite3', Path(__file__).parents[2] / 'db', b'key'),
+                mock.call('add_1.pdf', Path(__file__).parents[2] / 'media', b'key'),
+                mock.call('add_2.pdf', Path(__file__).parents[2] / 'media', b'key'),
             ],
             any_order=True,
         )
@@ -117,3 +125,21 @@ class TestSqliteBackup(TestCase):
             self.assertEqual(result1, result2)
 
         backup_db_path.unlink()
+
+    @mock.patch('backup.tasks.Minio.fput_object')
+    def test_add_file_to_minio_no_encryption(self, mock_fput_object):
+        tasks.add_file_to_minio('file_name', Path('path'), None)
+
+        mock_fput_object.assert_called_with('pdfding', 'file_name', 'path/file_name')
+
+    @mock.patch('backup.tasks.Path.unlink')
+    @mock.patch('backup.tasks.encrypt_file')
+    @mock.patch('backup.tasks.Minio.fput_object')
+    def test_add_file_to_minio_with_encryption(self, mock_fput_object, mock_encrypt_file, mock_unlink):
+        tasks.add_file_to_minio('file_name', Path('path'), b'key')
+
+        tmp_file_path = Path(__file__).parents[1] / 'tmp_encrypted'
+
+        mock_encrypt_file.assert_called_with(b'key', Path('path/file_name'), tmp_file_path)
+        mock_fput_object.assert_called_with('pdfding', 'file_name', str(tmp_file_path))
+        mock_unlink.assert_called_with()

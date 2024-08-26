@@ -2,7 +2,7 @@ import base64
 from pathlib import Path
 
 from cryptography.fernet import Fernet
-from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.hashes import SHA256
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 
@@ -26,7 +26,7 @@ def generate_encryption_key(password: str, salt: str) -> bytes:
     salt_b = bytes(salt, encoding='utf-8')
 
     kdf = PBKDF2HMAC(
-        algorithm=hashes.SHA256(),
+        algorithm=SHA256(),
         length=32,
         salt=salt_b,
         iterations=1000000,

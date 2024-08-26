@@ -31,4 +31,8 @@ BACKUP_ENCRYPTION_SALT = 'pdfding'
 if 'BACKUP_ACCESS_KEY' not in locals():
     BACKUP_ACCESS_KEY = 'add_access_key'
 if 'BACKUP_SECRET_KEY' not in locals():
-    BACKUP_SECRET_KEY = 'add_access_key'  # nosec
+    BACKUP_SECRET_KEY = 'add_secret_key'  # nosec
+
+# check if backup encryption password is set in dev_secrets
+if 'BACKUP_ENCRYPTION_PASSWORD' not in locals():
+    BACKUP_ACCESS_KEY = 'password'  # nosec
