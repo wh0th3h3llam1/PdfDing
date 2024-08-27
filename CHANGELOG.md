@@ -2,12 +2,11 @@
 <hr>
 
 ## 0.3.4 - Encrypted Backups to S3 Compatible Storage  (Aug 27, 2024)
-<hr>
 
 * Add option to encrypt the PDFs and the Sqlite database when performing backups
+* Bug Fix: Setting the Postgres host to something different from `postgres` was not possible beforehand
 
 ## 0.3.3 - Revamp tag sidebar, new version available and further image size reduction (Aug 17, 2024)
-<hr>
 
 * Revamp the tag sidebar section, so that tags will be grouped by their starting character
 * Add a new version available banner in admin section
@@ -15,12 +14,10 @@
 * Update dependencies
 
 ## 0.3.2 - Fix backup functionality (Aug 11, 2024)
-<hr>
 
 * Fix backup functionality by re-adding setuptools to virtual environment
 
 ## 0.3.1 - Reduce image size and add PDFs per page setting (Aug 11, 2024)
-<hr>
 
 * Reduce image size by almost 20%
 * Add PDFs per page setting: control how many PDFs are shown in the PDF overview
@@ -30,12 +27,10 @@
 
 
 ## 0.3.0 - Periodic Backups to S3 Compatible Storage (Aug 03, 2024)
-<hr>
 
 * Add periodic backups to S3 compatible storage
 
 ## 0.2.0 - New Admin Area (Jul 27, 2024)
-<hr>
 
 * Add new Admin Area - admins can delete users and grant + remove admin rights
 * Remove standard Django Admin Area
@@ -47,7 +42,6 @@
   For more information refer to the [configuration](https://codeberg.org/mrmn/PdfDing#configuration) section of the README.
 
 ## 0.1.2 - Colored Themes (Jul 24, 2024)
-<hr>
 
 * Add theme colors
 * Add view counter for PDFs
@@ -56,13 +50,11 @@
 
 
 ## 0.1.1 - Dark Mode (Jul 15, 2024)
-<hr>
 
 * Add dark mode
 * Update dependencies
 
 ## 0.1.0 - Initial Release (Jul 13, 2024)
-<hr>
 
 * Browser based PDF viewing
 * Organize PDFs with tags
