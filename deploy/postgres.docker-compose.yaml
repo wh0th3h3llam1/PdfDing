@@ -19,6 +19,7 @@ services:
       SESSION_COOKIE_SECURE: FALSE
       DATABASE_TYPE: POSTGRES
       POSTGRES_PASSWORD: pdfding
+      POSTGRES_HOST: postgres
 #      # use this if you want to use OIDC
 #      OIDC_ENABLE: TRUE
 #      OIDC_CLIENT_ID: pdfding

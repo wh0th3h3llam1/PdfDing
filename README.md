@@ -208,6 +208,11 @@ Values: `SQLITE`, `POSTGRES` | Default `POSTGRES`
 
 Specify which database type should be used.
 
+### `POSTGRES_HOST`
+Values: `string` | Default = `postgres`
+
+The host of the postgres DB: Example: `postgres.pdfding.com`
+
 ### `POSTGRES_PASSWORD`
 Values: `string` | Default = `None`
 

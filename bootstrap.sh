@@ -9,10 +9,11 @@ cd pdfding
 
 if [ "$DATABASE_TYPE" = "POSTGRES" ]
 then
+    POSTGRES_HOST="${POSTGRES_HOST:-postgres}"
     POSTGRES_PORT="${POSTGRES_PORT:-5432}"
     echo "Waiting for postgres..."
 
-    while ! nc -z postgres $POSTGRES_PORT; do
+    while ! nc -z $POSTGRES_HOST $POSTGRES_PORT; do
       sleep 0.1
     done
 
