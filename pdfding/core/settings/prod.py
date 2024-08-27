@@ -57,6 +57,9 @@ if os.environ.get('BACKUP_ENABLE') == 'TRUE':
         BACKUP_ENCRYPTION_SALT = os.environ.get('BACKUP_ENCRYPTION_SALT', 'pdfding')
     else:
         BACKUP_ENCRYPTION_ENABLED = False
+        # set to none, so that backups.tasks.backup_function raises no attribute error
+        BACKUP_ENCRYPTION_PASSWORD = None
+        BACKUP_ENCRYPTION_SALT = None
 
 if os.environ.get('CSRF_COOKIE_SECURE', 'TRUE') == 'TRUE':
     CSRF_COOKIE_SECURE = True
