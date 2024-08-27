@@ -1,6 +1,11 @@
 # Changelog
 <hr>
 
+## 0.3.4 - Encrypted Backups to S3 Compatible Storage  (Aug 27, 2024)
+<hr>
+
+* Add option to encrypt the PDFs and the Sqlite database when performing backups
+
 ## 0.3.3 - Revamp tag sidebar, new version available and further image size reduction (Aug 17, 2024)
 <hr>
 
