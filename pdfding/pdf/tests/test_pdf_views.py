@@ -9,7 +9,7 @@ from django.test import Client, TestCase, TransactionTestCase
 from django.urls import reverse
 from pdf.forms import AddForm
 from pdf.models import Pdf, Tag
-from pdf.views import BasePdfView
+from pdf.views.pdf_views import BasePdfView
 
 
 class TestLoginRequired(TestCase):
@@ -68,7 +68,7 @@ class TestViews(TestCase):
         self.assertEqual(response.context['sorting_query'], 'oldest')
         self.assertEqual(response.context['tag_dict'], {'t': ['ag_2', 'ag_7']})
 
-    @patch('pdf.views.serve')
+    @patch('pdf.views.pdf_views.serve')
     def test_serve_get(self, mock_serve):
         pdf = Pdf.objects.create(owner=self.user.profile, name='pdf')
         pdf.file.name = f'{self.user}/pdf_name'

@@ -15,8 +15,8 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-from django.urls import path, include
-from pdf.views import redirect_overview
+from django.urls import include, path
+from pdf.views.pdf_views import redirect_overview
 
 # to do exclude not needed allauth urls
 urlpatterns = [

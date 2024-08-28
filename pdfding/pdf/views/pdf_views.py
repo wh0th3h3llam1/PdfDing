@@ -9,10 +9,9 @@ from django.urls import reverse
 from django.views import View
 from django.views.static import serve
 from django_htmx.http import HttpResponseClientRedirect, HttpResponseClientRefresh
-
-from .forms import AddForm, DescriptionForm, NameForm, TagsForm
-from .models import Pdf, Tag
-from .service import get_tag_dict, process_raw_search_query, process_tag_names
+from pdf.forms import AddForm, DescriptionForm, NameForm, TagsForm
+from pdf.models import Pdf, Tag
+from pdf.service import get_tag_dict, process_raw_search_query, process_tag_names
 
 
 class BasePdfView(LoginRequiredMixin, View):
