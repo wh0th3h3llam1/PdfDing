@@ -20,7 +20,7 @@
         </button>
         </form>
         <div x-data="{ sortdropdownOpen: false }" class="relative">
-        <a @click="sortdropdownOpen = !sortdropdownOpen" @click.away="sortdropdownOpen = false" class="cursor-pointer select-none">              
+        <a @click="sortdropdownOpen = !sortdropdownOpen" @click.away="sortdropdownOpen = false" class="cursor-pointer select-none">
             <img class="w-10 h-10 bg-primary hover:bg-secondary rounded-md ml-2 px-2 mx-2 "
                 x-bind:class="sortdropdownOpen && 'duration-300'"
                 src="{% static 'images/sort.svg' %}"/>
@@ -29,7 +29,7 @@
             x-transition:enter="duration-300 ease-out"
             x-transition:enter-start="opacity-0 -translate-y-5 scale-90"
             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-            >                
+            >
             <ul class="hoverlist [&>li>*]:justify-left [&>li>*]:rounded-md">
             <li><a x-bind:href="construct_query_string('{{ raw_search_query }}', 'newest')"
                    x-bind:class="get_active_sorting('{{ sorting_query }}') === 'newest' ? 'bg-primary' : 'dummy'">Newest</a></li>
@@ -46,6 +46,6 @@
             </ul>
         </div>
         </div>
-    </div>      
+    </div>
 </div>
 <div class="flex-grow border-t border-gray-400 mt-2 mb-4"></div>

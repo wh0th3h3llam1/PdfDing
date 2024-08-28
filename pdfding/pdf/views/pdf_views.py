@@ -76,7 +76,7 @@ class Overview(BasePdfView):
 
         return render(
             request,
-            'overview.html',
+            'pdf_overview.html',
             {
                 'page_obj': page_object,
                 'raw_search_query': raw_search_query,
@@ -172,7 +172,7 @@ class Details(BasePdfView):
         else:
             sort_query = ''
 
-        return render(request, 'details.html', {'pdf': pdf, 'sort_query': sort_query})
+        return render(request, 'pdf_details.html', {'pdf': pdf, 'sort_query': sort_query})
 
 
 class Edit(BasePdfView):

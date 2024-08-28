@@ -75,3 +75,16 @@ class Pdf(models.Model):
         # naturaltime will include space characters that will cause failed unit tests
         # splitting and joining fixes that
         return ' '.join(natural_time.split())
+
+
+class SharedPdf(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+    pdf = models.ForeignKey(Pdf, on_delete=models.CASCADE, blank=False)
+    name = models.CharField(max_length=50, null=True, blank=False)
+    # qr_code = models.FileField(upload_to=get_file_path, blank=False)
+    description = models.TextField(null=True, blank=True, help_text='Optional')
+    creation_date = models.DateTimeField(blank=False, editable=False, auto_now_add=True)
+    views = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.name  # pragma: no cover

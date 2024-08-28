@@ -39,6 +39,7 @@
         <div class="text-gray-500 space-x-1 text-sm [&>a]:dark:text-slate-400">
           <span class="dark:text-slate-400">{{ pdf.natural_age }} |</span>
           <a href="{% url 'pdf_details' pdf.id %}" class="hover:text-primary"> Details</a>
+          <a href="{% url 'share_pdf' pdf.id %}" class="hover:text-primary"> Share</a>
           <a href="{% url 'download_pdf' pdf.id %}" class="hover:text-primary">Download</a>
           <a x-show="delete{{ loop_id }}" x-cloak
              hx-delete="{% url 'delete_pdf' pdf.id %}"

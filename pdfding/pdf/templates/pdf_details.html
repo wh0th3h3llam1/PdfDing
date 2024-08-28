@@ -9,7 +9,11 @@
     </div>
 
     <div class="!pb-6 !border-none">
-        <a href="{% url 'download_pdf' pdf.id %}" class="text-md !font-bold text-primary hover:text-secondary hover:underline">Download</a>
+        <div>
+            <a href="{% url 'share_pdf' pdf.id %}" class="text-md !font-bold text-primary hover:text-secondary hover:underline">Share</a>
+            <span class="text-md !font-bold">|</span>
+            <a href="{% url 'download_pdf' pdf.id %}" class="text-md !font-bold text-primary hover:text-secondary hover:underline">Download</a>
+        </div>
     </div>
 
     <div>
