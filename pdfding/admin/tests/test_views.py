@@ -48,6 +48,19 @@ class TestAdminViews(TestCase):
         self.assertEqual(response.context['raw_search_query'], '@a    #admins')
         self.assertEqual(response.context['sorting_query'], '')
 
+    def test_overview_get_sort_title(self):
+        """There was a problem sorting by title as capitalization was taken into account"""
+
+        # create some pdfs
+        for first_char in ['b', 'C', 'x', 'Y']:
+            User.objects.create_user(username=f'user_{first_char}', password='12345', email=f'{first_char}@a.com')
+
+        response = self.client.get(f'{reverse('admin_overview')}?sort=title_desc')
+        emails = [user.email for user in response.context['page_obj']]
+
+        # admin account also exists, therefore we take it into account
+        self.assertEqual(emails, ['Y@a.com', 'x@a.com', 'C@a.com', 'b@a.com', 'a@a.com'])
+
     def test_remove_admin_rights(self):
         headers = {'HTTP_HX-Request': 'true'}
         self.client.post(reverse('admin_adjust_rights', kwargs={'user_id': self.user.id}), **headers)

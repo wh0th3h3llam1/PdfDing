@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
+from django.db.models.functions import Lower
 from django.http import Http404, HttpRequest
 from django.shortcuts import redirect, render
 from django.views import View
@@ -34,8 +35,8 @@ class Overview(BaseAdminView):
             '': 'date_joined',
             'newest': '-date_joined',
             'oldest': 'date_joined',
-            'title_asc': 'email',
-            'title_desc': '-email',
+            'title_asc': Lower('email'),
+            'title_desc': Lower('email').desc(),
         }
 
         users = User.objects.all().order_by(sorting_dict[sorting_query])

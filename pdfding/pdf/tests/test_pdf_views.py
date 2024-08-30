@@ -68,6 +68,18 @@ class TestViews(TestCase):
         self.assertEqual(response.context['sorting_query'], 'oldest')
         self.assertEqual(response.context['tag_dict'], {'t': ['ag_2', 'ag_7']})
 
+    def test_overview_get_sort_title(self):
+        """There was a problem sorting by title as capitalization was taken into account"""
+
+        # create some pdfs
+        for pdf_name in ['orange', 'banana', 'Apple', 'Raspberry']:
+            Pdf.objects.create(owner=self.user.profile, name=pdf_name)
+
+        response = self.client.get(f'{reverse('pdf_overview')}?sort=title_desc')
+        pdf_names = [pdf.name for pdf in response.context['page_obj']]
+
+        self.assertEqual(pdf_names, ['Raspberry', 'orange', 'banana', 'Apple'])
+
     @patch('pdf.views.pdf_views.serve')
     def test_serve_get(self, mock_serve):
         pdf = Pdf.objects.create(owner=self.user.profile, name='pdf')

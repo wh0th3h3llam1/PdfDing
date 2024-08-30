@@ -2,6 +2,7 @@ from core.settings import MEDIA_ROOT
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
+from django.db.models.functions import Lower
 from django.forms import ValidationError
 from django.http import FileResponse, Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
@@ -52,8 +53,8 @@ class Overview(BasePdfView):
             '': '-creation_date',
             'newest': '-creation_date',
             'oldest': 'creation_date',
-            'title_asc': 'name',
-            'title_desc': '-name',
+            'title_asc': Lower('name'),
+            'title_desc': Lower('name').desc(),
             'least_viewed': 'views',
             'most_viewed': '-views',
         }
