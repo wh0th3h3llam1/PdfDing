@@ -2,6 +2,13 @@
 
 {% block content %}
 
-<h1 class="mb-6">Share PDF File</h1>
+<h1>Share PDF</h1>
+<h2 class="mb-6 truncate">{{ pdf_name }}</h2>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" >Submit</button>
+</form>
 
 {% endblock %}

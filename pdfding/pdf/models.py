@@ -79,6 +79,7 @@ class Pdf(models.Model):
 
 class SharedPdf(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+    owner = models.ForeignKey(Profile, on_delete=models.CASCADE, blank=False)
     pdf = models.ForeignKey(Pdf, on_delete=models.CASCADE, blank=False)
     name = models.CharField(max_length=50, null=True, blank=False)
     # qr_code = models.FileField(upload_to=get_file_path, blank=False)

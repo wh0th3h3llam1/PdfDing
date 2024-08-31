@@ -17,4 +17,6 @@ urlpatterns = [
     path('shared', share_views.Overview.as_view(), name='shared_overview'),
     path('shared/<int:page>/', share_views.Overview.as_view(), name='shared_overview_page'),
     path('share/<pdf_id>', share_views.Share.as_view(), name='share_pdf'),
+    path('share/delete/<shared_id>', share_views.Delete.as_view(), name='delete_share'),
+    # path('share/details/<shared_id>', share_views.Details.as_view(), name='share_details'),
 ]
