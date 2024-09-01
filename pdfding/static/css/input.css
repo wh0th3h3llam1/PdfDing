@@ -75,10 +75,16 @@ hr {
     @apply bg-red-600
 }
 .button-text {
-    @apply !bg-white !px-0 !py-0 font-normal !text-gray-500 !shadow-none
+    @apply !bg-white dark:!bg-slate-700 !px-0 !py-0 font-normal !text-gray-500 !shadow-none
 }
 .button-text:hover {
     @apply !text-primary
+}
+.button-text-theme {
+    @apply !bg-white dark:!bg-slate-700 !px-0 !py-0 font-normal !text-primary !shadow-none
+}
+.button-text-theme:hover {
+    @apply !text-secondary
 }
 .button-text-delete {
     @apply !bg-white dark:!bg-slate-700 !px-0 !py-0 font-medium !text-red-400 !shadow-none

@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.views import View
 from django_htmx.http import HttpResponseClientRedirect, HttpResponseClientRefresh
 from pdf.forms import ShareForm
+from pdf.models import SharedPdf
 from pdf.views.pdf_views import BasePdfView
 
 
@@ -60,12 +61,8 @@ class Overview(BaseSharedPdfView):
             'title_asc': Lower('name'),
             'title_desc': Lower('name').desc(),
         }
-        print(sorting_query)
 
         shared_pdfs = request.user.profile.sharedpdf_set.all().order_by(sorting_dict[sorting_query])
-        for item in shared_pdfs:
-            print(item)
-            print(item.name)
 
         paginator = Paginator(shared_pdfs, per_page=request.user.profile.pdfs_per_page, allow_empty_first_page=True)
         page_object = paginator.get_page(page)
@@ -100,9 +97,21 @@ class Delete(BaseSharedPdfView):
         return redirect('shared_overview')
 
 
-class Present(View):
-    def get(self, request: HttpRequest, share_id: str):
-        pass
+class Details(BaseSharedPdfView):
+    def get(self, request: HttpRequest, shared_id: str):
+        shared_pdf = self.get_shared_pdf(request, shared_id)
+
+        return render(request, 'shared_pdf_details.html', {'shared_pdf': shared_pdf})
+
+
+class ViewShared(View):
+    def get(self, request: HttpRequest, shared_id: str):
+        try:
+            shared_pdf = SharedPdf.objects.get(pk=shared_id)
+        except ValidationError:
+            raise Http404("Given query not found...")
+
+        return render(request, 'view_shared.html', {'shared_pdf': shared_pdf})
 
 
 class View(View):
