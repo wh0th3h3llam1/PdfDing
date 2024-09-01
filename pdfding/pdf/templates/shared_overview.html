@@ -9,6 +9,12 @@
 </content>
 
 <script>
+  // function for copying to the clipboard
+  function copy_to_clipboard(input_string)
+  {
+    navigator.clipboard.writeText(input_string);
+  }
+
   // function for getting the current sorting
   function get_active_sorting(sorting_string)
   {

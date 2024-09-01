@@ -1,0 +1,19 @@
+{% extends 'layouts/box.html' %}
+
+{% block content %}
+
+<div class="[&>*]:flex [&>*]:justify-center">
+  <h1>View Shared PDF</h1>
+  <span class="p-2">PdfDing member {{ shared_pdf.owner.user.email }} shared the PDF</span>
+
+  <span class="text-2xl font-bold p-2">{{ shared_pdf.pdf.name }}</span>
+  <span class="p-2 pb-6">with you</span>
+
+
+  <form action="{% url 'view_shared' shared_pdf.id %}" method="post">
+    <!--<input name="name" type="text"/>-->
+    {% csrf_token %}
+    <button class="" type="submit">View</button>
+  </form>
+</div>
+{% endblock %}

@@ -19,5 +19,7 @@ urlpatterns = [
     path('shared/overview/<int:page>/', share_views.Overview.as_view(), name='shared_overview_page'),
     path('shared/delete/<shared_id>', share_views.Delete.as_view(), name='delete_shared'),
     path('shared/details/<shared_id>', share_views.Details.as_view(), name='shared_details'),
+    path('shared/download/<shared_id>', share_views.Download.as_view(), name='download_shared_pdf'),
+    path('shared/get/<shared_id>', share_views.Serve.as_view(), name='serve_shared_pdf'),
     path('shared/<shared_id>', share_views.ViewShared.as_view(), name='view_shared'),
 ]

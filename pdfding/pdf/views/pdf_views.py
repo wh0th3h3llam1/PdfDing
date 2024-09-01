@@ -1,6 +1,7 @@
 from core.settings import MEDIA_ROOT
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
 from django.db.models.functions import Lower
 from django.forms import ValidationError
@@ -22,6 +23,8 @@ class BasePdfView(LoginRequiredMixin, View):
             user_profile = request.user.profile
             pdf = user_profile.pdf_set.get(id=pdf_id)
         except ValidationError:
+            raise Http404("Given query not found...")
+        except ObjectDoesNotExist:
             raise Http404("Given query not found...")
 
         return pdf
@@ -122,7 +125,11 @@ class View(BasePdfView):
         return render(
             request,
             'viewer.html',
-            {'pdf_id': pdf_id, 'theme_color_rgb': theme_color_rgb_dict[request.user.profile.theme_color]},
+            {
+                'pdf_id': pdf_id,
+                'theme_color_rgb': theme_color_rgb_dict[request.user.profile.theme_color],
+                'user_view_bool': True,
+            },
         )
 
 
