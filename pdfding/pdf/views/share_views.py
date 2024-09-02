@@ -1,4 +1,5 @@
 from core.settings import MEDIA_ROOT
+from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
 from django.db.models.functions import Lower
@@ -9,7 +10,7 @@ from django.urls import reverse
 from django.views import View
 from django.views.static import serve
 from django_htmx.http import HttpResponseClientRedirect, HttpResponseClientRefresh
-from pdf.forms import ShareForm
+from pdf.forms import SharedDescriptionForm, SharedNameForm, ShareForm
 from pdf.models import SharedPdf
 from pdf.views.pdf_views import BasePdfView
 
@@ -115,6 +116,70 @@ class Delete(BaseSharedPdfView):
         return redirect('shared_overview')
 
 
+class Edit(BaseSharedPdfView):
+    """
+    The view for editing a PDshared F's name and description. The field, that is to be changed, is specified by the
+    'field' argument.
+    """
+
+    form_dict = {'description': SharedDescriptionForm, 'name': SharedNameForm}
+
+    def get(self, request: HttpRequest, shared_id: str, field_name: str):
+        """Triggered by htmx. Display an inline form for editing the correct field."""
+
+        shared_pdf = self.get_shared_pdf(request, shared_id)
+
+        initial_dict = {
+            'name': {'name': shared_pdf.name},
+            'description': {'description': shared_pdf.description},
+        }
+
+        if request.htmx:
+            form = self.form_dict[field_name](initial=initial_dict[field_name])
+
+            return render(
+                request,
+                'partials/details_form.html',
+                {
+                    'action_url': reverse('edit_shared', kwargs={'field_name': field_name, 'shared_id': shared_id}),
+                    'details_url': reverse('shared_details', kwargs={'shared_id': shared_id}),
+                    'edit_id': f'{field_name}-edit',
+                    'form': form,
+                    'field_name': field_name,
+                    'shared_pdf': shared_pdf,
+                },
+            )
+
+        return redirect('shared_details', shared_pdf=shared_pdf)
+
+    def post(self, request: HttpRequest, shared_id: str, field_name: str):
+        """
+        POST: Change the specified field by submitting the form.
+        """
+
+        shared_pdf = self.get_shared_pdf(request, shared_id)
+        form = self.form_dict[field_name](request.POST, instance=shared_pdf)
+
+        if form.is_valid():
+            # if the name is changed we need to check that it is a unique name not used by another pdf of this user.
+            if field_name == 'name':
+                existing_shared_pdf = SharedPdf.objects.filter(
+                    owner=request.user.profile, name__iexact=form.data['name']
+                ).first()
+
+                if existing_shared_pdf and str(existing_shared_pdf.id) != shared_id:
+                    messages.warning(request, 'This name is already used by another PDF!')
+                else:
+                    form.save()
+
+            # if description is changed save it
+            else:
+                form.save()
+        else:
+            messages.warning(request, 'Form not valid')
+        return redirect('shared_details', shared_id=shared_id)
+
+
 class Details(BaseSharedPdfView):
     def get(self, request: HttpRequest, shared_id: str):
         shared_pdf = self.get_shared_pdf(request, shared_id)
@@ -157,6 +222,8 @@ class ViewShared(BaseSharedPdfPublicView):
 
     def post(self, request: HttpRequest, shared_id: str):
         shared_pdf = self.get_shared_pdf_public(shared_id)
+        shared_pdf.views += 1
+        shared_pdf.save()
 
         # set theme color rgb value
         # theme_color_rgb_dict = {

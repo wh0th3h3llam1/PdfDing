@@ -26,7 +26,7 @@
           {% if user_view_bool %}
           PDFViewerApplication.open({ url: "{% url 'serve_pdf' pdf_id %}" });
           {% else %}
-          PDFViewerApplication.open({ url: "{% url 'serve_shared_pdf' shared_pdf_id %}" });
+          PDFViewerApplication.open({ url: "{% url 'serve_shared' shared_pdf_id %}" });
           {% endif %}
           setTimeout(function() {
               document.title = "PdfDing"
@@ -227,7 +227,7 @@
                 {% if user_view_bool %}
                 <button onclick="location.href='{% url 'download_pdf' pdf_id %}'" class="button1">
                 {% else %}
-                <button onclick="location.href='{% url 'download_shared_pdf' shared_pdf_id %}'" class="button1">
+                <button onclick="location.href='{% url 'download_shared' shared_pdf_id %}'" class="button1">
                 {% endif %}
                   <img src="{% static 'images/download.svg' %}" width="22" style="opacity: 0.6">
                 </button>

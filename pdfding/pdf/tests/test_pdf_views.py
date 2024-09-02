@@ -1,5 +1,6 @@
 from pathlib import Path
 from unittest.mock import patch
+from uuid import uuid4
 
 from core.settings import MEDIA_ROOT
 from django.contrib.auth.models import User
@@ -40,12 +41,19 @@ class TestViews(TestCase):
 
         self.assertEqual(pdf, BasePdfView.get_pdf(request, pdf.id))
 
-    def test_get_pdf_not_existing(self):
+    def test_get_pdf_validation(self):
         response = self.client.get(reverse('pdf_overview'))
         request = response.wsgi_request
 
         with self.assertRaises(Http404):
             BasePdfView.get_pdf(request, '12345')
+
+    def test_get_pdf_object_does_not_exist(self):
+        response = self.client.get(reverse('pdf_overview'))
+        request = response.wsgi_request
+
+        with self.assertRaises(Http404):
+            BasePdfView.get_pdf(request, str(uuid4()))
 
     def test_overview_get(self):
         # create some pdfs
@@ -108,6 +116,7 @@ class TestViews(TestCase):
 
         self.assertEqual(response.context['pdf_id'], str(pdf.id))
         self.assertEqual(response.context['theme_color_rgb'], '71 147 204')
+        self.assertEqual(response.context['user_view_bool'], True)
 
     def test_add_get(self):
         response = self.client.get(reverse('add_pdf'))

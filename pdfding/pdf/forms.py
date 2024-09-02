@@ -112,7 +112,7 @@ class ShareForm(forms.ModelForm):
         model = SharedPdf
         widgets = {
             'name': forms.TextInput(attrs={'placeholder': 'Add Share Name'}),
-            'description': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Add Description'}),
+            'description': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Add a private description'}),
         }
 
         fields = ['name', 'description']
@@ -147,6 +147,28 @@ class ShareForm(forms.ModelForm):
             raise forms.ValidationError('A Share with this name already exists!')
 
         return share_name
+
+
+class SharedDescriptionForm(forms.ModelForm):
+    """Form for changing the description of a shared PDF."""
+
+    class Meta:
+        model = SharedPdf
+        fields = ['description']
+
+
+class SharedNameForm(forms.ModelForm):
+    """Form for changing the name of a shared PDF."""
+
+    class Meta:
+        model = SharedPdf
+        fields = ['name']
+
+    def clean_name(self) -> str:  # pragma: no cover
+        """Clean the submitted pdf name. Removes trailing and multiple whitespaces."""
+        pdf_name = clean_name(self.cleaned_data['name'])
+
+        return pdf_name
 
 
 def clean_name(pdf_name: str) -> str:

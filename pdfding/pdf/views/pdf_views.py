@@ -210,6 +210,7 @@ class Edit(BasePdfView):
                 'partials/details_form.html',
                 {
                     'action_url': reverse('edit_pdf', kwargs={'field_name': field_name, 'pdf_id': pdf_id}),
+                    'details_url': reverse('pdf_details', kwargs={'pdf_id': pdf_id}),
                     'edit_id': f'{field_name}-edit',
                     'form': form,
                     'field_name': field_name,
