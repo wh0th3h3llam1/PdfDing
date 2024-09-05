@@ -23,10 +23,6 @@
                    x-bind:class="get_active_sorting('{{ sorting_query }}') === 'title_asc' ? 'bg-primary' : 'dummy'">A --- Z</a></li>
             <li><a x-bind:href="construct_query_string('title_desc')"
                    x-bind:class="get_active_sorting('{{ sorting_query }}') === 'title_desc' ? 'bg-primary' : 'dummy'">Z --- A</a></li>
-            <li><a x-bind:href="construct_query_string('most_viewed')"
-                   x-bind:class="get_active_sorting('{{ sorting_query }}') === 'most_viewed' ? 'bg-primary' : 'dummy'">Most Viewed</a></li>
-            <li><a x-bind:href="construct_query_string('least_viewed')"
-                   x-bind:class="get_active_sorting('{{ sorting_query }}') === 'least_viewed' ? 'bg-primary' : 'dummy'">Least Viewed</a></li>
             </ul>
         </div>
         </div>

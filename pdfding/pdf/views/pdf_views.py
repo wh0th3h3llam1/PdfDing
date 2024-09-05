@@ -214,7 +214,6 @@ class Edit(BasePdfView):
                     'edit_id': f'{field_name}-edit',
                     'form': form,
                     'field_name': field_name,
-                    'pdf_id': pdf_id,
                 },
             )
 
@@ -275,7 +274,7 @@ class Delete(BasePdfView):
             if 'details' not in request.META.get('HTTP_REFERER', ''):
                 return HttpResponseClientRefresh()
             # if deleted from the details page the details page will no longer exist
-            else:  # pragma: no cover
+            else:
                 return HttpResponseClientRedirect(reverse('pdf_overview'))
 
         return redirect('pdf_overview')

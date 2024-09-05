@@ -5,10 +5,10 @@ from django.core.files import File
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase
 from pdf import forms
-from pdf.models import Pdf
+from pdf.models import Pdf, SharedPdf
 
 
-class TestForms(TestCase):
+class TestPdfForms(TestCase):
     def setUp(self):
         self.client = Client()
         self.user = User.objects.create_user(username='user', password='12345', email='a@a.com')
@@ -62,3 +62,29 @@ class TestForms(TestCase):
         generated_output = [forms.clean_name(i) for i in inputs]
 
         self.assertEqual(expected_output, generated_output)
+
+
+class TestShareForms(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(username='user', password='12345', email='a@a.com')
+
+    def test_add_form_valid(self):
+        form = forms.ShareForm(data={'name': 'Share Name'}, owner=self.user.profile)
+
+        self.assertTrue(form.is_valid())
+
+    def test_clean_missing_owner(self):
+        form = forms.ShareForm(data={'name': 'Share Name'})
+
+        self.assertFalse(form.is_valid())
+
+    def test_pdf_clean_name_existing(self):
+        # create pdf for user
+        pdf = Pdf.objects.create(owner=self.user.profile, name='pdf_name')
+        SharedPdf.objects.create(owner=self.user.profile, pdf=pdf, name='existing name')
+        # create the form with the already existing pdf name
+        form = forms.ShareForm(data={'name': 'existing name'}, owner=self.user.profile)
+
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors['name'], ['A Share with this name already exists!'])

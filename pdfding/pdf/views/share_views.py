@@ -110,7 +110,7 @@ class Delete(BaseSharedPdfView):
             if 'details' not in request.META.get('HTTP_REFERER', ''):
                 return HttpResponseClientRefresh()
             # if deleted from the details page the details page will no longer exist
-            else:  # pragma: no cover
+            else:
                 return HttpResponseClientRedirect(reverse('shared_overview'))
 
         return redirect('shared_overview')
@@ -146,11 +146,10 @@ class Edit(BaseSharedPdfView):
                     'edit_id': f'{field_name}-edit',
                     'form': form,
                     'field_name': field_name,
-                    'shared_pdf': shared_pdf,
                 },
             )
 
-        return redirect('shared_details', shared_pdf=shared_pdf)
+        return redirect('shared_details', shared_id=shared_id)
 
     def post(self, request: HttpRequest, shared_id: str, field_name: str):
         """
@@ -240,7 +239,3 @@ class ViewShared(BaseSharedPdfPublicView):
             'viewer.html',
             {'shared_pdf_id': shared_pdf.id, 'theme_color_rgb': '74 222 128', 'user_view_bool': False},
         )
-
-
-class View(View):
-    pass

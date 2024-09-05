@@ -8,6 +8,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.http.response import Http404, HttpResponse
 from django.test import Client, TestCase, TransactionTestCase
 from django.urls import reverse
+from django_htmx.http import HttpResponseClientRedirect, HttpResponseClientRefresh
 from pdf.forms import AddForm
 from pdf.models import Pdf, Tag
 from pdf.views.pdf_views import BasePdfView
@@ -36,12 +37,14 @@ class TestViews(TestCase):
 
     def test_get_pdf_existing(self):
         pdf = Pdf.objects.create(owner=self.user.profile, name='pdf')
+        # we need to create a request so get_pdf can access the user profile
         response = self.client.get(reverse('pdf_overview'))
         request = response.wsgi_request
 
         self.assertEqual(pdf, BasePdfView.get_pdf(request, pdf.id))
 
     def test_get_pdf_validation(self):
+        # we need to create a request so get_pdf can access the user profile
         response = self.client.get(reverse('pdf_overview'))
         request = response.wsgi_request
 
@@ -49,6 +52,7 @@ class TestViews(TestCase):
             BasePdfView.get_pdf(request, '12345')
 
     def test_get_pdf_object_does_not_exist(self):
+        # we need to create a request so get_pdf can access the user profile
         response = self.client.get(reverse('pdf_overview'))
         request = response.wsgi_request
 
@@ -184,12 +188,17 @@ class TestViews(TestCase):
             reverse('edit_pdf', kwargs={'pdf_id': pdf.id, 'field_name': 'description'}), **headers
         )
 
-        self.assertEqual(response.context['pdf_id'], str(pdf.id))
+        self.assertEqual(response.context['edit_id'], 'description-edit')
         self.assertEqual(response.context['field_name'], 'description')
+        self.assertEqual(response.context['details_url'], reverse('pdf_details', kwargs={'pdf_id': pdf.id}))
+        self.assertEqual(
+            response.context['action_url'], reverse('edit_pdf', kwargs={'field_name': 'description', 'pdf_id': pdf.id})
+        )
 
     def test_edit_post_invalid_form(self):
         pdf = Pdf.objects.create(owner=self.user.profile, name='pdf', description='something')
 
+        # post is invalid because data is missing
         # follow=True is needed for getting the message
         response = self.client.post(
             reverse('edit_pdf', kwargs={'pdf_id': pdf.id, 'field_name': 'name'}),
@@ -299,17 +308,33 @@ class TestDelete(TransactionTestCase):
         self.user = None
         set_up(self)
 
-    def test_delete_htmx(self):
+    def test_delete_htmx_not_from_details(self):
         # create a file for the test, so we can check that it was deleted by django_cleanup
         simple_file = SimpleUploadedFile("simple.pdf", b"these are the file contents!")
         pdf = Pdf.objects.create(owner=self.user.profile, name='pdf', file=simple_file)
         pdf_path = Path(pdf.file.path)
 
         headers = {'HTTP_HX-Request': 'true'}
-        self.client.delete(reverse('delete_pdf', kwargs={'pdf_id': pdf.id}), **headers)
+        response = self.client.delete(reverse('delete_pdf', kwargs={'pdf_id': pdf.id}), **headers)
 
         self.assertFalse(self.user.profile.pdf_set.filter(id=pdf.id).exists())
         self.assertFalse(pdf_path.exists())
+        self.assertEqual(type(response), HttpResponseClientRefresh)
+
+    def test_delete_htmx_from_details(self):
+        # create a file for the test, so we can check that it was deleted by django_cleanup
+        simple_file = SimpleUploadedFile("simple.pdf", b"these are the file contents!")
+        pdf = Pdf.objects.create(owner=self.user.profile, name='pdf', file=simple_file)
+        pdf_path = Path(pdf.file.path)
+
+        headers = {'HTTP_HX-Request': 'true'}
+        response = self.client.delete(
+            reverse('delete_pdf', kwargs={'pdf_id': pdf.id}), HTTP_REFERER='pdfding.com/details/xx', **headers
+        )
+
+        self.assertFalse(self.user.profile.pdf_set.filter(id=pdf.id).exists())
+        self.assertFalse(pdf_path.exists())
+        self.assertEqual(type(response), HttpResponseClientRedirect)
 
     def test_delete_no_htmx(self):
         pdf = Pdf.objects.create(owner=self.user.profile, name='pdf')
