@@ -1,6 +1,6 @@
 from core.settings import MEDIA_ROOT
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_not_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
 from django.db.models.functions import Lower
@@ -16,7 +16,7 @@ from pdf.models import Pdf, Tag
 from pdf.service import get_tag_dict, process_raw_search_query, process_tag_names
 
 
-class BasePdfView(LoginRequiredMixin, View):
+class BasePdfView(View):
     @staticmethod
     def get_pdf(request: HttpRequest, pdf_id: str):
         try:
@@ -30,7 +30,8 @@ class BasePdfView(LoginRequiredMixin, View):
         return pdf
 
 
-def redirect_overview(request: HttpRequest):  # pragma: no cover
+@login_not_required
+def redirect_to_overview(request: HttpRequest):  # pragma: no cover
     """
     Simple view for redirecting to the pdf overview. This is used when the root url is accessed.
 

@@ -1,5 +1,6 @@
 from core.settings import MEDIA_ROOT
 from django.contrib import messages
+from django.contrib.auth.decorators import login_not_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
 from django.db.models.functions import Lower
@@ -7,7 +8,7 @@ from django.forms import ValidationError
 from django.http import FileResponse, Http404, HttpRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.views import View
+from django.utils.decorators import method_decorator
 from django.views.static import serve
 from django_htmx.http import HttpResponseClientRedirect, HttpResponseClientRefresh
 from pdf.forms import SharedDescriptionForm, SharedNameForm, ShareForm
@@ -29,7 +30,7 @@ class BaseSharedPdfView(BasePdfView):
         return shared_pdf
 
 
-class BaseSharedPdfPublicView(View):
+class BaseSharedPdfPublicView(BaseSharedPdfView):
     @staticmethod
     def get_shared_pdf_public(shared_id: str):
         try:
@@ -186,6 +187,7 @@ class Details(BaseSharedPdfView):
         return render(request, 'shared_pdf_details.html', {'shared_pdf': shared_pdf})
 
 
+@method_decorator(login_not_required, name="dispatch")
 class Serve(BaseSharedPdfPublicView):
     """View used for serving shared PDF files specified by the shared PDF id"""
 
@@ -197,6 +199,7 @@ class Serve(BaseSharedPdfPublicView):
         return serve(request, document_root=MEDIA_ROOT, path=shared_pdf.pdf.file.name)
 
 
+@method_decorator(login_not_required, name="dispatch")
 class Download(BaseSharedPdfPublicView):
     """View for downloading the PDF specified by the ID."""
 
@@ -211,6 +214,7 @@ class Download(BaseSharedPdfPublicView):
         return response
 
 
+@method_decorator(login_not_required, name="dispatch")
 class ViewShared(BaseSharedPdfPublicView):
     """The view responsible for displaying the shared PDF file specified by the shared PDF id in the browser."""
 

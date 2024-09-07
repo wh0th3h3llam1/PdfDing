@@ -16,13 +16,28 @@ Including another URLconf
 """
 
 from django.urls import include, path
-from pdf.views.pdf_views import redirect_overview
+from pdf.views.pdf_views import redirect_to_overview
+from users.views import (
+    PdfDingLoginView,
+    PdfDingPasswordResetDoneView,
+    PdfDingPasswordResetView,
+    PdfDingSignupView,
+    pdfding_oidc_callback,
+    pdfding_oidc_login,
+)
 
-# to do exclude not needed allauth urls
 urlpatterns = [
+    # overwrite some allauth urls as they are blocked otherwise because of the LoginRequiredMiddleware
+    path('accountlogin/', PdfDingLoginView.as_view(), name='login'),
+    path('accountsignup/', PdfDingSignupView.as_view(), name='signup'),
+    path('accountpassword/reset/', PdfDingPasswordResetView.as_view(), name='password_reset'),
+    path('accountpassword/reset/done/', PdfDingPasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('accountoidc/login/', pdfding_oidc_login, name='oidc_login'),
+    path('accountoidc/login/callback/', pdfding_oidc_callback, name='oidc_callback'),
+    # normal inc
     path('admin/', include('admin.urls')),
     path('account', include('allauth.urls')),
-    path('', redirect_overview, name='home'),
+    path('', redirect_to_overview, name='home'),
     path('profile/', include('users.urls')),
     path('pdf/', include('pdf.urls')),
 ]

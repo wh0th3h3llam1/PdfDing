@@ -1,22 +1,19 @@
 from allauth.account.utils import send_email_confirmation
+from allauth.account.views import LoginView, PasswordResetDoneView, PasswordResetView, SignupView
+from allauth.socialaccount.providers.openid_connect.views import callback, login
 from django.contrib import messages
 from django.contrib.auth import logout
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_not_required
 from django.contrib.auth.models import User
 from django.http import HttpRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.views import View
 
 from .forms import EmailForm, PdfsPerPageForm, ThemeForm
 
 
-class BaseUserView(LoginRequiredMixin, View):
-    pass
-
-
-@login_required
 def settings(request):
     """View for the profile settings page"""
 
@@ -26,7 +23,7 @@ def settings(request):
     return render(request, 'profile_settings.html', {'uses_social': uses_social})
 
 
-class ChangeSetting(BaseUserView):
+class ChangeSetting(View):
     """View for changing the theme."""
 
     form_dict = {'email': EmailForm, 'pdfs_per_page': PdfsPerPageForm, 'theme': ThemeForm}
@@ -82,7 +79,7 @@ class ChangeSetting(BaseUserView):
         return redirect('profile-settings')
 
 
-class Delete(BaseUserView):
+class Delete(View):
     """View for deleting a user profile."""
 
     def get(self, request: HttpRequest):  # pragma: no cover
@@ -100,3 +97,65 @@ class Delete(BaseUserView):
         messages.success(request, 'Your Account was successfully deleted.')
 
         return redirect('home')
+
+
+@method_decorator(login_not_required, name="dispatch")
+class PdfDingLoginView(LoginView):
+    """
+    Overwrite allauths login to be accessed without being logged in
+    """
+
+    @login_not_required
+    def dispatch(self, request, *args, **kwargs):
+        return super(PdfDingLoginView, self).dispatch(request, *args, **kwargs)
+
+
+@method_decorator(login_not_required, name="dispatch")
+class PdfDingSignupView(SignupView):
+    """
+    Overwrite allauths signup to be accessed without being logged in
+    """
+
+    @login_not_required
+    def dispatch(self, request, *args, **kwargs):
+        return super(PdfDingSignupView, self).dispatch(request, *args, **kwargs)
+
+
+@method_decorator(login_not_required, name="dispatch")
+class PdfDingPasswordResetView(PasswordResetView):
+    """
+    Overwrite allauths password reset to be accessed without being logged in
+    """
+
+    @login_not_required
+    def dispatch(self, request, *args, **kwargs):
+        return super(PdfDingPasswordResetView, self).dispatch(request, *args, **kwargs)
+
+
+@method_decorator(login_not_required, name="dispatch")
+class PdfDingPasswordResetDoneView(PasswordResetDoneView):
+    """
+    Overwrite allauths password reset done to be accessed without being logged in
+    """
+
+    @login_not_required
+    def dispatch(self, request, *args, **kwargs):
+        return super(PdfDingPasswordResetDoneView, self).dispatch(request, *args, **kwargs)
+
+
+@login_not_required
+def pdfding_oidc_login(request: HttpRequest):  # pragma: no cover
+    """
+    Overwrite allauths oidc login to be accessed without being logged in
+    """
+
+    return login(request, 'oidc')
+
+
+@login_not_required
+def pdfding_oidc_callback(request: HttpRequest):  # pragma: no cover
+    """
+    Overwrite allauths oidc callback to be accessed without being logged in
+    """
+
+    return callback(request, 'oidc')

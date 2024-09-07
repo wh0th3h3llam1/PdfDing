@@ -6,6 +6,13 @@ from django.urls import reverse
 
 
 class TestLoginRequired(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='non_admin', password='password', email='a@a.com')
+        self.user.save()
+        self.client = Client()
+
+        self.client.login(username='non_admin', password='password')
+
     def test_admin_required(self):
         response = self.client.get(reverse('admin_overview'))
 

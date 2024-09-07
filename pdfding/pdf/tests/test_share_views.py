@@ -17,11 +17,10 @@ from pdf.views.share_views import BaseSharedPdfPublicView, BaseSharedPdfView
 def set_up(self):
     self.client = Client()
     self.user = User.objects.create_user(username=self.username, password=self.password, email='a@a.com')
-    self.client.login(username=self.username, password=self.password)
     self.pdf = Pdf.objects.create(owner=self.user.profile, name='pdf')
 
 
-class TestViews(TestCase):
+class TestLoginRequiredViews(TestCase):
     username = 'user'
     password = '12345'
 
@@ -29,6 +28,7 @@ class TestViews(TestCase):
         self.user = None
         self.pdf = None
         set_up(self)
+        self.client.login(username=self.username, password=self.password)
 
     def test_get_shared_pdf_existing(self):
         shared_pdf = SharedPdf.objects.create(owner=self.user.profile, pdf=self.pdf, name='share')
@@ -98,30 +98,6 @@ class TestViews(TestCase):
 
         self.assertEqual(shared_pdf_names, ['Raspberry', 'orange', 'banana', 'Apple'])
         self.assertEqual(response.context['sorting_query'], 'title_desc')
-
-    @patch('pdf.views.share_views.serve')
-    def test_serve_get(self, mock_serve):
-        self.pdf.file.name = f'{self.user}/pdf_name'
-        self.pdf.save()
-        shared_pdf = SharedPdf.objects.create(owner=self.user.profile, pdf=self.pdf, name='shared_pdf')
-        mock_serve.return_value = HttpResponse('some response')
-
-        response = self.client.get(reverse('serve_shared', kwargs={'shared_id': shared_pdf.id}))
-
-        mock_serve.assert_called_with(response.wsgi_request, document_root=MEDIA_ROOT, path=f'{self.user}/pdf_name')
-
-    def test_download_get(self):
-        simple_file = SimpleUploadedFile("simple.pdf", b"these are the file contents!")
-        pdf = Pdf.objects.create(owner=self.user.profile, name='pdf_with_file', file=simple_file)
-        pdf_path = Path(pdf.file.path)
-        shared_pdf = SharedPdf.objects.create(owner=self.user.profile, pdf=pdf, name='shared_pdf')
-
-        response = self.client.get(reverse('download_shared', kwargs={'shared_id': shared_pdf.id}))
-
-        pdf_path.unlink()
-
-        self.assertEqual(response.filename, pdf.name)
-        self.assertTrue(response.as_attachment)
 
     def test_details_get(self):
         shared_pdf = SharedPdf.objects.create(owner=self.user.profile, pdf=self.pdf, name='shared_pdf')
@@ -211,27 +187,6 @@ class TestViews(TestCase):
         message = list(response.context['messages'])[0]
         self.assertEqual(message.message, 'This name is already used by another PDF!')
 
-    def test_view_get(self):
-        shared_pdf = SharedPdf.objects.create(owner=self.user.profile, pdf=self.pdf, name='shared_pdf')
-
-        # test without http referer
-        response = self.client.get(reverse('view_shared', kwargs={'shared_id': shared_pdf.id}))
-
-        self.assertEqual(response.context['shared_pdf'], shared_pdf)
-
-    def test_view_post(self):
-        shared_pdf = SharedPdf.objects.create(owner=self.user.profile, pdf=self.pdf, name='shared_pdf')
-
-        self.assertEqual(shared_pdf.views, 0)
-
-        response = self.client.post(reverse('view_shared', kwargs={'shared_id': shared_pdf.id}))
-        self.assertEqual(response.context['shared_pdf_id'], shared_pdf.id)
-        self.assertEqual(response.context['theme_color_rgb'], '74 222 128')
-        self.assertEqual(response.context['user_view_bool'], False)
-
-        shared_pdf = SharedPdf.objects.get(pk=shared_pdf.id)
-        self.assertEqual(shared_pdf.views, 1)
-
 
 class TestDelete(TransactionTestCase):
     # use TransactionTestCase as the qr code image needs to be deleted
@@ -243,6 +198,7 @@ class TestDelete(TransactionTestCase):
         self.user = None
         self.pdf = None
         set_up(self)
+        self.client.login(username=self.username, password=self.password)
 
     def test_delete_htmx_not_from_details(self):
         # create a file for the test, so we can check that it was deleted by django_cleanup
@@ -273,3 +229,58 @@ class TestDelete(TransactionTestCase):
 
         response = self.client.delete(reverse('delete_shared', kwargs={'shared_id': shared_pdf.id}))
         self.assertRedirects(response, reverse('shared_overview'), status_code=302)
+
+
+class TestLoginNotRequiredViews(TestCase):
+    username = 'user'
+    password = '12345'
+
+    def setUp(self):
+        self.user = None
+        self.pdf = None
+        set_up(self)
+
+    def test_view_get(self):
+        shared_pdf = SharedPdf.objects.create(owner=self.user.profile, pdf=self.pdf, name='shared_pdf')
+
+        # test without http referer
+        response = self.client.get(reverse('view_shared', kwargs={'shared_id': shared_pdf.id}))
+
+        self.assertEqual(response.context['shared_pdf'], shared_pdf)
+
+    def test_view_post(self):
+        shared_pdf = SharedPdf.objects.create(owner=self.user.profile, pdf=self.pdf, name='shared_pdf')
+
+        self.assertEqual(shared_pdf.views, 0)
+
+        response = self.client.post(reverse('view_shared', kwargs={'shared_id': shared_pdf.id}))
+        self.assertEqual(response.context['shared_pdf_id'], shared_pdf.id)
+        self.assertEqual(response.context['theme_color_rgb'], '74 222 128')
+        self.assertEqual(response.context['user_view_bool'], False)
+
+        shared_pdf = SharedPdf.objects.get(pk=shared_pdf.id)
+        self.assertEqual(shared_pdf.views, 1)
+
+    @patch('pdf.views.share_views.serve')
+    def test_serve_get(self, mock_serve):
+        self.pdf.file.name = f'{self.user}/pdf_name'
+        self.pdf.save()
+        shared_pdf = SharedPdf.objects.create(owner=self.user.profile, pdf=self.pdf, name='shared_pdf')
+        mock_serve.return_value = HttpResponse('some response')
+
+        response = self.client.get(reverse('serve_shared', kwargs={'shared_id': shared_pdf.id}))
+
+        mock_serve.assert_called_with(response.wsgi_request, document_root=MEDIA_ROOT, path=f'{self.user}/pdf_name')
+
+    def test_download_get(self):
+        simple_file = SimpleUploadedFile("simple.pdf", b"these are the file contents!")
+        pdf = Pdf.objects.create(owner=self.user.profile, name='pdf_with_file', file=simple_file)
+        pdf_path = Path(pdf.file.path)
+        shared_pdf = SharedPdf.objects.create(owner=self.user.profile, pdf=pdf, name='shared_pdf')
+
+        response = self.client.get(reverse('download_shared', kwargs={'shared_id': shared_pdf.id}))
+
+        pdf_path.unlink()
+
+        self.assertEqual(response.filename, pdf.name)
+        self.assertTrue(response.as_attachment)
