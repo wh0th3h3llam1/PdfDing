@@ -70,7 +70,7 @@ class TestAdminViews(TestCase):
 
     def test_remove_admin_rights(self):
         headers = {'HTTP_HX-Request': 'true'}
-        self.client.post(reverse('admin_adjust_rights', kwargs={'user_id': self.user.id}), **headers)
+        self.client.post(reverse('admin_adjust_rights', kwargs={'identifier': self.user.id}), **headers)
 
         user = User.objects.get(id=self.user.id)
         self.assertFalse(user.is_superuser)
@@ -80,14 +80,14 @@ class TestAdminViews(TestCase):
         user = User.objects.create_user(username='non_admin', password='12345', email='non_admin@a.com')
 
         headers = {'HTTP_HX-Request': 'true'}
-        self.client.post(reverse('admin_adjust_rights', kwargs={'user_id': user.id}), **headers)
+        self.client.post(reverse('admin_adjust_rights', kwargs={'identifier': user.id}), **headers)
 
         user = User.objects.get(id=user.id)
         self.assertTrue(user.is_superuser)
         self.assertTrue(user.is_staff)
 
     def test_adjust_admin_rights_no_htmx(self):
-        response = self.client.post(reverse('admin_adjust_rights', kwargs={'user_id': self.user.id}))
+        response = self.client.post(reverse('admin_adjust_rights', kwargs={'identifier': self.user.id}))
         self.assertRedirects(response, reverse('admin_overview'), status_code=302)
 
     def test_delete_htmx(self):

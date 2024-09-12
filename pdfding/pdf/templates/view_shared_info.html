@@ -10,7 +10,7 @@
   <span class="p-2 pb-6">with you</span>
 
 
-  <form action="{% url 'view_shared' shared_pdf.id %}" method="post">
+  <form action="{% url 'view_shared_pdf' shared_pdf.id %}" method="post">
     <!--<input name="name" type="text"/>-->
     {% csrf_token %}
     <button class="" type="submit">View</button>

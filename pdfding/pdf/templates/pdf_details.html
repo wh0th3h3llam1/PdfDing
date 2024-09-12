@@ -26,7 +26,7 @@
             </div>
             <div class="w-1/6 pl-2 md:pl-8">
                 <a id="name-edit" class="hover:underline"
-                    hx-get="{% url 'edit_pdf' pdf_id=pdf.id field_name='name' %}"
+                    hx-get="{% url 'edit_pdf' identifier=pdf.id field_name='name' %}"
                     hx-target="#name"
                     hx-swap="innerHTML" >
                     Edit
@@ -50,7 +50,7 @@
             </div>
             <div class="w-1/6 pl-2 md:pl-8">
                 <a id="description-edit" class="hover:underline"
-                    hx-get="{% url 'edit_pdf' pdf_id=pdf.id field_name='description' %}"
+                    hx-get="{% url 'edit_pdf' identifier=pdf.id field_name='description' %}"
                     hx-target="#description"
                     hx-swap="innerHTML" >
                     Edit
@@ -80,7 +80,7 @@
             </div>
             <div class="w-1/6 pl-2 md:pl-8">
                 <a id="tags-edit" class="hover:underline"
-                    hx-get="{% url 'edit_pdf' pdf_id=pdf.id field_name='tags' %}"
+                    hx-get="{% url 'edit_pdf' identifier=pdf.id field_name='tags' %}"
                     hx-target="#tags"
                     hx-swap="innerHTML" >
                     Edit

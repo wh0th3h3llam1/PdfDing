@@ -1,5 +1,8 @@
 from collections import defaultdict
 
+from django.core.exceptions import ObjectDoesNotExist
+from django.forms import ValidationError
+from django.http import Http404, HttpRequest
 from users.models import Profile
 
 from .models import Tag
@@ -72,3 +75,20 @@ def get_tag_dict(profile: Profile) -> dict[str, list[str]]:
 
     # needs to be a normal dict, so that the template can handle it
     return dict(tag_dict)
+
+
+def check_object_access_allowed(get_object):
+    """
+    Return a Http404 exception when getting an object (e.g a pdf or shared pdf) that does not exist
+    or access is not allowed.
+    """
+
+    def inner(request: HttpRequest, identifier: str):
+        try:
+            return get_object(request, identifier)
+        except ValidationError:
+            raise Http404("Given query not found...")
+        except ObjectDoesNotExist:
+            raise Http404("Given query not found...")
+
+    return inner

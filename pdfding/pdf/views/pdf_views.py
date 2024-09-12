@@ -1,31 +1,155 @@
-from core.settings import MEDIA_ROOT
-from django.contrib import messages
+from core import base_views
 from django.contrib.auth.decorators import login_not_required
-from django.core.exceptions import ObjectDoesNotExist
-from django.core.paginator import Paginator
+from django.db.models import QuerySet
 from django.db.models.functions import Lower
-from django.forms import ValidationError
-from django.http import FileResponse, Http404, HttpRequest, HttpResponse, JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
-from django.urls import reverse
 from django.views import View
-from django.views.static import serve
-from django_htmx.http import HttpResponseClientRedirect, HttpResponseClientRefresh
 from pdf.forms import AddForm, DescriptionForm, NameForm, TagsForm
 from pdf.models import Pdf, Tag
-from pdf.service import get_tag_dict, process_raw_search_query, process_tag_names
+from pdf.service import check_object_access_allowed, get_tag_dict, process_raw_search_query, process_tag_names
+
+
+class BasePdfMixin:
+    obj_name = 'pdf'
+
+
+class AddSharedPdfMixin(BasePdfMixin):
+    form = AddForm
+
+    def get_context_get(self, _, __):
+        """Get the context needed to be passed to the template containing the form for adding a PDf."""
+
+        context = {'form': self.form}
+
+        return context
+
+    @staticmethod
+    def pre_obj_save(pdf, _, __):
+        """Actions that need to be run before saving the PDF in the creation process"""
+
+        return pdf
+
+    @staticmethod
+    def post_obj_save(pdf, form_data):
+        """Actions that need to be run after saving the PDF in the creation process"""
+
+        tag_string = form_data['tag_string']
+        # get unique tag names
+        tag_names = Tag.parse_tag_string(tag_string)
+        tags = process_tag_names(tag_names, pdf.owner)
+
+        pdf.tags.set(tags)
+
+
+class OverviewMixin(BasePdfMixin):
+    @staticmethod
+    def get_sorting_dict():
+        """Get the sorting dict which describes the sorting in the overview page."""
+
+        sorting_dict = {
+            '': '-creation_date',
+            'newest': '-creation_date',
+            'oldest': 'creation_date',
+            'title_asc': Lower('name'),
+            'title_desc': Lower('name').desc(),
+            'least_viewed': 'views',
+            'most_viewed': '-views',
+        }
+
+        return sorting_dict
+
+    @staticmethod
+    def filter_objects(request: HttpRequest) -> QuerySet:
+        """Filter the PDFs when performing a search in the overview."""
+
+        pdfs = Pdf.objects.filter(owner=request.user.profile).all()
+
+        raw_search_query = request.GET.get('q', '')
+        search, tags = process_raw_search_query(raw_search_query)
+
+        for tag in tags:
+            pdfs = pdfs.filter(tags__name=tag)
+
+        if search:
+            pdfs = pdfs.filter(name__icontains=search)
+
+        return pdfs
+
+    @staticmethod
+    def get_extra_context(request: HttpRequest) -> dict:
+        """get further information that needs to be passed to the template."""
+
+        extra_context = {'raw_search_query': request.GET.get('q', ''), 'tag_dict': get_tag_dict(request.user.profile)}
+
+        return extra_context
+
+
+class PdfMixin(BasePdfMixin):
+    @staticmethod
+    @check_object_access_allowed
+    def get_object(request: HttpRequest, pdf_id: str):
+        """Get the pdf specified by the ID"""
+
+        user_profile = request.user.profile
+        pdf = user_profile.pdf_set.get(id=pdf_id)
+
+        return pdf
+
+
+class EditPdfMixin(PdfMixin):
+    obj_class = Pdf
+    fields_requiring_extra_processing = ['tags']
+
+    @staticmethod
+    def get_edit_form_dict():
+        """Get the forms of the fields that can be edited as a dict."""
+
+        form_dict = {'description': DescriptionForm, 'name': NameForm, 'tags': TagsForm}
+
+        return form_dict
+
+    def get_edit_form_get(self, field_name: str, pdf: Pdf):
+        """Get the form belonging to the specified field."""
+
+        form_dict = self.get_edit_form_dict()
+
+        initial_dict = {
+            'name': {'name': pdf.name},
+            'description': {'description': pdf.description},
+            'tags': {'tag_string': ' '.join(sorted([tag.name for tag in pdf.tags.all()]))},
+        }
+
+        form = form_dict[field_name](initial=initial_dict[field_name])
+
+        return form
+
+    @staticmethod
+    def process_field(field_name, pdf, request, form_data):
+        """Process fields that are not covered in the base edit view."""
+
+        if field_name == 'tags':
+            tag_string = form_data['tag_string']
+            tag_names = Tag.parse_tag_string(tag_string)
+
+            # check if tag needs to be deleted
+            for tag in pdf.tags.all():
+                if tag.name not in tag_names and tag.pdf_set.count() == 1:
+                    tag.delete()
+
+            tags = process_tag_names(tag_names, request.user.profile)
+
+            pdf.tags.set(tags)
 
 
 class BasePdfView(View):
     @staticmethod
+    @check_object_access_allowed
     def get_pdf(request: HttpRequest, pdf_id: str):
-        try:
-            user_profile = request.user.profile
-            pdf = user_profile.pdf_set.get(id=pdf_id)
-        except ValidationError:
-            raise Http404("Given query not found...")
-        except ObjectDoesNotExist:
-            raise Http404("Given query not found...")
+        """Get the pdf specified by the ID"""
+
+        user_profile = request.user.profile
+        pdf = user_profile.pdf_set.get(id=pdf_id)
 
         return pdf
 
@@ -41,75 +165,48 @@ def redirect_to_overview(request: HttpRequest):  # pragma: no cover
     return redirect('pdf_overview')
 
 
-class Overview(BasePdfView):
+class Overview(OverviewMixin, base_views.BaseOverview):
     """
     View for the PDF overview page. This view performs the searching and sorting of the PDFs. It's also responsible for
     paginating the PDFs.
     """
 
-    def get(self, request: HttpRequest, page: int = 1):
-        """
-        Display the PDF overview.
-        """
 
-        sorting_query = request.GET.get('sort', '')
-        sorting_dict = {
-            '': '-creation_date',
-            'newest': '-creation_date',
-            'oldest': 'creation_date',
-            'title_asc': Lower('name'),
-            'title_desc': Lower('name').desc(),
-            'least_viewed': 'views',
-            'most_viewed': '-views',
-        }
-
-        pdfs = request.user.profile.pdf_set.all().order_by(sorting_dict[sorting_query])
-
-        # filter pdfs
-        raw_search_query = request.GET.get('q', '')
-        search, tags = process_raw_search_query(raw_search_query)
-
-        for tag in tags:
-            pdfs = pdfs.filter(tags__name=tag)
-
-        if search:
-            pdfs = pdfs.filter(name__icontains=search)
-
-        paginator = Paginator(pdfs, per_page=request.user.profile.pdfs_per_page, allow_empty_first_page=True)
-        page_object = paginator.get_page(page)
-        tag_dict = get_tag_dict(request.user.profile)
-
-        return render(
-            request,
-            'pdf_overview.html',
-            {
-                'page_obj': page_object,
-                'raw_search_query': raw_search_query,
-                'sorting_query': sorting_query,
-                'tag_dict': tag_dict,
-            },
-        )
-
-
-class Serve(BasePdfView):
+class Serve(PdfMixin, base_views.BaseServe):
     """View used for serving PDF files specified by the PDF id"""
 
-    def get(self, request: HttpRequest, pdf_id: str):
-        """Returns the specified file as a FileResponse"""
 
-        pdf = self.get_pdf(request, pdf_id)
+class Add(AddSharedPdfMixin, base_views.BaseAdd):
+    """View for adding new PDF files."""
 
-        return serve(request, document_root=MEDIA_ROOT, path=pdf.file.name)
+
+class Details(PdfMixin, base_views.BaseDetails):
+    """View for displaying the details page of a PDF."""
+
+
+class Edit(EditPdfMixin, base_views.BaseEdit):
+    """
+    The view for editing a PDF's name, tags and description. The field, that is to be changed, is specified by the
+    'field' argument.
+    """
+
+
+class Delete(PdfMixin, base_views.BaseDelete):
+    """View for deleting the PDF specified by its ID."""
+
+
+class Download(PdfMixin, base_views.BaseDownload):
+    """View for downloading the PDF specified by the ID."""
 
 
 class View(BasePdfView):
     """The view responsible for displaying the PDF file specified by the PDF id in the browser."""
 
-    def get(self, request: HttpRequest, pdf_id: str):
+    def get(self, request: HttpRequest, identifier: str):
         """Display the PDF file in the browser"""
 
         # increase view counter by 1
-        pdf = self.get_pdf(request, pdf_id)
+        pdf = self.get_pdf(request, identifier)
         pdf.views += 1
         pdf.save()
 
@@ -127,171 +224,11 @@ class View(BasePdfView):
             request,
             'viewer.html',
             {
-                'pdf_id': pdf_id,
+                'pdf_id': identifier,
                 'theme_color_rgb': theme_color_rgb_dict[request.user.profile.theme_color],
                 'user_view_bool': True,
             },
         )
-
-
-class Add(BasePdfView):
-    """View for adding new PDF files."""
-
-    def get(self, request: HttpRequest):
-        """Display the form for adding a PDF file."""
-
-        form = AddForm()
-
-        return render(request, 'add_pdf.html', {'form': form})
-
-    def post(self, request: HttpRequest):
-        """Create the new PDF object."""
-
-        form = AddForm(request.POST, request.FILES, owner=request.user.profile)
-
-        if form.is_valid():
-            pdf = form.save(commit=False)
-            pdf.owner = request.user.profile
-            pdf.save()
-
-            tag_string = form.data['tag_string']
-            # get unique tag names
-            tag_names = Tag.parse_tag_string(tag_string)
-            tags = process_tag_names(tag_names, pdf.owner)
-
-            pdf.tags.set(tags)
-
-            return redirect('pdf_overview')
-
-        return render(request, 'add_pdf.html', {'form': form})
-
-
-class Details(BasePdfView):
-    """View for displaying the details page of a PDF."""
-
-    def get(self, request: HttpRequest, pdf_id: str):
-        """Display the details page."""
-
-        pdf = self.get_pdf(request, pdf_id)
-
-        sort_query = request.META.get('HTTP_REFERER', '').split('sort=')
-
-        if len(sort_query) > 1:
-            sort_query = sort_query[-1]
-        else:
-            sort_query = ''
-
-        return render(request, 'pdf_details.html', {'pdf': pdf, 'sort_query': sort_query})
-
-
-class Edit(BasePdfView):
-    """
-    The view for editing a PDF's name, tags and description. The field, that is to be changed, is specified by the
-    'field' argument.
-    """
-
-    form_dict = {'description': DescriptionForm, 'name': NameForm, 'tags': TagsForm}
-
-    def get(self, request: HttpRequest, pdf_id: str, field_name: str):
-        """Triggered by htmx. Display an inline form for editing the correct field."""
-
-        pdf = self.get_pdf(request, pdf_id)
-
-        initial_dict = {
-            'name': {'name': pdf.name},
-            'description': {'description': pdf.description},
-            'tags': {'tag_string': ' '.join(sorted([tag.name for tag in pdf.tags.all()]))},
-        }
-
-        if request.htmx:
-            form = self.form_dict[field_name](initial=initial_dict[field_name])
-
-            return render(
-                request,
-                'partials/details_form.html',
-                {
-                    'action_url': reverse('edit_pdf', kwargs={'field_name': field_name, 'pdf_id': pdf_id}),
-                    'details_url': reverse('pdf_details', kwargs={'pdf_id': pdf_id}),
-                    'edit_id': f'{field_name}-edit',
-                    'form': form,
-                    'field_name': field_name,
-                },
-            )
-
-        return redirect('pdf_details', pdf_id=pdf_id)
-
-    def post(self, request: HttpRequest, pdf_id: str, field_name: str):
-        """
-        POST: Change the specified field by submitting the form.
-        """
-
-        pdf = self.get_pdf(request, pdf_id)
-        form = self.form_dict[field_name](request.POST, instance=pdf)
-
-        if form.is_valid():
-            # if tags are changed the provided tag string needs to processed, the PDF's tags need updating and orphaned
-            # tags need to be deleted.
-            if field_name == 'tags':
-                tag_string = form.data['tag_string']
-                tag_names = Tag.parse_tag_string(tag_string)
-
-                # check if tag needs to be deleted
-                for tag in pdf.tags.all():
-                    if tag.name not in tag_names and tag.pdf_set.count() == 1:
-                        tag.delete()
-
-                tags = process_tag_names(tag_names, request.user.profile)
-
-                pdf.tags.set(tags)
-
-            # if the name is changed we need to check that it is a unique name not used by another pdf of this user.
-            elif field_name == 'name':
-                existing_pdf = Pdf.objects.filter(owner=request.user.profile, name__iexact=form.data['name']).first()
-
-                if existing_pdf and str(existing_pdf.id) != pdf_id:
-                    messages.warning(request, 'This name is already used by another PDF!')
-                else:
-                    form.save()
-
-            # if description is changed save it
-            else:
-                form.save()
-        else:
-            messages.warning(request, 'Form not valid')
-        return redirect('pdf_details', pdf_id=pdf_id)
-
-
-class Delete(BasePdfView):
-    """View for deleting the PDF specified by its ID."""
-
-    def delete(self, request: HttpRequest, pdf_id: str):
-        """Delete the specified PDF."""
-
-        if request.htmx:
-            pdf = self.get_pdf(request, pdf_id)
-            pdf.delete()
-
-            # try to redirect to current page
-            if 'details' not in request.META.get('HTTP_REFERER', ''):
-                return HttpResponseClientRefresh()
-            # if deleted from the details page the details page will no longer exist
-            else:
-                return HttpResponseClientRedirect(reverse('pdf_overview'))
-
-        return redirect('pdf_overview')
-
-
-class Download(BasePdfView):
-    """View for downloading the PDF specified by the ID."""
-
-    def get(self, request: HttpRequest, pdf_id):
-        """Return the specified file as a FileResponse."""
-
-        pdf = self.get_pdf(request, pdf_id)
-        file_name = pdf.name.replace(' ', '_').lower()
-        response = FileResponse(open(pdf.file.path, 'rb'), as_attachment=True, filename=file_name)
-
-        return response
 
 
 class UpdatePage(BasePdfView):
@@ -317,9 +254,9 @@ class UpdatePage(BasePdfView):
 class CurrentPage(BasePdfView):
     """View for getting the current page of a PDF."""
 
-    def get(self, request: HttpRequest, pdf_id: str):
+    def get(self, request: HttpRequest, identifier: str):
         """Get the current page of the specified PDF."""
 
-        pdf = self.get_pdf(request, pdf_id)
+        pdf = self.get_pdf(request, identifier)
 
         return JsonResponse({'current_page': pdf.current_page}, status=200)

@@ -112,7 +112,7 @@ class TestViews(TestCase):
         pdf = Pdf.objects.create(owner=self.user.profile, name='pdf')
         self.assertEqual(pdf.views, 0)
 
-        response = self.client.get(reverse('view_pdf', kwargs={'pdf_id': pdf.id}))
+        response = self.client.get(reverse('view_pdf', kwargs={'identifier': pdf.id}))
 
         # check that views increased by one
         pdf = self.user.profile.pdf_set.get(name='pdf')
@@ -294,7 +294,7 @@ class TestViews(TestCase):
         pdf.current_page = 5
         pdf.save()
 
-        response = self.client.get(reverse('current_page', kwargs={'pdf_id': pdf.id}))
+        response = self.client.get(reverse('current_page', kwargs={'identifier': pdf.id}))
 
         self.assertEqual(response.json()['current_page'], 5)
 

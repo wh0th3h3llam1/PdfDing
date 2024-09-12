@@ -12,21 +12,21 @@
         <img class="h-44 w-44 p-1 bg-white" src="{% static "images/tmp_qr.png" %}"/>
     </div>
     <div class="!justify-center !pb-0 !border-none">
-        <a href="{% url 'view_shared' shared_pdf.id %}"
+        <a href="{% url 'view_shared_pdf' shared_pdf.id %}"
              class="!text-sm text-primary hover:text-secondary hover:underline">
-             {{ request.META.HTTP_HOST }}{% url 'view_shared' shared_pdf.id %}
+             {{ request.META.HTTP_HOST }}{% url 'view_shared_pdf' shared_pdf.id %}
           </a>
     </div>
     <div x-data="{ }" class="!justify-center !pb-6 !pt-1 !border-none gap-x-2">
         <button type="button"
               class="button-text-theme !font-bold"
-              @click="copy_to_clipboard('{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'view_shared' shared_pdf.id %}')">
+              @click="copy_to_clipboard('{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'view_shared_pdf' shared_pdf.id %}')">
               Copy Link
         </button>
         <span>|</span>
         <button type="button"
               class="button-text-theme !font-bold"
-              @click="copy_to_clipboard('{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'view_shared' shared_pdf.id %}')">
+              @click="copy_to_clipboard('{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'view_shared_pdf' shared_pdf.id %}')">
               Download QR Code
         </button>
     </div>
@@ -40,7 +40,7 @@
             </div>
             <div class="w-1/6 pl-2 md:pl-8">
                 <a id="name-edit" class="hover:underline"
-                    hx-get="{% url 'edit_shared' shared_id=shared_pdf.id field_name='name' %}"
+                    hx-get="{% url 'edit_shared_pdf' identifier=shared_pdf.id field_name='name' %}"
                     hx-target="#name"
                     hx-swap="innerHTML" >
                     Edit
@@ -64,7 +64,7 @@
             </div>
             <div class="w-1/6 pl-2 md:pl-8">
                 <a id="description-edit" class="hover:underline"
-                    hx-get="{% url 'edit_shared' shared_id=shared_pdf.id field_name='description' %}"
+                    hx-get="{% url 'edit_shared_pdf' identifier=shared_pdf.id field_name='description' %}"
                     hx-target="#description"
                     hx-swap="innerHTML" >
                     Edit
@@ -103,11 +103,11 @@
     {% if "/?" in request.META.HTTP_REFERER %}
     <a href="{{ request.META.HTTP_REFERER }}" class="text-md !font-bold text-primary hover:text-secondary">Back</a>
     {% else %}
-    <a href="{% url 'shared_overview' %}" class="text-md !font-bold text-primary hover:text-secondary">Back</a>
+    <a href="{% url 'shared_pdf_overview' %}" class="text-md !font-bold text-primary hover:text-secondary">Back</a>
     {% endif %}
     <div x-data="{ delete_shared_pdf: false }" class="pr-4">
         <a x-show="delete_shared_pdf" x-cloak
-          hx-delete="{% url 'delete_shared' shared_pdf.id %}"
+          hx-delete="{% url 'delete_shared_pdf' shared_pdf.id %}"
           hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
           class="button-text-delete cursor-pointer !font-bold">Confirm
         </a>

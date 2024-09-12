@@ -92,7 +92,7 @@ class TestLoginRequiredViews(TestCase):
             SharedPdf.objects.create(owner=self.user.profile, pdf=self.pdf, name=name)
 
         # sort by descending title
-        response = self.client.get(f'{reverse('shared_overview')}?sort=title_desc')
+        response = self.client.get(f'{reverse('shared_pdf_overview')}?sort=title_desc')
 
         shared_pdf_names = [shared_pdf.name for shared_pdf in response.context['page_obj']]
 
@@ -228,7 +228,7 @@ class TestDelete(TransactionTestCase):
         shared_pdf = SharedPdf.objects.create(owner=self.user.profile, pdf=self.pdf, name='shared_pdf')
 
         response = self.client.delete(reverse('delete_shared', kwargs={'shared_id': shared_pdf.id}))
-        self.assertRedirects(response, reverse('shared_overview'), status_code=302)
+        self.assertRedirects(response, reverse('shared_pdf_overview'), status_code=302)
 
 
 class TestLoginNotRequiredViews(TestCase):

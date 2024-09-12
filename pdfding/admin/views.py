@@ -1,17 +1,18 @@
 from admin.service import get_latest_version
+from core import base_views
 from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
-from django.core.paginator import Paginator
+from django.db.models import QuerySet
 from django.db.models.functions import Lower
 from django.http import Http404, HttpRequest
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect
 from django.views import View
 from django_htmx.http import HttpResponseClientRefresh
 from pdf.models import Pdf
 
 
-class BaseAdminView(UserPassesTestMixin, View):
+class BaseAdminRequiredMixin(UserPassesTestMixin):
     def test_func(self):
         if self.request.user.is_superuser and self.request.user.is_staff:
             return True
@@ -19,18 +20,17 @@ class BaseAdminView(UserPassesTestMixin, View):
             raise Http404("Given query not found...")
 
 
-class Overview(BaseAdminView):
-    """
-    View for the PDF overview page. This view performs the searching and sorting of the PDFs. It's also responsible for
-    paginating the PDFs.
-    """
+class BaseAdminMixin:
+    obj_name = 'user'
 
-    def get(self, request: HttpRequest, page: int = 1):
+
+class OverviewMixin(BaseAdminMixin):
+    @staticmethod
+    def get_sorting_dict():
         """
-        Display the PDF overview.
+        Get the sorting dict which describes the sorting in the overview page.
         """
 
-        sorting_query = request.GET.get('sort', '')
         sorting_dict = {
             '': 'date_joined',
             'newest': '-date_joined',
@@ -39,9 +39,16 @@ class Overview(BaseAdminView):
             'title_desc': Lower('email').desc(),
         }
 
-        users = User.objects.all().order_by(sorting_dict[sorting_query])
+        return sorting_dict
 
-        # filter users
+    @staticmethod
+    def filter_objects(request: HttpRequest) -> QuerySet:
+        """
+        Filter the PDFs when performing a search in the overview.
+        """
+
+        users = User.objects.all()
+
         raw_search_query = request.GET.get('q', '')
 
         if raw_search_query:
@@ -54,36 +61,54 @@ class Overview(BaseAdminView):
             search_query = ' '.join(search_words)
             users = users.filter(email__icontains=search_query)
 
-        paginator = Paginator(users, per_page=request.user.profile.pdfs_per_page, allow_empty_first_page=True)
-        page_object = paginator.get_page(page)
+        return users
+
+    @staticmethod
+    def get_extra_context(request: HttpRequest) -> dict:
+        """get further information that needs to be passed to the template."""
 
         number_of_users = User.objects.all().count()
         number_of_pdfs = Pdf.objects.all().count()
         latest_version = get_latest_version()
 
-        return render(
-            request,
-            'admin_overview.html',
-            {
-                'page_obj': page_object,
-                'raw_search_query': raw_search_query,
-                'sorting_query': sorting_query,
-                'number_of_users': number_of_users,
-                'number_of_pdfs': number_of_pdfs,
-                'current_version': settings.VERSION,
-                'latest_version': latest_version,
-            },
-        )
+        extra_context = {
+            'raw_search_query': request.GET.get('q', ''),
+            'number_of_users': number_of_users,
+            'number_of_pdfs': number_of_pdfs,
+            'current_version': settings.VERSION,
+            'latest_version': latest_version,
+        }
+
+        return extra_context
 
 
-class AdjustAdminRights(BaseAdminView):
+class AdminMixin(BaseAdminMixin):
+    @staticmethod
+    def get_object(_, identifier: str):
+        user = User.objects.get(id=identifier)
+
+        return user
+
+
+class Overview(BaseAdminRequiredMixin, OverviewMixin, base_views.BaseOverview):
+    """
+    View for the PDF overview page. This view performs the searching and sorting of the PDFs. It's also responsible for
+    paginating the PDFs.
+    """
+
+
+class DeleteProfile(BaseAdminRequiredMixin, AdminMixin, base_views.BaseDelete):
+    """View for deleting a user profile"""
+
+
+class AdjustAdminRights(BaseAdminRequiredMixin, View):
     """View for adjusting the admin rights"""
 
-    def post(self, request: HttpRequest, user_id: str):
+    def post(self, request: HttpRequest, identifier: str):
         """Delete the user"""
 
         if request.htmx:
-            user = User.objects.get(id=user_id)
+            user = User.objects.get(id=identifier)
 
             if user.is_staff and user.is_superuser:
                 user.is_staff = False
@@ -93,21 +118,6 @@ class AdjustAdminRights(BaseAdminView):
                 user.is_superuser = True
 
             user.save()
-
-            return HttpResponseClientRefresh()
-
-        return redirect('admin_overview')
-
-
-class DeleteProfile(BaseAdminView):
-    """View for deleting a user profile"""
-
-    def delete(self, request: HttpRequest, user_id: str):
-        """Delete the user"""
-
-        if request.htmx:
-            user = User.objects.get(id=user_id)
-            user.delete()
 
             return HttpResponseClientRefresh()
 
