@@ -169,7 +169,7 @@ class BaseEdit(View):
                 else:
                     form.save()
 
-            # if description is changed save it
+            # for any other field just save it
             else:
                 form.save()
         else:

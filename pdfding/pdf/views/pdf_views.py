@@ -14,7 +14,7 @@ class BasePdfMixin:
     obj_name = 'pdf'
 
 
-class AddSharedPdfMixin(BasePdfMixin):
+class AddPdfMixin(BasePdfMixin):
     form = AddForm
 
     def get_context_get(self, _, __):
@@ -142,18 +142,6 @@ class EditPdfMixin(PdfMixin):
             pdf.tags.set(tags)
 
 
-class BasePdfView(View):
-    @staticmethod
-    @check_object_access_allowed
-    def get_pdf(request: HttpRequest, pdf_id: str):
-        """Get the pdf specified by the ID"""
-
-        user_profile = request.user.profile
-        pdf = user_profile.pdf_set.get(id=pdf_id)
-
-        return pdf
-
-
 @login_not_required
 def redirect_to_overview(request: HttpRequest):  # pragma: no cover
     """
@@ -165,48 +153,14 @@ def redirect_to_overview(request: HttpRequest):  # pragma: no cover
     return redirect('pdf_overview')
 
 
-class Overview(OverviewMixin, base_views.BaseOverview):
-    """
-    View for the PDF overview page. This view performs the searching and sorting of the PDFs. It's also responsible for
-    paginating the PDFs.
-    """
-
-
-class Serve(PdfMixin, base_views.BaseServe):
-    """View used for serving PDF files specified by the PDF id"""
-
-
-class Add(AddSharedPdfMixin, base_views.BaseAdd):
-    """View for adding new PDF files."""
-
-
-class Details(PdfMixin, base_views.BaseDetails):
-    """View for displaying the details page of a PDF."""
-
-
-class Edit(EditPdfMixin, base_views.BaseEdit):
-    """
-    The view for editing a PDF's name, tags and description. The field, that is to be changed, is specified by the
-    'field' argument.
-    """
-
-
-class Delete(PdfMixin, base_views.BaseDelete):
-    """View for deleting the PDF specified by its ID."""
-
-
-class Download(PdfMixin, base_views.BaseDownload):
-    """View for downloading the PDF specified by the ID."""
-
-
-class View(BasePdfView):
+class ViewerView(PdfMixin, View):
     """The view responsible for displaying the PDF file specified by the PDF id in the browser."""
 
     def get(self, request: HttpRequest, identifier: str):
         """Display the PDF file in the browser"""
 
         # increase view counter by 1
-        pdf = self.get_pdf(request, identifier)
+        pdf = self.get_object(request, identifier)
         pdf.views += 1
         pdf.save()
 
@@ -231,7 +185,7 @@ class View(BasePdfView):
         )
 
 
-class UpdatePage(BasePdfView):
+class UpdatePage(PdfMixin, View):
     """
     View for updating the current page of the viewed PDF. This is triggered everytime the page the user changes the
     displayed page in the browser.
@@ -241,7 +195,7 @@ class UpdatePage(BasePdfView):
         """Change the current page."""
 
         pdf_id = request.POST.get('pdf_id')
-        pdf = self.get_pdf(request, pdf_id)
+        pdf = self.get_object(request, pdf_id)
 
         # update current page
         current_page = request.POST.get('current_page')
@@ -251,12 +205,46 @@ class UpdatePage(BasePdfView):
         return HttpResponse(status=200)
 
 
-class CurrentPage(BasePdfView):
+class CurrentPage(PdfMixin, View):
     """View for getting the current page of a PDF."""
 
     def get(self, request: HttpRequest, identifier: str):
         """Get the current page of the specified PDF."""
 
-        pdf = self.get_pdf(request, identifier)
+        pdf = self.get_object(request, identifier)
 
         return JsonResponse({'current_page': pdf.current_page}, status=200)
+
+
+class Overview(OverviewMixin, base_views.BaseOverview):
+    """
+    View for the PDF overview page. This view performs the searching and sorting of the PDFs. It's also responsible for
+    paginating the PDFs.
+    """
+
+
+class Serve(PdfMixin, base_views.BaseServe):
+    """View used for serving PDF files specified by the PDF id"""
+
+
+class Add(AddPdfMixin, base_views.BaseAdd):
+    """View for adding new PDF files."""
+
+
+class Details(PdfMixin, base_views.BaseDetails):
+    """View for displaying the details page of a PDF."""
+
+
+class Edit(EditPdfMixin, base_views.BaseEdit):
+    """
+    The view for editing a PDF's name, tags and description. The field, that is to be changed, is specified by the
+    'field' argument.
+    """
+
+
+class Delete(PdfMixin, base_views.BaseDelete):
+    """View for deleting the PDF specified by its ID."""
+
+
+class Download(PdfMixin, base_views.BaseDownload):
+    """View for downloading the PDF specified by the ID."""

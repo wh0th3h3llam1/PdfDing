@@ -11,9 +11,9 @@ from users.models import Profile
 
 class TestAuthRelated(TestCase):
     def test_login_required(self):
-        response = self.client.get(reverse('profile-settings'))
+        response = self.client.get(reverse('pdf_overview'))
 
-        self.assertRedirects(response, f'/accountlogin/?next={reverse('profile-settings')}', status_code=302)
+        self.assertRedirects(response, f'/accountlogin/?next={reverse('pdf_overview')}', status_code=302)
 
     def test_login(self):
         response = self.client.get(reverse('login'))

@@ -1,34 +1,30 @@
+from uuid import uuid4
+
 import pdf.service as service
 from django.contrib.auth.models import User
+from django.http.response import Http404
 from django.test import TestCase
 from pdf.models import Pdf, Tag
 
 
 class TestService(TestCase):
-    @staticmethod
-    def create_user(username='testuser', password='12345'):
-        user = User.objects.create_user(username=username, password=password)
-
-        return user
+    def setUp(self):
+        self.user = User.objects.create_user(username='username', password='password', email='a@a.com')
 
     def test_process_tag_names(self):
-        user = self.create_user()
-
-        Tag.objects.create(name='existing', owner=user.profile)
+        Tag.objects.create(name='existing', owner=self.user.profile)
 
         tag_names = ['existing', 'generated']
-        tags = service.process_tag_names(tag_names, user.profile)
+        tags = service.process_tag_names(tag_names, self.user.profile)
 
         for tag, tag_name in zip(tags, tag_names):
             self.assertEqual(tag.name, tag_name)
 
         # check if new tag was generated with correct owner
-        self.assertEqual(tags[1].owner, user.profile)
+        self.assertEqual(tags[1].owner, self.user.profile)
 
     def test_process_tag_names_empty(self):
-        user = self.create_user()
-
-        tags = service.process_tag_names([], user.profile)
+        tags = service.process_tag_names([], self.user.profile)
 
         self.assertEqual(tags, [])
 
@@ -43,17 +39,37 @@ class TestService(TestCase):
             self.assertEqual(generated_tags, expected_tags)
 
     def test_get_tag_dict(self):
-        user = self.create_user()
-        pdf = Pdf.objects.create(owner=user.profile, name='pdf_1')
+        pdf = Pdf.objects.create(owner=self.user.profile, name='pdf_1')
         tags = [
             Tag.objects.create(name=tag_name, owner=pdf.owner) for tag_name in ['tag3', 'bread', 'tag1', 'banana', 'a']
         ]
         pdf.tags.set(tags)
 
         expected_tag_dict = {'a': [''], 'b': ['anana', 'read'], 't': ['ag1', 'ag3']}
-        generated_tag_dict = service.get_tag_dict(user.profile)
+        generated_tag_dict = service.get_tag_dict(self.user.profile)
 
         self.assertEqual(expected_tag_dict, generated_tag_dict)
 
         # make sure first characters are sorted correctly
         self.assertEqual(['a', 'b', 't'], list(generated_tag_dict.keys()))
+
+    @staticmethod
+    @service.check_object_access_allowed
+    def get_object(pdf_id: str, user: User):
+        user_profile = user.profile
+        pdf = user_profile.pdf_set.get(id=pdf_id)
+
+        return pdf
+
+    def test_check_object_access_allowed_existing(self):
+        pdf = Pdf.objects.create(owner=self.user.profile, name='pdf')
+
+        self.assertEqual(pdf, self.get_object(pdf.id, self.user))
+
+    def test_check_object_access_allowed_validation(self):
+        with self.assertRaises(Http404):
+            self.get_object('12345', self.user)
+
+    def test_check_object_access_allowed_does_not_exist(self):
+        with self.assertRaises(Http404):
+            self.get_object(str(uuid4()), self.user)

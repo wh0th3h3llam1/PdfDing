@@ -5,10 +5,11 @@ from django.db.models.functions import Lower
 from django.http import HttpRequest
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
+from django.views import View
 from pdf.forms import SharedDescriptionForm, SharedNameForm, ShareForm
 from pdf.models import SharedPdf
 from pdf.service import check_object_access_allowed
-from pdf.views.pdf_views import BasePdfView, PdfMixin
+from pdf.views.pdf_views import PdfMixin
 
 
 class BaseShareMixin:
@@ -18,28 +19,21 @@ class BaseShareMixin:
 class AddSharedPdfMixin(BaseShareMixin):
     form = ShareForm
 
-    @staticmethod
-    def get_pdf(request, pdf_id):
-        """
-        Get the PDF specified by the ID.
-        """
-
-        return PdfMixin.get_object(request, pdf_id)
-
     def get_context_get(self, request, pdf_id):
         """Get the context needed to be passed to the template containing the form for adding a shared PDf."""
 
-        pdf = self.get_pdf(request, pdf_id)
-        form = ShareForm()
+        pdf = PdfMixin.get_object(request, pdf_id)
+        form = self.form
 
         context = {'form': form, 'pdf_name': pdf.name}
 
         return context
 
-    def pre_obj_save(self, shared_pdf, request, identifier):
+    @staticmethod
+    def pre_obj_save(shared_pdf, request, identifier):
         """Actions that need to be run before saving the shared PDF in the creation process"""
 
-        pdf = self.get_pdf(request, identifier)
+        pdf = PdfMixin.get_object(request, identifier)
         shared_pdf.pdf = pdf
 
         return shared_pdf
@@ -47,8 +41,6 @@ class AddSharedPdfMixin(BaseShareMixin):
     @staticmethod
     def post_obj_save(shared_pdf, form_data):
         """Actions that need to be run after saving the sharing PDF in the creation process"""
-
-        pass
 
 
 class OverviewMixin(BaseShareMixin):
@@ -73,7 +65,8 @@ class OverviewMixin(BaseShareMixin):
     @staticmethod
     def filter_objects(request: HttpRequest) -> QuerySet:
         """
-        Filter the shared PDFs when performing a search in the overview.
+        Filter the shared PDFs when performing a search in the overview. As there is no search functionality, this is
+        just a dummy function
         """
 
         shared_pdfs = SharedPdf.objects.filter(owner=request.user.profile).all()
@@ -81,12 +74,10 @@ class OverviewMixin(BaseShareMixin):
         return shared_pdfs
 
     @staticmethod
-    def get_extra_context(_) -> dict:
+    def get_extra_context(_) -> dict:  # pragma: no cover
         """get further information that needs to be passed to the template."""
 
-        extra_context = dict()
-
-        return extra_context
+        return dict()
 
 
 class SharedPdfMixin(BaseShareMixin):
@@ -104,7 +95,7 @@ class SharedPdfMixin(BaseShareMixin):
         return shared_pdf
 
 
-class EditPdfMixin(SharedPdfMixin):
+class EditSharedPdfMixin(SharedPdfMixin):
     @staticmethod
     def get_edit_form_dict():
         """Get the forms of the fields that can be edited as a dict."""
@@ -139,7 +130,7 @@ class PdfPublicMixin:
         return shared_pdf.pdf
 
 
-class BaseSharedPdfPublicView(BasePdfView):
+class BaseSharedPdfPublicView(View):
     @staticmethod
     @check_object_access_allowed
     # first parameter needed because of the decorator
@@ -165,7 +156,7 @@ class Delete(SharedPdfMixin, base_views.BaseDelete):
     """View for deleting the shared PDF specified by its ID."""
 
 
-class Edit(EditPdfMixin, base_views.BaseEdit):
+class Edit(EditSharedPdfMixin, base_views.BaseEdit):
     """
     The view for editing a shared PDF's name and description. The field, that is to be changed, is specified by the
     'field' argument.
