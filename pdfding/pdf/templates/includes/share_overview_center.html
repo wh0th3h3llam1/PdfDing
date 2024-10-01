@@ -9,7 +9,7 @@
 <div x-data="{ delete{{ loop_id }}: false }" class="pb-1">
   <ul>
     <div class="!-mb-1">
-      <a id="pdf-link-{{ loop_id }}"
+      <a id="shared-pdf-link-{{ loop_id }}"
          href="{% url 'shared_pdf_details' shared_pdf.id %}"
          class="text font-bold text-tertiary1 dark:text-tertiary2 hover:underline">
         {{ shared_pdf.name }}

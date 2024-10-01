@@ -2,7 +2,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from django.urls import reverse
-from helpers import PdfDingE2ETestCase
+from helpers import PdfDingE2ETestCase, cancel_delete_helper
 from pdf.models import Pdf, Tag
 from playwright.sync_api import expect, sync_playwright
 
@@ -141,22 +141,12 @@ class PdfE2ETestCase(PdfDingE2ETestCase):
             # now there should be no PDFs matching the search criteria
             expect(self.page.locator("body")).to_contain_text("There aren't any PDFs matching the search criteria")
 
-    def test_chancel_delete(self):
+    def test_cancel_delete(self):
         with sync_playwright() as p:
             # only display one pdf
             self.open(f"{reverse('pdf_overview')}?q=pdf_2_1", p)
 
-            expect(self.page.get_by_text("Confirm")).not_to_be_visible()
-            expect(self.page.get_by_role("button", name="Cancel")).not_to_be_visible()
-            expect(self.page.get_by_role("button", name="Delete")).to_be_visible()
-            self.page.get_by_role("button", name="Delete").click()
-            expect(self.page.get_by_text("Confirm")).to_be_visible()
-            expect(self.page.get_by_role("button", name="Cancel")).to_be_visible()
-            expect(self.page.get_by_role("button", name="Delete")).not_to_be_visible()
-            self.page.get_by_role("button", name="Cancel").click()
-            expect(self.page.get_by_text("Confirm")).not_to_be_visible()
-            expect(self.page.get_by_role("button", name="Cancel")).not_to_be_visible()
-            expect(self.page.get_by_role("button", name="Delete")).to_be_visible()
+            cancel_delete_helper(self.page)
 
     def test_details(self):
         pdf = self.user.profile.pdf_set.get(name='pdf_1_1')
@@ -170,7 +160,7 @@ class PdfE2ETestCase(PdfDingE2ETestCase):
             creation_date.replace('.', '')
 
         with sync_playwright() as p:
-            self.open(reverse('pdf_details', kwargs={'pdf_id': pdf.id}), p)
+            self.open(reverse('pdf_details', kwargs={'identifier': pdf.id}), p)
 
             expect(self.page.locator("content")).to_contain_text("pdf_1_1")
             expect(self.page.locator("#name")).to_contain_text("pdf_1_1")
@@ -183,7 +173,7 @@ class PdfE2ETestCase(PdfDingE2ETestCase):
         pdf = self.user.profile.pdf_set.get(name='pdf_1_1')
 
         with sync_playwright() as p:
-            self.open(reverse('pdf_details', kwargs={'pdf_id': pdf.id}), p)
+            self.open(reverse('pdf_details', kwargs={'identifier': pdf.id}), p)
 
             self.page.locator("#name-edit").click()
             self.page.locator("#id_name").dblclick()
@@ -206,7 +196,7 @@ class PdfE2ETestCase(PdfDingE2ETestCase):
         pdf = self.user.profile.pdf_set.get(name='pdf_1_1')
 
         with sync_playwright() as p:
-            self.open(reverse('pdf_details', kwargs={'pdf_id': pdf.id}), p)
+            self.open(reverse('pdf_details', kwargs={'identifier': pdf.id}), p)
 
             for edit_name in ['#name-edit', '#description-edit', '#tags-edit']:
                 expect(self.page.locator(edit_name)).to_contain_text("Edit")
@@ -214,3 +204,23 @@ class PdfE2ETestCase(PdfDingE2ETestCase):
                 expect(self.page.locator(edit_name)).to_contain_text("Cancel")
                 self.page.get_by_role("link", name="Cancel").click()
                 expect(self.page.locator(edit_name)).to_contain_text("Edit")
+
+    def test_details_delete(self):
+        pdf = self.user.profile.pdf_set.get(name='pdf_1_1')
+
+        with sync_playwright() as p:
+            self.open(reverse('pdf_details', kwargs={'identifier': pdf.id}), p)
+
+            expect(self.page.locator("body")).to_contain_text("pdf_1_1")
+            self.page.get_by_role("button", name="Delete").click()
+            self.page.get_by_text("Confirm").click()
+
+            expect(self.page.locator("body")).not_to_have_text("pdf_1_1")
+
+    def test_details_cancel_delete(self):
+        pdf = self.user.profile.pdf_set.get(name='pdf_1_1')
+
+        with sync_playwright() as p:
+            self.open(reverse('pdf_details', kwargs={'identifier': pdf.id}), p)
+
+            cancel_delete_helper(self.page)

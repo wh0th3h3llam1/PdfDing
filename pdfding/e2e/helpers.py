@@ -1,8 +1,8 @@
 from allauth.account.models import EmailAddress
 from django.contrib.auth.models import User
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from playwright.sync_api import BrowserContext, Playwright, Page
 from django.test import Client
+from playwright.sync_api import BrowserContext, Page, Playwright, expect
 
 
 class PdfDingE2ETestCase(StaticLiveServerTestCase):
@@ -62,3 +62,17 @@ class PdfDingE2ETestCase(StaticLiveServerTestCase):
 class PdfDingE2ENoLoginTestCase(PdfDingE2ETestCase):
     def setUp(self, login=False):
         super().setUp(login=login)
+
+
+def cancel_delete_helper(page):
+    expect(page.get_by_text("Confirm")).not_to_be_visible()
+    expect(page.get_by_role("button", name="Cancel")).not_to_be_visible()
+    expect(page.get_by_role("button", name="Delete")).to_be_visible()
+    page.get_by_role("button", name="Delete").click()
+    expect(page.get_by_text("Confirm")).to_be_visible()
+    expect(page.get_by_role("button", name="Cancel")).to_be_visible()
+    expect(page.get_by_role("button", name="Delete")).not_to_be_visible()
+    page.get_by_role("button", name="Cancel").click()
+    expect(page.get_by_text("Confirm")).not_to_be_visible()
+    expect(page.get_by_role("button", name="Cancel")).not_to_be_visible()
+    expect(page.get_by_role("button", name="Delete")).to_be_visible()
