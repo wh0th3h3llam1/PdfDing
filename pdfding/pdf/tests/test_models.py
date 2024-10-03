@@ -1,10 +1,9 @@
 from datetime import datetime, timedelta
-
-from django.contrib.auth.models import User
-from django.test import TestCase
 from unittest.mock import patch
 
 import pdf.models as models
+from django.contrib.auth.models import User
+from django.test import TestCase
 
 
 class TestModels(TestCase):
@@ -33,6 +32,12 @@ class TestModels(TestCase):
         generated_filepath = models.get_file_path(pdf, '')
 
         self.assertEqual(generated_filepath, '1/uuid.pdf')
+
+    def test_get_qrcode_file_path(self):
+        pdf = self.create_pdf()
+        generated_filepath = models.get_qrcode_file_path(pdf, '')
+
+        self.assertEqual(generated_filepath, f'1/qr/{pdf.id}.svg')
 
     def test_natural_age(self):
         pdf = self.create_pdf()
