@@ -14,13 +14,13 @@
     <div class="!justify-center !pb-0 !border-none">
         <a href="{% url 'view_shared_pdf' shared_pdf.id %}"
              class="!text-sm text-primary hover:text-secondary hover:underline">
-             {{ request.META.HTTP_HOST }}{% url 'view_shared_pdf' shared_pdf.id %}
+             {{ request.get_host }}{% url 'view_shared_pdf' shared_pdf.id %}
           </a>
     </div>
     <div x-data="{ }" class="!justify-center !pb-6 !pt-1 !border-none gap-x-2">
         <button type="button"
               class="button-text-theme !font-bold"
-              @click="copy_to_clipboard('{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'view_shared_pdf' shared_pdf.id %}')">
+              @click="copy_to_clipboard('{{ request.scheme }}://{{ request.get_host }}{% url 'view_shared_pdf' shared_pdf.id %}')">
               Copy Link
         </button>
         <span>|</span>
