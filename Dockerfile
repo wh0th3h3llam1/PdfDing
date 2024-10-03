@@ -1,7 +1,7 @@
 # The frontend build image , used to create the css and js files
-FROM node:22.6.0-bookworm-slim AS npm-build
+FROM node:22.9.0-bookworm-slim AS npm-build
 
-ARG PDFJS_VERSION=4.5.136
+ARG PDFJS_VERSION=v4.6.82
 
 WORKDIR /build
 
@@ -25,7 +25,7 @@ RUN for i in build/pdf.mjs build/pdf.sandbox.mjs build/pdf.worker.mjs web/viewer
 RUN rm pdfding/static/css/input.css
 
 # The build image, used to build the virtual python environment
-FROM python:3.12.5-alpine AS python-build
+FROM python:3.12.7-alpine AS python-build
 
 RUN pip install poetry==1.8.3
 
@@ -70,7 +70,7 @@ ARG CI_COMMIT_TAG
 RUN if [[ $CI_COMMIT_TAG ]]; then echo "VERSION = '$CI_COMMIT_TAG'" > /app/pdfding/core/settings/version.py; fi
 
 # The runtime image, used to just run the code provided its virtual environment
-FROM python:3.12.5-alpine AS runtime
+FROM python:3.12.7-alpine AS runtime
 
 # add user for running the container as non-root
 ARG USERNAME=nonroot
