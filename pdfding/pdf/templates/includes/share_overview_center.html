@@ -25,7 +25,7 @@
       <span class="dark:text-slate-400 !-mr-1">Deleted in 1 hour |</span>
       <button type="button"
               class="button-text dark:!bg-slate-800 dark:!text-slate-400 "
-              @click="copy_to_clipboard('{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'view_shared_pdf' shared_pdf.id %}')">
+              @click="copy_to_clipboard('{{ request.scheme }}://{{ request.get_host }}{% url 'view_shared_pdf' shared_pdf.id %}')">
               Copy
       </button>
       <a href="{% url 'view_pdf' shared_pdf.pdf_id %}" class="hover:text-primary"> View</a>

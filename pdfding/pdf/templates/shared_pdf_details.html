@@ -9,7 +9,7 @@
         <span href="{% url 'view_pdf' shared_pdf.pdf.id %}" class="flex text-3xl font-bold truncate">{{ shared_pdf.name }}</span>
     </div>
     <div class="!justify-center !items-center !border-none !pb-0">
-        <img class="h-44 w-44 p-1 bg-white" src="{% static "images/tmp_qr.png" %}"/>
+        <img class="h-48 w-48 bg-white" src={% url 'serve_qrcode' shared_pdf.id %}>
     </div>
     <div class="!justify-center !pb-0 !border-none">
         <a href="{% url 'view_shared_pdf' shared_pdf.id %}"
@@ -26,7 +26,7 @@
         <span>|</span>
         <button type="button"
               class="button-text-theme !font-bold"
-              @click="copy_to_clipboard('{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'view_shared_pdf' shared_pdf.id %}')">
+              onclick="location.href='{% url 'download_qrcode' shared_pdf.id %}'">
               Download QR Code
         </button>
     </div>

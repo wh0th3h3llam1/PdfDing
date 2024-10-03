@@ -1,15 +1,21 @@
+from io import BytesIO
+
+import qrcode
 from core import base_views
 from django.contrib.auth.decorators import login_not_required
+from django.core.files import File
 from django.db.models import QuerySet
 from django.db.models.functions import Lower
 from django.http import HttpRequest
 from django.shortcuts import render
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
 from pdf.forms import SharedDescriptionForm, SharedNameForm, ShareForm
 from pdf.models import SharedPdf
 from pdf.service import check_object_access_allowed
 from pdf.views.pdf_views import PdfMixin
+from qrcode.image import svg
 
 
 class BaseShareMixin:
@@ -19,7 +25,24 @@ class BaseShareMixin:
 class AddSharedPdfMixin(BaseShareMixin):
     form = ShareForm
 
-    def get_context_get(self, request, pdf_id):
+    @staticmethod
+    def generate_qr_code(qr_code_content: str) -> BytesIO:  # pragma: no cover
+        """
+        Create a qr code and return as a Bytes object.
+        """
+
+        qr = qrcode.QRCode(image_factory=svg.SvgPathImage, box_size=12, border=1)
+        qr.add_data(qr_code_content)
+        qr.make(fit=True)
+
+        qr_img = qr.make_image(fill_color="black", back_color="white")
+        # save as bytes object so django can use it as a file for file field
+        qr_as_byte = BytesIO()
+        qr_img.save(qr_as_byte)
+
+        return qr_as_byte
+
+    def get_context_get(self, request: HttpRequest, pdf_id: str):
         """Get the context needed to be passed to the template containing the form for adding a shared PDf."""
 
         pdf = PdfMixin.get_object(request, pdf_id)
@@ -29,12 +52,19 @@ class AddSharedPdfMixin(BaseShareMixin):
 
         return context
 
-    @staticmethod
-    def pre_obj_save(shared_pdf, request, identifier):
+    @classmethod
+    def pre_obj_save(cls, shared_pdf: SharedPdf, request: HttpRequest, identifier: str):
         """Actions that need to be run before saving the shared PDF in the creation process"""
 
         pdf = PdfMixin.get_object(request, identifier)
         shared_pdf.pdf = pdf
+
+        qr_code_content = (
+            f'{request.scheme}://{request.get_host()}{reverse('view_shared_pdf', kwargs={'identifier': shared_pdf.id})}'
+        )
+        qr_as_byte = cls.generate_qr_code(qr_code_content)
+
+        shared_pdf.file.save(None, File(qr_as_byte))
 
         return shared_pdf
 
@@ -165,6 +195,22 @@ class Edit(EditSharedPdfMixin, base_views.BaseEdit):
 
 class Details(SharedPdfMixin, base_views.BaseDetails):
     """View for displaying the details page of a shared PDF."""
+
+
+class ServeQrCode(SharedPdfMixin, base_views.BaseServe):
+    """View used for serving the qr code of a shared PDF files specified by the shared PDF id"""
+
+
+class DownloadQrCode(SharedPdfMixin, base_views.BaseDownload):
+    """View used for downloading the qr code of a shared PDF files specified by the shared PDF id"""
+
+    @staticmethod
+    def get_suffix():  # pragma: no cover
+        """
+        Return svg suffix
+        """
+
+        return '.svg'
 
 
 @method_decorator(login_not_required, name="dispatch")

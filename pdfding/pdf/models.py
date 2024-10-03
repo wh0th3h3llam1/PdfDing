@@ -42,6 +42,15 @@ def get_file_path(instance, _):
     return str(file_path)
 
 
+def get_qrcode_file_path(instance, _):
+    """Get the file path for the qr code of a shared PDF."""
+
+    file_name = f'{instance.id}.svg'
+    file_path = '/'.join([str(instance.owner.user.id), 'qr', file_name])
+
+    return str(file_path)
+
+
 class Pdf(models.Model):
     """Model for the pdf files."""
 
@@ -82,7 +91,8 @@ class SharedPdf(models.Model):
     owner = models.ForeignKey(Profile, on_delete=models.CASCADE, blank=False)
     pdf = models.ForeignKey(Pdf, on_delete=models.CASCADE, blank=False)
     name = models.CharField(max_length=50, null=True, blank=False)
-    # qr_code = models.FileField(upload_to=get_file_path, blank=False)
+    # the qr code file
+    file = models.FileField(upload_to=get_qrcode_file_path, blank=False)
     description = models.TextField(null=True, blank=True, help_text='Optional')
     creation_date = models.DateTimeField(blank=False, editable=False, auto_now_add=True)
     views = models.IntegerField(default=0)

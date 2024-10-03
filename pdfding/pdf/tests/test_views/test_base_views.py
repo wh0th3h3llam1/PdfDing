@@ -107,14 +107,14 @@ class TestViews(TestCase):
     @override_settings(ROOT_URLCONF=__name__)
     def test_download_get(self):
         simple_file = SimpleUploadedFile("simple.pdf", b"these are the file contents!")
-        pdf = Pdf.objects.create(owner=self.user.profile, name='pdf', file=simple_file)
+        pdf = Pdf.objects.create(owner=self.user.profile, name='name', file=simple_file)
         pdf_path = Path(pdf.file.path)
 
         response = self.client.get(reverse('test_download', kwargs={'identifier': pdf.id}))
 
         pdf_path.unlink()
 
-        self.assertEqual(response.filename, pdf.name)
+        self.assertEqual(response.filename, f'{pdf.name}.suffix')
         self.assertTrue(response.as_attachment)
 
     @override_settings(ROOT_URLCONF=__name__)

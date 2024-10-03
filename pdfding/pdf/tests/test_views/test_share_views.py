@@ -1,3 +1,6 @@
+from io import BytesIO
+from unittest.mock import patch
+
 from django.contrib.auth.models import User
 from django.test import Client, TestCase
 from django.urls import reverse
@@ -38,7 +41,9 @@ class TestAddSharedPdfMixin(TestCase):
 
         self.assertEqual({'form': ShareForm, 'pdf_name': self.pdf.name}, generated_context)
 
-    def test_pre_obj_save(self):
+    @patch('pdf.views.share_views.AddSharedPdfMixin.generate_qr_code', return_value=BytesIO())
+    def test_pre_obj_save(self, mock_generate_qr_code):
+
         shared_pdf = SharedPdf.objects.create(owner=self.user.profile, pdf=self.pdf, name='share')
         other_pdf = Pdf.objects.create(owner=self.user.profile, name='other_pdf')
         # we need to create a request so get_pdf can access the user profile
@@ -47,6 +52,7 @@ class TestAddSharedPdfMixin(TestCase):
         adjusted_shared_pdf = AddSharedPdfMixin.pre_obj_save(shared_pdf, response.wsgi_request, other_pdf.id)
 
         self.assertEqual(other_pdf, adjusted_shared_pdf.pdf)
+        mock_generate_qr_code.assert_called_with(f'http://testserver/pdf/shared/{shared_pdf.id}')
 
 
 class TestOverviewMixin(TestCase):

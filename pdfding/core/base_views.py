@@ -72,20 +72,30 @@ class BaseServe(View):
     def get(self, request: HttpRequest, identifier: str):
         """Returns the specified file as a FileResponse"""
 
-        pdf = self.get_object(request, identifier)
+        serve_object = self.get_object(request, identifier)
 
-        return serve(request, document_root=MEDIA_ROOT, path=pdf.file.name)
+        return serve(request, document_root=MEDIA_ROOT, path=serve_object.file.name)
 
 
 class BaseDownload(View):
     """Base view for downloading the PDF specified by the ID."""
 
+    @staticmethod
+    def get_suffix():  # pragma: no cover
+        """
+        Get an empty suffix. This is currently used for pdf files as otherwise download prompt is not started,
+        but instead the build browser pdf view is opened.
+        """
+
+        return ''
+
     def get(self, request: HttpRequest, identifier: str):
         """Return the specified file as a FileResponse."""
 
-        pdf = self.get_object(request, identifier)
-        file_name = pdf.name.replace(' ', '_').lower()
-        response = FileResponse(open(pdf.file.path, 'rb'), as_attachment=True, filename=file_name)
+        download_object = self.get_object(request, identifier)
+        file_name = f'{download_object.name.replace(' ', '_').lower()}{self.get_suffix()}'
+
+        response = FileResponse(open(download_object.file.path, 'rb'), as_attachment=True, filename=file_name)
 
         return response
 

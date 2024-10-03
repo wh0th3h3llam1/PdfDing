@@ -22,5 +22,7 @@ urlpatterns = [
     path('shared/download/<identifier>', share_views.Download.as_view(), name='download_shared_pdf'),
     path('shared/edit/<identifier>/<field_name>', share_views.Edit.as_view(), name='edit_shared_pdf'),
     path('shared/get/<identifier>', share_views.Serve.as_view(), name='serve_shared_pdf'),
+    path('shared/get_qrcode/<identifier>', share_views.ServeQrCode.as_view(), name='serve_qrcode'),
+    path('shared/download_qrcode/<identifier>', share_views.DownloadQrCode.as_view(), name='download_qrcode'),
     path('shared/<identifier>', share_views.ViewShared.as_view(), name='view_shared_pdf'),
 ]
