@@ -60,7 +60,7 @@ class AddSharedPdfMixin(BaseShareMixin):
         shared_pdf.pdf = pdf
 
         qr_code_content = (
-            f'{request.scheme}://{request.get_host()}{reverse('view_shared_pdf', kwargs={'identifier': shared_pdf.id})}'
+            f'{request.scheme}://{request.get_host()}{reverse("view_shared_pdf", kwargs={"identifier": shared_pdf.id})}'
         )
         qr_as_byte = cls.generate_qr_code(qr_code_content)
 
