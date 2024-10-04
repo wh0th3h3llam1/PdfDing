@@ -4,7 +4,24 @@ try:
     # set the minio acces and secret key and the SOCIALACCOUNT_PROVIDERS in dev_secrets
     from .dev_secrets import *  # noqa: F401 F403
 except ModuleNotFoundError:  # pragma: no cover
-    pass
+    # dummy SOCIALACCOUNT_PROVIDERS for tests
+    SOCIALACCOUNT_PROVIDERS = {
+        "openid_connect": {
+            'EMAIL_AUTHENTICATION': True,
+            "OAUTH_PKCE_ENABLED": True,
+            "APPS": [
+                {
+                    "provider_id": "oidc",
+                    'name': 'OIDC',
+                    "client_id": "dummy_id",
+                    "secret": "dummy_secret",
+                    "settings": {
+                        "server_url": "dummy_url",
+                    },
+                }
+            ],
+        }
+    }
 
 # Turn on debug mode
 DEBUG = True
