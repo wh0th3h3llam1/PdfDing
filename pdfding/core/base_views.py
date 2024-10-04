@@ -93,7 +93,7 @@ class BaseDownload(View):
         """Return the specified file as a FileResponse."""
 
         download_object = self.get_object(request, identifier)
-        file_name = f'{download_object.name.replace(' ', '_').lower()}{self.get_suffix()}'
+        file_name = f'{download_object.name.replace(" ", "_").lower()}{self.get_suffix()}'
 
         response = FileResponse(open(download_object.file.path, 'rb'), as_attachment=True, filename=file_name)
 
