@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
 import pdf.service as service
@@ -73,3 +74,9 @@ class TestService(TestCase):
     def test_check_object_access_allowed_does_not_exist(self):
         with self.assertRaises(Http404):
             self.get_object(str(uuid4()), self.user)
+
+    def test_get_future_datetime(self):
+        expected_result = datetime.now(timezone.utc) + timedelta(days=1, hours=0, minutes=22)
+        generated_result = service.get_future_datetime('1d0h22m')
+
+        self.assertTrue((generated_result - expected_result).total_seconds() < 0.1)

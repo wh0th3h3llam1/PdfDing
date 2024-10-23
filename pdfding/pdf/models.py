@@ -1,7 +1,9 @@
+from datetime import datetime, timezone
 from uuid import uuid4
 
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.db import models
+from django.db.models import DateTimeField
 from users.models import Profile
 
 
@@ -96,6 +98,79 @@ class SharedPdf(models.Model):
     description = models.TextField(null=True, blank=True, help_text='Optional')
     creation_date = models.DateTimeField(blank=False, editable=False, auto_now_add=True)
     views = models.IntegerField(default=0)
+    max_views = models.IntegerField(null=True, blank=True, help_text='Optional')
+    password = models.CharField(max_length=128, null=True, blank=True, help_text='Optional')
+    expiration_date = models.DateTimeField(null=True, blank=True)
+    deletion_date = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.name  # pragma: no cover
+
+    @property
+    def inactive(self):
+        """The shared pdf weather is inactive. This will consider the expiration date and max views."""
+
+        return (self.max_views and self.views >= self.max_views) or (
+            self.expiration_date and datetime.now(timezone.utc) >= self.expiration_date
+        )
+
+    @property
+    def deleted(self):
+        """The shared pdf weather is deleted. This will consider the deletion date."""
+
+        return self.deletion_date and datetime.now(timezone.utc) >= self.deletion_date
+
+    @property
+    def deletes_in_string(self) -> str:  # pragma: no cover
+        """
+        Get the natural time representation of the deletion date compared to the current datetime.
+        """
+
+        return self.get_natural_time_future(self.deletion_date, 'deletes', 'deleted')
+
+    @property
+    def expires_in_string(self) -> str:  # pragma: no cover
+        """
+        Get the natural time representation of the expiration date compared to the current datetime.
+        """
+
+        return self.get_natural_time_future(self.expiration_date, 'expires', 'expired')
+
+    @staticmethod
+    def get_natural_time_future(date: DateTimeField, context_present: str, context_past: str) -> str:
+        """
+        Get the natural time representation of a date compared to the current datetime. Will return a string of the
+        format <context> in <natural time>, e.g deletes in 1 day.
+        """
+
+        if date:
+            natural_time = naturaltime(date)
+            if date < datetime.now(timezone.utc):
+                return_string = context_past
+
+            else:
+                if ',' in natural_time:
+                    natural_time = natural_time.split(sep=', ')[0]
+
+                natural_time = natural_time.replace(' from now', '')
+
+                return_string = f'{context_present} in {natural_time}'
+        else:
+            return_string = f'{context_present} never'
+
+        # replace weird string so test have no problems
+        return_string = return_string.replace(u'\xa0', u' ')
+
+        return return_string
+
+    @property
+    def views_string(self) -> str:
+        """
+        Get the view string for the frontend. If ax views is set returns <views>/<max_views> Views
+        else <view> Views
+        """
+
+        if self.max_views:
+            return f'{self.views}/{self.max_views} Views'
+        else:
+            return f'{self.views} Views'

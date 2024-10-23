@@ -1,19 +1,29 @@
+from datetime import datetime, timezone
 from io import BytesIO
 
 import qrcode
 from core import base_views
 from django.contrib.auth.decorators import login_not_required
 from django.core.files import File
-from django.db.models import QuerySet
+from django.db.models import Q, QuerySet
 from django.db.models.functions import Lower
 from django.http import HttpRequest
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
-from pdf.forms import SharedDescriptionForm, SharedNameForm, ShareForm
+from pdf.forms import (
+    SharedDeletionDateForm,
+    SharedDescriptionForm,
+    SharedExpirationDateForm,
+    SharedMaxViewsForm,
+    SharedNameForm,
+    SharedPasswordForm,
+    ShareForm,
+    ViewSharedPasswordForm,
+)
 from pdf.models import SharedPdf
-from pdf.service import check_object_access_allowed
+from pdf.service import check_object_access_allowed, get_future_datetime
 from pdf.views.pdf_views import PdfMixin
 from qrcode.image import svg
 
@@ -72,6 +82,16 @@ class AddSharedPdfMixin(BaseShareMixin):
     def post_obj_save(shared_pdf, form_data):
         """Actions that need to be run after saving the sharing PDF in the creation process"""
 
+        expiration_input = form_data['expiration_input']
+        deletion_input = form_data['deletion_input']
+
+        if expiration_input:
+            shared_pdf.expiration_date = get_future_datetime(expiration_input)
+        if deletion_input:
+            shared_pdf.deletion_date = get_future_datetime(deletion_input)
+
+        shared_pdf.save()
+
 
 class OverviewMixin(BaseShareMixin):
     @staticmethod
@@ -100,6 +120,9 @@ class OverviewMixin(BaseShareMixin):
         """
 
         shared_pdfs = SharedPdf.objects.filter(owner=request.user.profile).all()
+        shared_pdfs = shared_pdfs.filter(
+            Q(deletion_date__isnull=True) | Q(deletion_date__gt=datetime.now(timezone.utc))
+        )
 
         return shared_pdfs
 
@@ -112,7 +135,6 @@ class OverviewMixin(BaseShareMixin):
 
 class SharedPdfMixin(BaseShareMixin):
     obj_class = SharedPdf
-    fields_requiring_extra_processing = []
 
     @staticmethod
     @check_object_access_allowed
@@ -126,11 +148,20 @@ class SharedPdfMixin(BaseShareMixin):
 
 
 class EditSharedPdfMixin(SharedPdfMixin):
+    fields_requiring_extra_processing = ['expiration_date', 'deletion_date']
+
     @staticmethod
     def get_edit_form_dict():
         """Get the forms of the fields that can be edited as a dict."""
 
-        form_dict = {'description': SharedDescriptionForm, 'name': SharedNameForm}
+        form_dict = {
+            'description': SharedDescriptionForm,
+            'name': SharedNameForm,
+            'max_views': SharedMaxViewsForm,
+            'password': SharedPasswordForm,
+            'expiration_date': SharedExpirationDateForm,
+            'deletion_date': SharedDeletionDateForm,
+        }
 
         return form_dict
 
@@ -142,11 +173,27 @@ class EditSharedPdfMixin(SharedPdfMixin):
         initial_dict = {
             'name': {'name': shared_pdf.name},
             'description': {'description': shared_pdf.description},
+            'max_views': {'max_views': shared_pdf.max_views},
+            'password': {'password': ''},
+            'expiration_date': {'expiration_date': ''},
+            'deletion_date': {'deletion_date': ''},
         }
 
         form = form_dict[field_name](initial=initial_dict[field_name])
 
         return form
+
+    @staticmethod
+    def process_field(field_name, shared_pdf, _, form_data):
+        """Process fields that are not covered in the base edit view."""
+
+        if field_name == 'expiration_date' and form_data['expiration_input']:
+            shared_pdf.expiration_date = get_future_datetime(form_data['expiration_input'])
+
+        if field_name == 'deletion_date' and form_data['deletion_input']:
+            shared_pdf.deletion_date = get_future_datetime(form_data['deletion_input'])
+
+        shared_pdf.save()
 
 
 class PdfPublicMixin:
@@ -230,10 +277,29 @@ class ViewShared(BaseSharedPdfPublicView):
     def get(self, request: HttpRequest, identifier: str):
         shared_pdf = self.get_shared_pdf_public(request, identifier)
 
-        return render(request, 'view_shared_info.html', {'shared_pdf': shared_pdf})
+        if shared_pdf.inactive or shared_pdf.deleted:
+            return render(request, 'view_shared_inactive.html')
+        else:
+            return render(request, 'view_shared_info.html', {'shared_pdf': shared_pdf, 'form': ViewSharedPasswordForm})
 
     def post(self, request: HttpRequest, identifier: str):
         shared_pdf = self.get_shared_pdf_public(request, identifier)
+
+        if shared_pdf.inactive:
+            return render(request, 'view_shared_inactive.html')
+        else:
+            if shared_pdf.password:
+                form = ViewSharedPasswordForm(request.POST, shared_pdf=shared_pdf)
+
+                if form.is_valid():
+                    return self.render_shared_pdf_view(request, shared_pdf)
+                else:
+                    return render(request, 'view_shared_info.html', {'shared_pdf': shared_pdf, 'form': form})
+            else:
+                return self.render_shared_pdf_view(request, shared_pdf)
+
+    @staticmethod
+    def render_shared_pdf_view(request: HttpRequest, shared_pdf: SharedPdf):
         shared_pdf.views += 1
         shared_pdf.save()
 

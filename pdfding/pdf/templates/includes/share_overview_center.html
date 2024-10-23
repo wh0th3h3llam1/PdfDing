@@ -6,43 +6,52 @@
 
 {% for shared_pdf in page_obj %}
 {% with loop_id=forloop.counter %}
-<div x-data="{ delete{{ loop_id }}: false }" class="pb-1">
-  <ul>
-    <div class="!-mb-1">
-      <a id="shared-pdf-link-{{ loop_id }}"
-         href="{% url 'shared_pdf_details' shared_pdf.id %}"
-         class="text font-bold text-tertiary1 dark:text-tertiary2 hover:underline">
-        {{ shared_pdf.name }}
-      </a>
-    </div>
-    <div class="truncate [&>span]:text-sm [&>span]:text-gray-500 [&>span]:dark:text-slate-100">
-      <span>{{ shared_pdf.pdf.name }}</span>
-      {% if shared_pdf.description %}
-      <span>| {{ shared_pdf.description }}</span>
-      {% endif %}
-    </div>
-    <div class="text-gray-500 space-x-1 text-sm [&>a]:dark:text-slate-400">
-      <span class="dark:text-slate-400 !-mr-1">Deleted in 1 hour |</span>
-      <button type="button"
-              class="button-text dark:!bg-slate-800 dark:!text-slate-400 "
-              @click="copy_to_clipboard('{{ request.scheme }}://{{ request.get_host }}{% url 'view_shared_pdf' shared_pdf.id %}')">
-              Copy
-      </button>
-      <a href="{% url 'view_pdf' shared_pdf.pdf_id %}" class="hover:text-primary"> View</a>
-      <a x-show="delete{{ loop_id }}" x-cloak
-         hx-delete="{% url 'delete_shared_pdf' shared_pdf.id %}"
-         hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-         class="button-text-delete dark:!bg-slate-800 cursor-pointer">Confirm
-      </a>
-      <button x-show="delete{{ loop_id }}" x-cloak @click="delete{{ loop_id }} = false" type="button"
-              class="button-text-delete dark:!bg-slate-800">Cancel
-      </button>
-      <button x-show="!delete{{ loop_id }}" @click="delete{{ loop_id }} = true" type="button"
-              class="button-text dark:!bg-slate-800 dark:!text-slate-400">Delete
-      </button>
-    </div>
-  </ul>
-</div>
+  <div x-data="{ delete{{ loop_id }}: false }" class="pb-1">
+    <ul>
+      <div class="!-mb-1">
+        <a id="shared-pdf-link-{{ loop_id }}"
+           href="{% url 'shared_pdf_details' shared_pdf.id %}"
+           {% if shared_pdf.inactive %}
+           class="text font-bold text-gray-500 dark:text-slate-400 hover:underline">
+           {{ shared_pdf.name }} | inactive
+           {% else %}
+           class="text font-bold text-tertiary1 dark:text-tertiary2 hover:underline">
+           {{ shared_pdf.name }}
+           {% endif %}
+        </a>
+      </div>
+      <div class="truncate [&>span]:text-sm [&>span]:text-gray-500 [&>span]:dark:text-slate-100">
+        <span>{{ shared_pdf.pdf.name }}</span>
+        {% if shared_pdf.description %}
+        <span>| {{ shared_pdf.description }}</span>
+        {% endif %}
+      </div>
+      <div class="text-gray-500 space-x-1 text-sm [&>a]:dark:text-slate-400">
+        <span class="dark:text-slate-400 !-mr-1">
+          {{ shared_pdf.deletes_in_string }} | {{ shared_pdf.expires_in_string }}  | {{ shared_pdf.views_string }}
+        </span>
+      </div>
+      <div class="text-gray-500 space-x-1 text-sm [&>a]:dark:text-slate-400">
+        <button type="button"
+                class="button-text dark:!bg-slate-800 dark:!text-slate-400 "
+                @click="copy_to_clipboard('{{ request.scheme }}://{{ request.get_host }}{% url 'view_shared_pdf' shared_pdf.id %}')">
+                Copy
+        </button>
+        <a href="{% url 'view_pdf' shared_pdf.pdf_id %}" class="hover:text-primary"> View</a>
+        <a x-show="delete{{ loop_id }}" x-cloak
+           hx-delete="{% url 'delete_shared_pdf' shared_pdf.id %}"
+           hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+           class="button-text-delete dark:!bg-slate-800 cursor-pointer">Confirm
+        </a>
+        <button x-show="delete{{ loop_id }}" x-cloak @click="delete{{ loop_id }} = false" type="button"
+                class="button-text-delete dark:!bg-slate-800">Cancel
+        </button>
+        <button x-show="!delete{{ loop_id }}" @click="delete{{ loop_id }} = true" type="button"
+                class="button-text dark:!bg-slate-800 dark:!text-slate-400">Delete
+        </button>
+      </div>
+    </ul>
+  </div>
 {% endwith %}
 {% endfor %}
 {% if page_obj %}
