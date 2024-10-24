@@ -80,3 +80,6 @@ class TestService(TestCase):
         generated_result = service.get_future_datetime('1d0h22m')
 
         self.assertTrue((generated_result - expected_result).total_seconds() < 0.1)
+
+    def test_get_future_datetime_empty(self):
+        self.assertEqual(service.get_future_datetime(''), None)

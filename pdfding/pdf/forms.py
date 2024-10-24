@@ -238,6 +238,7 @@ class SharedExpirationDateForm(forms.ModelForm):
     """Form for changing the tags of a PDF."""
 
     expiration_input = forms.CharField(
+        required=False,
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. 1d0h22m'}),
     )
 
@@ -250,6 +251,7 @@ class SharedDeletionDateForm(forms.ModelForm):
     """Form for changing the tags of a PDF."""
 
     deletion_input = forms.CharField(
+        required=False,
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. 1d0h22m'}),
     )
 

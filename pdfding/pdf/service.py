@@ -95,8 +95,14 @@ def check_object_access_allowed(get_object):
     return inner
 
 
-def get_future_datetime(time_input: str) -> datetime:
-    """Gets a datetime in the future from now based on the input. Input is in the format _d_h_m, e.g. 1d0h22m"""
+def get_future_datetime(time_input: str) -> datetime | None:
+    """
+    Gets a datetime in the future from now based on the input. Input is in the format _d_h_m, e.g. 1d0h22m.
+    If input is an empty string returns None
+    """
+
+    if not time_input:
+        return None
 
     split_by_d = time_input.split('d')
     split_by_d_and_h = split_by_d[1].split('h')

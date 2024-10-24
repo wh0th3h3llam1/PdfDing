@@ -187,10 +187,10 @@ class EditSharedPdfMixin(SharedPdfMixin):
     def process_field(field_name, shared_pdf, _, form_data):
         """Process fields that are not covered in the base edit view."""
 
-        if field_name == 'expiration_date' and form_data['expiration_input']:
+        if field_name == 'expiration_date':
             shared_pdf.expiration_date = get_future_datetime(form_data['expiration_input'])
 
-        if field_name == 'deletion_date' and form_data['deletion_input']:
+        if field_name == 'deletion_date':
             shared_pdf.deletion_date = get_future_datetime(form_data['deletion_input'])
 
         shared_pdf.save()
