@@ -1,6 +1,11 @@
 # Changelog
 <hr>
 
+## 0.4.0 - Shared PDFs  (Oct 24, 2024)
+* Add functionality to share PDFs with an external audience via a link or a QR Code
+* Shared PDFs can be password protected and access can be controlled with a maximum number of views and an expiration date
+* Update dependencies
+
 ## 0.3.4 - Encrypted Backups to S3 Compatible Storage  (Aug 27, 2024)
 
 * Add option to encrypt the PDFs and the Sqlite database when performing backups
