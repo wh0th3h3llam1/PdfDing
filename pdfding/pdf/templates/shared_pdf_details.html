@@ -6,7 +6,13 @@
             [&>div>div>div>span]:text-sm [&>div>div>div>span]:text-gray-500 dark:[&>div>div>div>span]:text-slate-300
             [&>div>div>div>a]:text-sm [&>div>div>div>a]:cursor-pointer [&>div>div>div>a]:text-primary">
     <div class="!pb-0 !border-none">
-        <span href="{% url 'view_pdf' shared_pdf.pdf.id %}" class="flex text-3xl font-bold truncate">{{ shared_pdf.name }}</span>
+        <span href="{% url 'view_pdf' shared_pdf.pdf.id %}" class="flex text-3xl font-bold truncate">
+            {% if shared_pdf.inactive %}
+            {{ shared_pdf.name }} | inactive
+            {% else %}
+            {{ shared_pdf.name }}
+            {% endif %}
+        </span>
     </div>
     <div class="!justify-center !items-center !border-none !pb-0">
         <img class="h-48 w-48 bg-white" src={% url 'serve_qrcode' shared_pdf.id %}>
