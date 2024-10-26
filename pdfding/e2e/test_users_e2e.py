@@ -7,11 +7,15 @@ from playwright.sync_api import expect, sync_playwright
 
 class UsersE2ETestCase(PdfDingE2ETestCase):
     def test_settings_change_theme(self):
+        self.user.profile.dark_mode = 'Light'
+        self.user.profile.theme_color = 'Green'
+        self.user.profile.save()
+
         with sync_playwright() as p:
             self.open(reverse('profile-settings'), p)
 
             # test that light theme is used
-            expect(self.page.locator('html')).not_to_have_attribute('class', 'dark')
+            expect(self.page.locator('html')).to_have_attribute('class', 'light')
             expect(self.page.locator('html')).to_have_attribute('data-theme', 'Green')
             expect(self.page.locator("#theme")).to_contain_text("Light + Green")
             expect(self.page.locator('body')).to_have_css('background-color', 'rgba(0, 0, 0, 0)')
@@ -162,12 +166,13 @@ class UsersLoginE2ETestCase(PdfDingE2ENoLoginTestCase):
             # signup should not be displayed in oidc only mode
             expect(self.page.get_by_role('navigation')).not_to_contain_text('Signup')
 
-    def test_login_theme(self):
+    @override_settings(DEFAULT_THEME='dark', DEFAULT_THEME_COLOR='Blue')
+    def test_default_theme(self):
         with sync_playwright() as p:
             self.open(reverse('home'), p)
 
             # test that light theme is used
-            expect(self.page.locator('html')).not_to_have_attribute('class', 'dark')
-            expect(self.page.locator('html')).to_have_attribute('data-theme', 'Green')
-            expect(self.page.locator('body')).to_have_css('background-color', 'rgba(0, 0, 0, 0)')
-            expect(self.page.locator('header')).to_have_css('background-color', 'rgb(74, 222, 128)')
+            expect(self.page.locator('html')).to_have_attribute('class', 'dark')
+            expect(self.page.locator('html')).to_have_attribute('data-theme', 'Blue')
+            expect(self.page.locator('body')).to_have_css('background-color', 'rgb(30, 41, 59)')
+            expect(self.page.locator('header')).to_have_css('background-color', 'rgb(71, 147, 204)')

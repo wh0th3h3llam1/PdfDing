@@ -53,3 +53,7 @@ if 'BACKUP_SECRET_KEY' not in locals():
 # check if backup encryption password is set in dev_secrets
 if 'BACKUP_ENCRYPTION_PASSWORD' not in locals():
     BACKUP_ENCRYPTION_PASSWORD = 'password'  # nosec
+
+# themes
+DEFAULT_THEME = 'dark'
+DEFAULT_THEME_COLOR = 'Gray'

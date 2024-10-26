@@ -3,6 +3,7 @@ from io import BytesIO
 
 import qrcode
 from core import base_views
+from django.conf import settings
 from django.contrib.auth.decorators import login_not_required
 from django.core.files import File
 from django.db.models import Q, QuerySet
@@ -303,8 +304,21 @@ class ViewShared(BaseSharedPdfPublicView):
         shared_pdf.views += 1
         shared_pdf.save()
 
+        theme_color_rgb_dict = {
+            'Green': '74 222 128',
+            'Blue': '71 147 204',
+            'Gray': '151 170 189',
+            'Red': '248 113 113',
+            'Pink': '218 123 147',
+            'Orange': '255 203 133',
+        }
+
         return render(
             request,
             'viewer.html',
-            {'shared_pdf_id': shared_pdf.id, 'theme_color_rgb': '74 222 128', 'user_view_bool': False},
+            {
+                'shared_pdf_id': shared_pdf.id,
+                'theme_color_rgb': theme_color_rgb_dict[settings.DEFAULT_THEME_COLOR],
+                'user_view_bool': False,
+            },
         )

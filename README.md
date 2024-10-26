@@ -194,6 +194,16 @@ python pdfding/manage.py recover_data
 inside the shell of the running container.
 
 ## Configuration
+### `DEFAULT_THEME`
+Values: `light`, `dark` | Default `light`
+
+Specify the default theme.
+
+### `DEFAULT_THEME_COLOR`
+Values: `green`, `blue`, `gray`, `red`, `pink`, `orange` | Default `green`
+
+Specify the default theme color.
+
 ### `SECRET_KEY`
 Values: `string` | Default = `None`
 

@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from pdf.forms import (
     SharedDeletionDateForm,
@@ -233,18 +233,21 @@ class TestLoginNotRequiredViews(TestCase):
 
         self.assertTemplateUsed(response, 'view_shared_inactive.html')
 
+    @override_settings(DEFAULT_THEME_COLOR='Orange')
     def test_view_post_active_no_password(self):
         self.assertEqual(self.shared_pdf.views, 0)
 
         response = self.client.post(reverse('view_shared_pdf', kwargs={'identifier': self.shared_pdf.id}))
         self.assertEqual(response.context['shared_pdf_id'], self.shared_pdf.id)
-        self.assertEqual(response.context['theme_color_rgb'], '74 222 128')
+        # assert orange colored theme is used
+        self.assertEqual(response.context['theme_color_rgb'], '255 203 133')
         self.assertEqual(response.context['user_view_bool'], False)
         self.assertTemplateUsed(response, 'viewer.html')
 
         shared_pdf = SharedPdf.objects.get(pk=self.shared_pdf.id)
         self.assertEqual(shared_pdf.views, 1)
 
+    @override_settings(DEFAULT_THEME_COLOR='Green')
     def test_view_post_active_correct_password(self):
         protected_shared_pdf = SharedPdf.objects.create(
             owner=self.user.profile, pdf=self.pdf, name='protected_shared_pdf', password=make_password('some_pw')
@@ -256,6 +259,7 @@ class TestLoginNotRequiredViews(TestCase):
         )
 
         self.assertEqual(response.context['shared_pdf_id'], protected_shared_pdf.id)
+        # assert green colored theme is used
         self.assertEqual(response.context['theme_color_rgb'], '74 222 128')
         self.assertEqual(response.context['user_view_bool'], False)
         self.assertTemplateUsed(response, 'viewer.html')

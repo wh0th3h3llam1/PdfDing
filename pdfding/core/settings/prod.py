@@ -121,3 +121,28 @@ if os.environ.get('OIDC_ENABLE') == 'TRUE':
             ],
         }
     }
+
+# themes
+theme_colors = ['green', 'blue', 'gray', 'red', 'pink', 'orange']
+themes = ['light', 'dark']
+
+if not os.environ.get('DEFAULT_THEME'):
+    DEFAULT_THEME = 'light'
+elif os.environ.get('DEFAULT_THEME') in themes:
+    DEFAULT_THEME = os.environ.get('DEFAULT_THEME')
+else:
+    raise ValueError(
+        f'Provided DEFAULT_THEME value {os.environ.get('DEFAULT_THEME')} is not valid. '
+        f'Valid values are: {", ".join(themes)}.'
+    )
+
+if not os.environ.get('DEFAULT_THEME_COLOR'):
+    DEFAULT_THEME_COLOR = 'Green'
+elif os.environ.get('DEFAULT_THEME_COLOR') in theme_colors:
+    # tailwind css expects a leading capitalized letter, see pdfding/static/css/tailwind.css.
+    DEFAULT_THEME_COLOR = os.environ.get('DEFAULT_THEME_COLOR').capitalize()
+else:
+    raise ValueError(
+        f'Provided DEFAULT_THEME_COLOR value {os.environ.get('DEFAULT_THEME_COLOR')} is not valid. '
+        f'Valid values are: {", ".join(theme_colors)}.'
+    )

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -25,9 +26,19 @@ class Profile(models.Model):
         ORANGE = 'Orange'
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    dark_mode = models.CharField(choices=DarkMode.choices, max_length=5, default=DarkMode.LIGHT)
-    theme_color = models.CharField(choices=ThemeColor.choices, max_length=6, default=ThemeColor.GREEN)
+    dark_mode = models.CharField(
+        choices=DarkMode.choices, max_length=5, default=DarkMode[str.upper(settings.DEFAULT_THEME)]
+    )
+    theme_color = models.CharField(
+        choices=ThemeColor.choices, max_length=6, default=ThemeColor[str.upper(settings.DEFAULT_THEME_COLOR)]
+    )
     pdfs_per_page = models.IntegerField(choices=PdfsPerPage.choices, default=PdfsPerPage.p_25)
 
     def __str__(self):  # pragma: no cover
         return str(self.user.email)
+
+    @property
+    def dark_mode_str(self):  # pragma: no cover
+        """Return dark mode property so that it can be used in templates."""
+
+        return str.lower(str(self.dark_mode))

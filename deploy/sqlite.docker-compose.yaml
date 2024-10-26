@@ -11,6 +11,8 @@ services:
       # - sqlite_data:/home/nonroot/pdfding/db:Z
       # - media:/home/nonroot/pdfding/media:Z
     environment:
+      DEFAULT_THEME: dark
+      DEFAULT_THEME_COLOR: blue
       # use a long random secret
       SECRET_KEY: some_secret
       # the domain where you want to access PdfDing, e.g. pdfding.com

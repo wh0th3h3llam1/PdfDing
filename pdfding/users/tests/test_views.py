@@ -81,6 +81,10 @@ class TestProfileViews(TestCase):
         self.assertEqual({'email': 'a@a.com'}, response.context['form'].initial)
 
     def test_change_settings_dark_mode_get_htmx(self):
+        self.user.profile.dark_mode = 'Light'
+        self.user.profile.theme_color = 'Green'
+        self.user.profile.save()
+
         headers = {'HTTP_HX-Request': 'true'}
         response = self.client.get(reverse('profile-setting-change', kwargs={'field_name': 'theme'}), **headers)
 
@@ -123,6 +127,10 @@ class TestProfileViews(TestCase):
         self.assertEqual(user.email, 'a@c.com')
 
     def test_change_settings_dark_mode_post_correct(self):
+        self.user.profile.dark_mode = 'Light'
+        self.user.profile.theme_color = 'Green'
+        self.user.profile.save()
+
         self.assertEqual(self.user.profile.dark_mode, 'Light')
         self.assertEqual(self.user.profile.theme_color, 'Green')
         self.client.post(
@@ -136,8 +144,7 @@ class TestProfileViews(TestCase):
         self.assertEqual(user.profile.theme_color, 'Blue')
 
     def test_change_settings_pdfs_per_page_post_correct(self):
-        self.assertEqual(self.user.profile.dark_mode, 'Light')
-        self.assertEqual(self.user.profile.theme_color, 'Green')
+        self.assertEqual(self.user.profile.pdfs_per_page, 25)
         self.client.post(
             reverse('profile-setting-change', kwargs={'field_name': 'pdfs_per_page'}), data={'pdfs_per_page': 10}
         )

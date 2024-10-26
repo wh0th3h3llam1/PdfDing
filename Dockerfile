@@ -47,6 +47,10 @@ RUN poetry install --without dev --without e2e --no-root \
 
 COPY --from=npm-build /build/pdfding pdfding
 # prepare the static files for production
+# need to set the default theme and default theme color to some dummy values beforehand
+ARG DEFAULT_THEME=''
+ARG DEFAULT_THEME_COLOR=''
+
 RUN poetry run pdfding/manage.py collectstatic
 
 # remove django md5 hash from filenames of pdfjs as it will mess up the relative imports because of the whitenoise setup
