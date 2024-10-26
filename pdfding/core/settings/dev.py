@@ -56,4 +56,4 @@ if 'BACKUP_ENCRYPTION_PASSWORD' not in locals():
 
 # themes
 DEFAULT_THEME = 'dark'
-DEFAULT_THEME_COLOR = 'red'
+DEFAULT_THEME_COLOR = 'Red'
