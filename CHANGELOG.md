@@ -1,6 +1,10 @@
 # Changelog
 <hr>
 
+## 0.4.1 - Custom Theme Colors and Default Themes  (Nov 07, 2024)
+* Add functionality to use custom theme colors
+* Set the default theme via env variables
+
 ## 0.4.0 - Shared PDFs  (Oct 24, 2024)
 * Add functionality to share PDFs with an external audience via a link or a QR Code
 * Shared PDFs can be password protected and access can be controlled with a maximum number of views and an expiration date
