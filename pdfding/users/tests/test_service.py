@@ -3,7 +3,7 @@ from django.test import TestCase
 
 
 class TestUserServices(TestCase):
-    def test_clean_custom_theme_color_correct(self):
+    def test_clean_convert_hex_to_rgb_correct(self):
         self.assertEqual(service.convert_hex_to_rgb('#FFB3A5'), (255, 179, 165))
         self.assertEqual(service.convert_hex_to_rgb('ffb3a5'), (255, 179, 165))
 
