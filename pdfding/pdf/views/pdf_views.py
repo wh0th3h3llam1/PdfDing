@@ -8,6 +8,7 @@ from django.views import View
 from pdf.forms import AddForm, DescriptionForm, NameForm, TagsForm
 from pdf.models import Pdf, Tag
 from pdf.service import check_object_access_allowed, get_tag_dict, process_raw_search_query, process_tag_names
+from users.service import convert_hex_to_rgb
 
 
 class BasePdfMixin:
@@ -164,6 +165,9 @@ class ViewerView(PdfMixin, View):
         pdf.views += 1
         pdf.save()
 
+        rgb_as_str = [str(val) for val in convert_hex_to_rgb(request.user.profile.custom_theme_color)]
+        custom_color_rgb_str = ' '.join(rgb_as_str)
+
         # set theme color rgb value
         theme_color_rgb_dict = {
             'Green': '74 222 128',
@@ -172,6 +176,7 @@ class ViewerView(PdfMixin, View):
             'Red': '248 113 113',
             'Pink': '218 123 147',
             'Orange': '255 203 133',
+            'Custom': custom_color_rgb_str,
         }
 
         return render(

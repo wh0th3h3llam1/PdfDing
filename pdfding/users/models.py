@@ -24,6 +24,7 @@ class Profile(models.Model):
         RED = 'Red'
         PINK = 'Pink'
         ORANGE = 'Orange'
+        CUSTOM = 'Custom'
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     dark_mode = models.CharField(
@@ -32,6 +33,10 @@ class Profile(models.Model):
     theme_color = models.CharField(
         choices=ThemeColor.choices, max_length=6, default=ThemeColor[str.upper(settings.DEFAULT_THEME_COLOR)]
     )
+    custom_theme_color = models.CharField(max_length=7, default='#ffa385')
+    custom_theme_color_secondary = models.CharField(max_length=7, default='#cc826a')
+    custom_theme_color_tertiary_1 = models.CharField(max_length=7, default='#99614f')
+    custom_theme_color_tertiary_2 = models.CharField(max_length=7, default='#ffc7b5')
     pdfs_per_page = models.IntegerField(choices=PdfsPerPage.choices, default=PdfsPerPage.p_25)
 
     def __str__(self):  # pragma: no cover

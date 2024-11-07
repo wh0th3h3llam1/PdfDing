@@ -150,7 +150,8 @@ class TestViews(TestCase):
     def test_view_get(self):
         # set color to blue
         profile = self.user.profile
-        profile.theme_color = 'Blue'
+        profile.theme_color = 'Custom'
+        profile.custom_theme_color = '#ffb3a5'
         profile.save()
 
         pdf = Pdf.objects.create(owner=self.user.profile, name='pdf')
@@ -163,7 +164,7 @@ class TestViews(TestCase):
         self.assertEqual(pdf.views, 1)
 
         self.assertEqual(response.context['pdf_id'], str(pdf.id))
-        self.assertEqual(response.context['theme_color_rgb'], '71 147 204')
+        self.assertEqual(response.context['theme_color_rgb'], '255 179 165')
         self.assertEqual(response.context['user_view_bool'], True)
 
     def test_update_page_post(self):

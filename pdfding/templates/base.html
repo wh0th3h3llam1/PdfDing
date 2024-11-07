@@ -14,11 +14,19 @@
     <script src="{% static 'js/alpine.min.js' %}" defer></script>
     <script src="{% static 'js/htmx.min.js' %}" defer></script>
     <link href="{% static 'css/tailwind.css' %}" rel="stylesheet">
+    {% if request.user.profile.theme_color == 'Custom' %}
     <style>
         [x-cloak] {
             display: none !important;
         }
+        html[data-theme="Custom"] {
+          --color-primary: {{ request.user.profile.custom_theme_color }};
+          --color-secondary: {{ request.user.profile.custom_theme_color_secondary }};
+          --color-tertiary1: {{ request.user.profile.custom_theme_color_tertiary_1 }};
+          --color-tertiary2: {{ request.user.profile.custom_theme_color_tertiary_2 }};
+        }
     </style>
+    {% endif %}
 </head>
 <body class="dark:bg-slate-800 {% block class %}{% endblock %}">
 

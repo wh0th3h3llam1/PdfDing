@@ -1,3 +1,5 @@
+import re
+
 from django import forms
 from django.contrib.auth.models import User
 from django.forms import ModelForm
@@ -28,3 +30,25 @@ class ThemeForm(ModelForm):
     class Meta:
         model = Profile
         fields = ['dark_mode', 'theme_color']
+
+
+class CustomThemeColorForm(ModelForm):
+    """The form for setting dark mode"""
+
+    class Meta:
+        model = Profile
+        fields = ['custom_theme_color']
+
+    def clean_custom_theme_color(self) -> str:
+        """Check that the provided max views are a positive integer"""
+
+        return clean_hex_color(self.cleaned_data['custom_theme_color'])
+
+
+def clean_hex_color(color: str) -> str:
+    """Check that the provided max views are a positive integer"""
+
+    if not re.match(r'^#[A-Fa-f0-9]{6}$', color):
+        raise forms.ValidationError('Only valid hex colors are allowed! E.g.: #ffa385.')
+
+    return str.lower(color)

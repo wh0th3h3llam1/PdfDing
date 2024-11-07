@@ -68,6 +68,24 @@
     </div>
     <div>
         <div class="w-1/4">
+            <span>Custom Color</span>
+        </div>
+        <div class="flex justify-between w-3/4 pl-4">
+            <div class="w-5/6">
+                <span id="custom-theme-color">{{ user.profile.custom_theme_color }}</span>
+            </div>
+            <div class="w-1/6 pl-4">
+                <a id="custom-theme-color-edit" class="hover:underline"
+                    hx-get="{% url 'profile-setting-change' 'custom_theme_color' %}"
+                    hx-target="#custom-theme-color"
+                    hx-swap="innerHTML">
+                    Edit
+                </a>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div class="w-1/4">
             <span>Pdfs per Page </span>
         </div>
         <div class="flex justify-between w-3/4 pl-4">

@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.test import Client, TestCase
 from django.urls import reverse
 from pdf.models import Pdf, Tag
-from users.forms import EmailForm, PdfsPerPageForm, ThemeForm
+from users.forms import CustomThemeColorForm, EmailForm, PdfsPerPageForm, ThemeForm
 from users.models import Profile
 
 
@@ -98,12 +98,25 @@ class TestProfileViews(TestCase):
         self.assertIsInstance(response.context['form'], PdfsPerPageForm)
         self.assertEqual({'pdfs_per_page': 25}, response.context['form'].initial)
 
+    def test_change_settings_custom_color_get_htmx(self):
+        headers = {'HTTP_HX-Request': 'true'}
+        response = self.client.get(
+            reverse('profile-setting-change', kwargs={'field_name': 'custom_theme_color'}), **headers
+        )
+
+        self.assertIsInstance(response.context['form'], CustomThemeColorForm)
+        self.assertEqual({'custom_theme_color': '#ffa385'}, response.context['form'].initial)
+
     def test_change_settings_post_invalid_form(self):
         # follow=True is needed for getting the message
-        response = self.client.post(reverse('profile-setting-change', kwargs={'field_name': 'email'}), follow=True)
+        response = self.client.post(
+            reverse('profile-setting-change', kwargs={'field_name': 'custom_theme_color'}),
+            data={"custom_theme_color": 'invalid'},
+            follow=True,
+        )
         message = list(response.context['messages'])[0]
 
-        self.assertEqual(message.message, 'Form not valid')
+        self.assertEqual(message.message, 'Only valid hex colors are allowed! E.g.: #ffa385.')
         self.assertEqual(message.tags, 'warning')
 
     def test_change_settings_email_post_email_exists(self):
@@ -125,6 +138,19 @@ class TestProfileViews(TestCase):
         user = User.objects.get(username=self.username)
         mock_send.assert_called()
         self.assertEqual(user.email, 'a@c.com')
+
+    def test_change_settings_custom_theme_color(self):
+        self.client.post(
+            reverse('profile-setting-change', kwargs={'field_name': 'custom_theme_color'}),
+            data={'custom_theme_color': '#b5edff'},
+        )
+
+        # get the user and check if email was changed
+        user = User.objects.get(username=self.username)
+        self.assertEqual(user.profile.custom_theme_color, '#b5edff')
+        self.assertEqual(user.profile.custom_theme_color_secondary, '#91becc')
+        self.assertEqual(user.profile.custom_theme_color_tertiary_1, '#6d8e99')
+        self.assertEqual(user.profile.custom_theme_color_tertiary_2, '#d3f4ff')
 
     def test_change_settings_dark_mode_post_correct(self):
         self.user.profile.dark_mode = 'Light'

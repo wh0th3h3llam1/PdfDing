@@ -9,6 +9,7 @@ class UsersE2ETestCase(PdfDingE2ETestCase):
     def test_settings_change_theme(self):
         self.user.profile.dark_mode = 'Light'
         self.user.profile.theme_color = 'Green'
+        self.user.profile.custom_theme_color = '#ffa385'
         self.user.profile.save()
 
         with sync_playwright() as p:
@@ -27,21 +28,21 @@ class UsersE2ETestCase(PdfDingE2ETestCase):
             expect(self.page.locator("#id_dark_mode")).to_have_value("Light")
             expect(self.page.locator("#id_theme_color")).to_have_value("Green")
             self.page.locator("#id_dark_mode").select_option("Dark")
-            self.page.locator("#id_theme_color").select_option("Blue")
+            self.page.locator("#id_theme_color").select_option("Custom")
             self.page.get_by_role("button", name="Submit").click()
 
             # check that theme was changed to dark
             expect(self.page.locator('html')).to_have_attribute('class', 'dark')
-            expect(self.page.locator('html')).to_have_attribute('data-theme', 'Blue')
-            expect(self.page.locator("#theme")).to_contain_text("Dark + Blue")
+            expect(self.page.locator('html')).to_have_attribute('data-theme', 'Custom')
+            expect(self.page.locator("#theme")).to_contain_text("Dark + Custom")
             expect(self.page.locator('body')).to_have_css('background-color', 'rgb(30, 41, 59)')
-            expect(self.page.locator('header')).to_have_css('background-color', 'rgb(71, 147, 204)')
+            expect(self.page.locator('header')).to_have_css('background-color', 'rgb(255, 163, 133)')
 
             # trigger dropdown again
             self.page.locator("#theme-edit").click()
             # check that selected option is correct
             expect(self.page.locator("#id_dark_mode")).to_have_value("Dark")
-            expect(self.page.locator("#id_theme_color")).to_have_value("Blue")
+            expect(self.page.locator("#id_theme_color")).to_have_value("Custom")
 
     def test_settings_email_change(self):
         with sync_playwright() as p:

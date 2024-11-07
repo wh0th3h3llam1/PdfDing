@@ -182,7 +182,7 @@ class TestViews(TestCase):
         )
         message = list(response.context['messages'])[0]
 
-        self.assertEqual(message.message, 'Form not valid')
+        self.assertEqual(message.message, 'This field is required.')
         self.assertEqual(message.tags, 'warning')
 
     @override_settings(ROOT_URLCONF=__name__)

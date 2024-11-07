@@ -10,8 +10,9 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
+from users.service import get_color_shades
 
-from .forms import EmailForm, PdfsPerPageForm, ThemeForm
+from .forms import CustomThemeColorForm, EmailForm, PdfsPerPageForm, ThemeForm
 
 
 def settings(request):
@@ -24,9 +25,14 @@ def settings(request):
 
 
 class ChangeSetting(View):
-    """View for changing the theme."""
+    """View for changing the settings."""
 
-    form_dict = {'email': EmailForm, 'pdfs_per_page': PdfsPerPageForm, 'theme': ThemeForm}
+    form_dict = {
+        'email': EmailForm,
+        'pdfs_per_page': PdfsPerPageForm,
+        'theme': ThemeForm,
+        'custom_theme_color': CustomThemeColorForm,
+    }
 
     def get(self, request: HttpRequest, field_name: str):
         """For a htmx request this will load a change pdfs per page form as a partial"""
@@ -35,6 +41,7 @@ class ChangeSetting(View):
             'email': {'email': request.user.email},
             'pdfs_per_page': {'pdfs_per_page': request.user.profile.pdfs_per_page},
             'theme': {'dark_mode': request.user.profile.dark_mode, 'theme_color': request.user.profile.theme_color},
+            'custom_theme_color': {'custom_theme_color': request.user.profile.custom_theme_color},
         }
 
         if request.htmx:
@@ -70,11 +77,24 @@ class ChangeSetting(View):
 
                 # Then send confirmation email
                 send_email_confirmation(request, request.user)
+            elif field_name == 'custom_theme_color':
+                form.save()
+
+                # calculate shades for custom theme colors
+                profile = request.user.profile
+                color_shades = get_color_shades(request.user.profile.custom_theme_color)
+                profile.custom_theme_color_secondary = color_shades[0]
+                profile.custom_theme_color_tertiary_1 = color_shades[1]
+                profile.custom_theme_color_tertiary_2 = color_shades[2]
+                profile.save()
             else:
                 form.save()
 
         else:
-            messages.warning(request, 'Form not valid')
+            try:
+                messages.warning(request, dict(form.errors)[field_name][0])
+            except:  # noqa # pragma: no cover
+                messages.warning(request, 'Input is not valid!')
 
         return redirect('profile-settings')
 

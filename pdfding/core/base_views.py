@@ -183,7 +183,10 @@ class BaseEdit(View):
             else:
                 form.save()
         else:
-            messages.warning(request, 'Form not valid')
+            try:
+                messages.warning(request, dict(form.errors)[field_name][0])
+            except:  # noqa # pragma: no cover
+                messages.warning(request, 'Input is not valid!')
         return redirect(f'{self.obj_name}_details', identifier=identifier)
 
 
