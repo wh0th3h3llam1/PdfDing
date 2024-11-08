@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from pdf.models import Pdf, Tag
 from users.forms import CustomThemeColorForm, EmailForm, PdfsPerPageForm, ThemeForm
@@ -24,6 +24,14 @@ class TestAuthRelated(TestCase):
         response = self.client.get(reverse('signup'))
 
         self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'account/signup.html')
+
+    @override_settings(SIGNUP_CLOSED=True)
+    def test_signup_closed(self):
+        response = self.client.get(reverse('signup'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'account/signup_closed.html')
 
     def test_password_reset(self):
         response = self.client.get(reverse('password_reset'))

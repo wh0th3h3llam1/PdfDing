@@ -84,7 +84,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'core.context_processors.theme_context',
+                'core.context_processors.pdfding_context',
             ],
         },
     },
@@ -176,37 +176,12 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_LOGOUT_ON_PASSWORD_CHANGE = True
 ACCOUNT_LOGOUT_REDIRECT_URL = '/accountlogin/'
 ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_ADAPTER = 'core.adapters.DisableSignupAccountAdapter'
 
 LOGIN_REDIRECT_URL = '/pdf'
 LOGIN_URL = '/accountlogin/'
 
 SOCIALACCOUNT_OPENID_CONNECT_URL_PREFIX = ''
-
-# # This is should be imported from core/settings/dev_secrets.py, so it is not tracked by git
-# SOCIALACCOUNT_PROVIDERS = {
-#     'openid_connect': {
-#         'EMAIL_AUTHENTICATION': True,
-#         # Optional PKCE defaults to False, but may be required by your provider
-#         # Applies to all APPS.
-#         'OAUTH_PKCE_ENABLED': True,
-#         'APPS': [
-#             {
-#                 'provider_id': 'oidc',
-#                 'name': 'OIDC',
-#                 'client_id': 'pdfding',
-#                 'secret': 'some-secret',
-#                 'settings': {
-#                     'server_url': 'https://some.address/.well-known/openid-configuration',
-#                     # Optional token endpoint authentication method.
-#                     # May be one of 'client_secret_basic', 'client_secret_post'
-#                     # If omitted, a method from the server's
-#                     # token auth methods list is used
-#                     # 'token_auth_method': 'client_secret_basic',
-#                 },
-#             }
-#         ],
-#     }
-# }
 
 # Huey task queue
 HUEY = {

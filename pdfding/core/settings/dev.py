@@ -35,6 +35,7 @@ SECRET_KEY = 'some_key'  # nosec B105
 ACCOUNT_EMAIL_VERIFICATION = 'optional'
 
 DEFAULT_FROM_EMAIL = 'info@localhost'
+SIGNUP_CLOSED = False
 
 BACKUP_ENABLE = True
 BACKUP_SECURE = False

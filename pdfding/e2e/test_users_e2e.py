@@ -167,6 +167,14 @@ class UsersLoginE2ETestCase(PdfDingE2ENoLoginTestCase):
             # signup should not be displayed in oidc only mode
             expect(self.page.get_by_role('navigation')).not_to_contain_text('Signup')
 
+    @override_settings(SIGNUP_CLOSED=True)
+    def test_login_header_signup_disabled(self):
+        with sync_playwright() as p:
+            self.open(reverse('home'), p)
+            expect(self.page.get_by_role('navigation')).to_contain_text('Login')
+            # signup should not be displayed in signup_disabled mode
+            expect(self.page.get_by_role('navigation')).not_to_contain_text('Signup')
+
     @override_settings(DEFAULT_THEME='dark', DEFAULT_THEME_COLOR='Blue')
     def test_default_theme(self):
         with sync_playwright() as p:

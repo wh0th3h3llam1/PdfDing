@@ -91,6 +91,11 @@ if os.environ.get('ACCOUNT_EMAIL_VERIFICATION') == 'TRUE':
 else:
     ACCOUNT_EMAIL_VERIFICATION = 'optional'
 
+if os.environ.get('DISABLE_USER_SIGNUP') == 'TRUE':
+    SIGNUP_CLOSED = True
+else:
+    SIGNUP_CLOSED = False
+
 # configure the oidc provider
 if os.environ.get('OIDC_ENABLE') == 'TRUE':
     # enable social logins only

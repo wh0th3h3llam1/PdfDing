@@ -53,7 +53,7 @@
 
             {% else %}
             <li><a href="{% url 'login' %}">Login</a></li>
-            {% if not SOCIALACCOUNT_ONLY %}
+            {% if not SOCIALACCOUNT_ONLY and not SIGNUP_CLOSED %}
             <li><a href="{% url 'signup' %}">Signup</a></li>
             {% endif %}
             {% endif %}
