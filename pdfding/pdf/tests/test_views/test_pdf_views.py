@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from django.contrib.auth.models import User
 from django.test import Client, TestCase
 from django.urls import reverse
@@ -156,12 +158,15 @@ class TestViews(TestCase):
 
         pdf = Pdf.objects.create(owner=self.user.profile, name='pdf')
         self.assertEqual(pdf.views, 0)
+        self.assertEqual(pdf.last_viewed_date, datetime(2000, 1, 1, tzinfo=timezone.utc))
 
         response = self.client.get(reverse('view_pdf', kwargs={'identifier': pdf.id}))
 
         # check that views increased by one
         pdf = self.user.profile.pdf_set.get(name='pdf')
         self.assertEqual(pdf.views, 1)
+        time_diff = datetime.now(timezone.utc) - pdf.last_viewed_date
+        self.assertLess(time_diff.total_seconds(), 1)
 
         self.assertEqual(response.context['pdf_id'], str(pdf.id))
         self.assertEqual(response.context['theme_color_rgb'], '255 179 165')

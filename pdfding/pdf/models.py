@@ -65,6 +65,9 @@ class Pdf(models.Model):
     tags = models.ManyToManyField(Tag, blank=True)
     current_page = models.IntegerField(default=1)
     views = models.IntegerField(default=0)
+    last_viewed_date = models.DateTimeField(
+        blank=False, editable=False, default=datetime(2000, 1, 1, tzinfo=timezone.utc)
+    )
 
     def __str__(self):
         return self.name  # pragma: no cover

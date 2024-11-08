@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from core import base_views
 from django.contrib.auth.decorators import login_not_required
 from django.db.models import QuerySet
@@ -56,6 +58,7 @@ class OverviewMixin(BasePdfMixin):
             'title_desc': Lower('name').desc(),
             'least_viewed': 'views',
             'most_viewed': '-views',
+            'recently_viewed': '-last_viewed_date',
         }
 
         return sorting_dict
@@ -163,6 +166,7 @@ class ViewerView(PdfMixin, View):
         # increase view counter by 1
         pdf = self.get_object(request, identifier)
         pdf.views += 1
+        pdf.last_viewed_date = datetime.now(timezone.utc)
         pdf.save()
 
         rgb_as_str = [str(val) for val in convert_hex_to_rgb(request.user.profile.custom_theme_color)]

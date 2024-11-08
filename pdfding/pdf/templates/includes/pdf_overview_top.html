@@ -43,6 +43,8 @@
                    x-bind:class="get_active_sorting('{{ sorting_query }}') === 'most_viewed' ? 'bg-primary' : 'dummy'">Most Viewed</a></li>
             <li><a x-bind:href="construct_query_string('{{ raw_search_query }}', 'least_viewed')"
                    x-bind:class="get_active_sorting('{{ sorting_query }}') === 'least_viewed' ? 'bg-primary' : 'dummy'">Least Viewed</a></li>
+            <li><a x-bind:href="construct_query_string('{{ raw_search_query }}', 'recently_viewed')"
+                   x-bind:class="get_active_sorting('{{ sorting_query }}') === 'recently_viewed' ? 'bg-primary' : 'dummy'">Recently Viewed</a></li>
             </ul>
         </div>
         </div>
