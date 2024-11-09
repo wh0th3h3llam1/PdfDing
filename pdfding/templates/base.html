@@ -14,11 +14,13 @@
     <script src="{% static 'js/alpine.min.js' %}" defer></script>
     <script src="{% static 'js/htmx.min.js' %}" defer></script>
     <link href="{% static 'css/tailwind.css' %}" rel="stylesheet">
-    {% if request.user.profile.theme_color == 'Custom' %}
     <style>
         [x-cloak] {
             display: none !important;
         }
+    </style>
+    {% if request.user.profile.theme_color == 'Custom' %}
+    <style>
         html[data-theme="Custom"] {
           --color-primary: {{ request.user.profile.custom_theme_color }};
           --color-secondary: {{ request.user.profile.custom_theme_color_secondary }};
