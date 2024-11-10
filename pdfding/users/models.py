@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -27,12 +26,9 @@ class Profile(models.Model):
         CUSTOM = 'Custom'
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    dark_mode = models.CharField(
-        choices=DarkMode.choices, max_length=5, default=DarkMode[str.upper(settings.DEFAULT_THEME)]
-    )
-    theme_color = models.CharField(
-        choices=ThemeColor.choices, max_length=6, default=ThemeColor[str.upper(settings.DEFAULT_THEME_COLOR)]
-    )
+    # set dummy default colors, will be overwritten by post_save in signals
+    dark_mode = models.CharField(choices=DarkMode.choices, max_length=5, default=DarkMode.DARK)
+    theme_color = models.CharField(choices=ThemeColor.choices, max_length=6, default=ThemeColor.RED)
     custom_theme_color = models.CharField(max_length=7, default='#ffa385')
     custom_theme_color_secondary = models.CharField(max_length=7, default='#cc826a')
     custom_theme_color_tertiary_1 = models.CharField(max_length=7, default='#99614f')

@@ -1,11 +1,11 @@
 from allauth.account.models import EmailAddress
 from django.contrib.auth.models import User
-from django.test import TestCase
-
+from django.test import TestCase, override_settings
 from users.models import Profile
 
 
 class TestSignals(TestCase):
+    @override_settings(DEFAULT_THEME='dark', DEFAULT_THEME_COLOR='Gray')
     def test_user_postsave(self):
         input_mail = 'a@a.com'
 
@@ -14,6 +14,8 @@ class TestSignals(TestCase):
         # check that the profile exists
         profile = Profile.objects.get(user=user)
         self.assertEqual(str(profile), input_mail)
+        self.assertEqual(profile.dark_mode, 'Dark')
+        self.assertEqual(profile.theme_color, 'Gray')
 
         # check that email address object does not exist yet:
         email_address = EmailAddress.objects.get_primary(user)

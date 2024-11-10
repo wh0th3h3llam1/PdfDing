@@ -1,7 +1,8 @@
 from allauth.account.models import EmailAddress
+from django.conf import settings
 from django.contrib.auth.models import User
-from django.dispatch import receiver
 from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 from .models import Profile
 
@@ -14,7 +15,11 @@ def user_postsave(sender, instance, created, **kwargs):
 
     # add profile if user is created
     if created:
-        Profile.objects.create(user=user)
+        profile = Profile.objects.create(user=user)
+        profile.dark_mode = Profile.DarkMode[str.upper(settings.DEFAULT_THEME)]
+        profile.theme_color = Profile.ThemeColor[str.upper(settings.DEFAULT_THEME_COLOR)]
+        profile.save()
+
     # user email address was changed -> set it to unverified
     else:
         # update allauth emailaddress if exists
