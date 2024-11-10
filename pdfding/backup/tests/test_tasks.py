@@ -24,6 +24,20 @@ class TestPeriodicBackup(TestCase):
     mock_object = mock.Mock()
     mock_object.object_name = 'backup.sqlite3'
 
+    def test_check_backup_requirements_empty_db(self):
+        self.assertFalse(tasks.check_backup_requirements())
+
+    def test_check_backup_requirements_user_only(self):
+        User.objects.create_user(username='user_1', password='password', email='a@a.com')
+
+        self.assertFalse(tasks.check_backup_requirements())
+
+    def test_check_backup_requirements_true(self):
+        user = User.objects.create_user(username='user_1', password='password', email='a@a.com')
+        Pdf.objects.create(owner=user.profile, name='pdf.pdf')
+
+        self.assertTrue(tasks.check_backup_requirements())
+
     @mock.patch('backup.tasks.Minio.remove_object')
     @mock.patch('backup.tasks.difference_local_minio', return_value=({'add_1.pdf', 'add_2.pdf'}, {'remove.pdf'}))
     @mock.patch('backup.tasks.add_file_to_minio')

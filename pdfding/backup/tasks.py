@@ -4,6 +4,7 @@ from pathlib import Path
 
 from backup.service import encrypt_file, get_encryption_key
 from django.conf import settings
+from django.contrib.auth.models import User
 from huey import crontab
 from huey.contrib.djhuey import periodic_task
 from minio import Minio
@@ -37,9 +38,22 @@ def parse_cron_schedule(cron_schedule: str) -> dict[str, str]:
 def backup_task():  # pragma: no cover
     """
     Periodic huey task for backing up the PDF files and (if used) the sqlite database.
+    Backup will only be created if at least one user and one PDF are present in the database.
     """
 
-    backup_function()
+    if check_backup_requirements():
+        backup_function()
+
+
+def check_backup_requirements():
+    """
+    If at least one user and one PDF are present in the database backup requirements are fulfilled.
+    """
+
+    number_of_users = User.objects.all().count()
+    number_of_pdfs = Pdf.objects.all().count()
+
+    return number_of_pdfs > 0 and number_of_users > 0
 
 
 def backup_function():
