@@ -1,6 +1,16 @@
 # Changelog
 <hr>
 
+## 0.4.2 - Bug Fixes and Small Features  (Nov 10, 2024)
+* Bug Fix: Adjust base.html, so that x-cloak of Alpine JS  works on all themes.
+           Did only work on custom theme colors after introducing that feature.
+* Bug Fix: Adjust 404.html so that it hsa correct font colors in dark mode
+* Sort PDFs by recently viewed
+* Disable user signup via the env variable `DISABLE_USER_SIGNUP`
+* Add about page
+* Add footer
+* Only execute backups if at least 1 user and 1 pdf present
+
 ## 0.4.1 - Custom Theme Colors and Default Themes  (Nov 07, 2024)
 * Add functionality to use custom theme colors
 * Set the default theme via env variables

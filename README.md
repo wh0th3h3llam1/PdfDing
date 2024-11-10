@@ -183,10 +183,6 @@ to delete your existing backups in the S3 compatible storage. Not doing so will 
 
 ### Recovering Data from Backups
 
-**IMPORTANT**: When recovering data from the backup it is recommended to disable the periodic backups.
-Otherwise, there is a possibility that the remote backup will be overwritten with empty data, if
-the data recovery takes place at the same time as the scheduled backup.
-
 PDFs and the Sqlite database can easily be recovered from the backups by executing
 ```
 python pdfding/manage.py recover_data
@@ -243,6 +239,11 @@ The port of the postgres DB.
 Values: `TRUE`, `FALSE` | Default: `TRUE`
 
 Block users until they have verified their email address.
+
+### `DISABLE_USER_SIGNUP`
+Values: `TRUE`, `FALSE` | Default: `FALSE`
+
+Flag for disabling user signup. By setting this value to `TRUE` user signup will be disabled.
 
 ### `OIDC_ENABLE`
 Values: `TRUE`, `FALSE` | Default: `FALSE`
