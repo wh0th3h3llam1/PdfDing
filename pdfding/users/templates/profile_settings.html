@@ -22,7 +22,7 @@
                     {% endif %}
                 </div>
             </div>
-            <div class="w-1/6 pl-4">
+            <div class="w-1/6 pl-2 md:pl-6">
                 <a id="email-edit" class="hover:underline"
                     hx-get="{% url 'profile-setting-change' 'email' %}"
                     hx-target="#email-address"
@@ -40,7 +40,7 @@
             <div class="w-5/6">
                 <span>***</span>
             </div>
-            <div class="w-1/6 pl-4">
+            <div class="w-1/6 pl-2 md:pl-6">
                 <a href="{% url 'account_change_password' %}" class="hover:underline">
                     Edit
                 </a>
@@ -56,7 +56,7 @@
             <div class="w-5/6">
                 <span id="theme">{{ user.profile.dark_mode }} + {{ user.profile.theme_color }}</span>
             </div>
-            <div class="w-1/6 pl-4">
+            <div class="w-1/6 pl-2 md:pl-6">
                 <a id="theme-edit" class="hover:underline"
                     hx-get="{% url 'profile-setting-change' 'theme' %}"
                     hx-target="#theme"
@@ -74,7 +74,7 @@
             <div class="w-5/6">
                 <span id="custom-theme-color">{{ user.profile.custom_theme_color }}</span>
             </div>
-            <div class="w-1/6 pl-4">
+            <div class="w-1/6 pl-2 md:pl-6">
                 <a id="custom-theme-color-edit" class="hover:underline"
                     hx-get="{% url 'profile-setting-change' 'custom_theme_color' %}"
                     hx-target="#custom-theme-color"
@@ -92,7 +92,7 @@
             <div class="w-5/6">
                 <span id="pdfs-per-page">{{ user.profile.pdfs_per_page }}</span>
             </div>
-            <div class="w-1/6 pl-4">
+            <div class="w-1/6 pl-2 md:pl-6">
                 <a id="pdfs-per-page-edit" class="hover:underline"
                     hx-get="{% url 'profile-setting-change' 'pdfs_per_page' %}"
                     hx-target="#pdfs-per-page"
@@ -110,7 +110,7 @@
             <div class="w-5/6">
                 <span>Delete your account and data</span>
             </div>
-            <div class="w-1/6 pl-4">
+            <div class="w-1/6 pl-0 md:pl-6">
                 <a href="{% url 'profile-delete' %}" class="!text-red-600 hover:underline">
                     Delete
                 </a>
