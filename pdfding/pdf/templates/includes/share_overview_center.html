@@ -31,8 +31,9 @@
         <span x-on:mouseenter="tooltip_del = true" x-on:mouseleave="tooltip_del = false">
           {{ shared_pdf.deletes_in_string }} |
         </span>
-        <span x-show="tooltip_del" x-cloak class="-left-0 -bottom-5 z-50 absolute bg-primary !text-gray-100 rounded-sm p-2 mt-1">
-          {{ shared_pdf.deletion_date }}
+        <span x-show="tooltip_del" x-transition:enter.duration.500ms x-cloak
+              class="-left-0 -bottom-5 z-50 absolute bg-primary !text-gray-100 rounded-sm p-2 mt-1">
+          {{ shared_pdf.deletion_date }} UTC
         </span>
         {% else %}
         <span>{{ shared_pdf.deletes_in_string }} |</span>
@@ -41,8 +42,9 @@
         <span x-on:mouseenter="tooltip_exp = true" x-on:mouseleave="tooltip_exp = false">
           {{ shared_pdf.expires_in_string }} |
         </span>
-        <span x-show="tooltip_exp" x-cloak class="left-20 -bottom-5 z-50 absolute bg-primary !text-gray-100 rounded-sm p-2 mt-1">
-          {{ shared_pdf.expiration_date }}
+        <span x-show="tooltip_exp" x-cloak x-transition:enter.duration.500ms
+              class="left-20 -bottom-5 z-50 absolute bg-primary !text-gray-100 rounded-sm p-2 mt-1">
+          {{ shared_pdf.expiration_date }} UTC
         </span>
         {% else %}
         <span>{{ shared_pdf.expires_in_string }} |</span>
