@@ -34,7 +34,10 @@ class NoSharedPdfE2ETestCase(PdfDingE2ETestCase):
             self.page.get_by_role("button", name="Submit").click()
             expect(self.page.locator("#shared-pdf-link-1")).to_contain_text("some_shared_pdf | inactive")
             expect(self.page.locator("body")).to_contain_text("some_pdf | some_description")
-            expect(self.page.locator("body")).to_contain_text("deletes in 1 day | expired | 0/3 Views")
+            # needs to be split because of hover tooltips
+            expect(self.page.locator("body")).to_contain_text("deletes in 1 day |")
+            expect(self.page.locator("body")).to_contain_text("expired |")
+            expect(self.page.locator("body")).to_contain_text("0/3 Views")
 
 
 class SharedPdfE2ETestCase(PdfDingE2ETestCase):
