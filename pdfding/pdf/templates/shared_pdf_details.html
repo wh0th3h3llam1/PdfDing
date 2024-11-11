@@ -104,15 +104,15 @@
     </div>
     <div>
         <div class="w-1/6">
-            <span class="hyphens-manual">Max Views</span>
+            <span class="hyphens-manual">Views</span>
         </div>
         <div class="flex justify-between w-5/6 pl-8 md:pl-4">
             <div class="w-5/6 pr-6  ">
                 <span id="max_views">
                 {% if shared_pdf.max_views %}
-                {{ shared_pdf.max_views }}
+                {{ shared_pdf.views }}/{{ shared_pdf.max_views }}
                 {% else %}
-                not set
+                {{ shared_pdf.views }} | not set
                 {% endif%}
                 </span>
             </div>
@@ -181,11 +181,11 @@
     </div>
     <div>
         <div class="w-1/6">
-            <span>Views</span>
+            <span>Date added</span>
         </div>
         <div class="flex justify-between w-5/6 pl-8 md:pl-4">
             <div class="w-5/6">
-                <span>{{ shared_pdf.views }}</span>
+                <span>{{ shared_pdf.creation_date }}</span>
             </div>
             <div class="w-1/6">
             </div>
