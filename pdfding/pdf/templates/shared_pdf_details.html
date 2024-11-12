@@ -1,12 +1,12 @@
 {% extends 'layouts/box.html' %}
 {% load static %}
 {% block content %}
-<div class="w-full [&>div]:flex [&>div]:justify-between [&>div]:border-b [&>div]:py-4
+<div class="[&>div]:flex [&>div]:justify-between [&>div]:border-b [&>div]:py-4
             [&>div>div>span]:font-bold [&>div>div>span]:text-gray-900 dark:[&>div>div>span]:text-slate-200
             [&>div>div>div>span]:text-sm [&>div>div>div>span]:text-gray-500 dark:[&>div>div>div>span]:text-slate-300
             [&>div>div>div>a]:text-sm [&>div>div>div>a]:cursor-pointer [&>div>div>div>a]:text-primary">
     <div class="!pb-0 !border-none">
-        <span href="{% url 'view_pdf' shared_pdf.pdf.id %}" class="flex text-3xl font-bold truncate">
+        <span href="{% url 'view_pdf' shared_pdf.pdf.id %}" class="text-3xl font-bold truncate">
             {% if shared_pdf.inactive %}
             {{ shared_pdf.name }} | inactive
             {% else %}

@@ -1,11 +1,11 @@
 {% extends 'layouts/box.html' %}
 {% block content %}
-<div class="w-full [&>div]:flex [&>div]:justify-between [&>div]:border-b [&>div]:py-4
+<div class="[&>div]:flex [&>div]:justify-between [&>div]:border-b [&>div]:py-4
             [&>div>div>span]:font-bold [&>div>div>span]:text-gray-900 dark:[&>div>div>span]:text-slate-200
             [&>div>div>div>span]:text-sm [&>div>div>div>span]:text-gray-500 dark:[&>div>div>div>span]:text-slate-300
             [&>div>div>div>a]:text-sm [&>div>div>div>a]:cursor-pointer [&>div>div>div>a]:text-primary">
     <div class="!pb-0 !border-none">
-        <a href="{% url 'view_pdf' pdf.id %}" class="flex text-3xl font-bold truncate hover:text-primary hover:underline">{{ pdf.name }}</a>
+        <a href="{% url 'view_pdf' pdf.id %}" class="text-3xl font-bold hover:text-primary hover:underline truncate">{{ pdf.name }}</a>
     </div>
 
     <div class="!pb-6 !border-none">
@@ -21,7 +21,7 @@
             <span>Name</span>
         </div>
         <div class="flex justify-between w-5/6 pl-4">
-            <div class="w-5/6">
+            <div class="w-5/6 pr-4">
                 <span id="name">{{ pdf.name }}</span>
             </div>
             <div class="w-1/6 pl-2 md:pl-8">
@@ -39,7 +39,7 @@
             <span class="hyphens-manual">Des&shy;cription</span>
         </div>
         <div class="flex justify-between w-5/6 pl-4">
-            <div class="w-5/6 pr-6  ">
+            <div class="w-5/6 pr-6">
                 <span id="description">
                 {% if pdf.description %}
                 {{ pdf.description }}
