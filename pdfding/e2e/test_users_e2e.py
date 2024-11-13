@@ -122,13 +122,15 @@ class UsersE2ETestCase(PdfDingE2ETestCase):
     def test_header_dropdown(self):
         with sync_playwright() as p:
             self.open(reverse('pdf_overview'), p)
-            self.page.get_by_role('list').locator('a').nth(2).click()
-            expect(self.page.get_by_role('navigation')).to_contain_text('a@a.com')
+            self.page.get_by_role("banner").get_by_role("list").locator("li").filter(
+                has_text="Logged in as a@a.com Settings"
+            ).locator("a").first.click()
+            expect(self.page.get_by_role("banner")).to_contain_text("a@a.com")
 
     def test_header_non_admin(self):
         with sync_playwright() as p:
             self.open(reverse('pdf_overview'), p)
-            expect(self.page.get_by_role("list")).not_to_contain_text("Admin")
+            expect(self.page.get_by_role("banner")).not_to_contain_text("Admin")
 
     def test_header_admin(self):
         self.user.is_staff = True
@@ -138,7 +140,7 @@ class UsersE2ETestCase(PdfDingE2ETestCase):
 
         with sync_playwright() as p:
             self.open(reverse('pdf_overview'), p)
-            expect(self.page.get_by_role("list")).to_contain_text("Admin")
+            expect(self.page.get_by_role("banner")).to_contain_text("Admin")
 
 
 class UsersLoginE2ETestCase(PdfDingE2ENoLoginTestCase):
@@ -157,23 +159,23 @@ class UsersLoginE2ETestCase(PdfDingE2ENoLoginTestCase):
         with sync_playwright() as p:
             self.open(reverse('home'), p)
             # login and signup should be displayed if not in oidc only mode
-            expect(self.page.get_by_role('navigation')).to_contain_text('Login Signup')
+            expect(self.page.get_by_role('banner')).to_contain_text('Login Signup')
 
     @override_settings(SOCIALACCOUNT_ONLY=True)
     def test_login_header_oidc_only(self):
         with sync_playwright() as p:
             self.open(reverse('home'), p)
-            expect(self.page.get_by_role('navigation')).to_contain_text('Login')
+            expect(self.page.get_by_role('banner')).to_contain_text('Login')
             # signup should not be displayed in oidc only mode
-            expect(self.page.get_by_role('navigation')).not_to_contain_text('Signup')
+            expect(self.page.get_by_role('banner')).not_to_contain_text('Signup')
 
     @override_settings(SIGNUP_CLOSED=True)
     def test_login_header_signup_disabled(self):
         with sync_playwright() as p:
             self.open(reverse('home'), p)
-            expect(self.page.get_by_role('navigation')).to_contain_text('Login')
+            expect(self.page.get_by_role('banner')).to_contain_text('Login')
             # signup should not be displayed in signup_disabled mode
-            expect(self.page.get_by_role('navigation')).not_to_contain_text('Signup')
+            expect(self.page.get_by_role('banner')).not_to_contain_text('Signup')
 
     @override_settings(DEFAULT_THEME='dark', DEFAULT_THEME_COLOR='Blue')
     def test_default_theme(self):

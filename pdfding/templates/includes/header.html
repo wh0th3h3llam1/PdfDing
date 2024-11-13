@@ -1,11 +1,14 @@
 {% load static %}
-<header x-data="{ mobilenavOpen: false }" class="md:flex items-center justify-between bg-primary h-12 [&>*]:px-8 text-white sticky top-0 z-40">
+<header x-data="{ mobilenavOpen: false }" class="bg-primary h-12 [&>*]:px-8 text-white sticky top-0 z-40 ">
     <div class="flex items-center justify-between h-12">
         <div>
             <a class="flex items-center gap-2" href="/">
                 <img class="h-6" src="{% static "images/logo.svg" %}" alt="Logo"/>
                 <span class="text-lg font-bold">PdfDing </span>
             </a>
+        </div>
+        <div class="hidden md:flex">
+            {% include 'partials/header_menu.html' %}
         </div>
         <div class="md:hidden">
             <a @click="mobilenavOpen = !mobilenavOpen" class="h-12 w-12 flex items-center justify-center cursor-pointer hover:bg-primary rounded-lg">
@@ -14,49 +17,13 @@
             </a>
         </div>
     </div>
-    <nav x-show="mobilenavOpen" x-cloak class="md:!block bg-primary h-screen w-screen md:h-auto md:w-auto md:mt-0 absolute md:relative z-[-1]"
-    x-transition:enter="duration-300 ease-out"
-    x-transition:enter-start="opacity-0 -translate-y-96"
-    x-transition:enter-end="opacity-100 translate-y-0"
+    <div x-show="mobilenavOpen" x-cloak class="md:hidden bg-primary h-screen w-screen"
+        x-transition:enter="duration-300 ease-out"
+        x-transition:enter-start="opacity-0 translate-y-0"
+        x-transition:enter-end="opacity-100 translate-y-0"
     >
-        <ul class="navitems flex items-center h-full flex-col md:flex-row justify-center -translate-y-10 md:translate-y-0">
-            {% if request.user.is_authenticated %}
-            <li><a href="{% url 'add_pdf' %}">Add PDF</a></li>
-            <li><a href="{% url 'pdf_overview' %}">PDFs</a></li>
-            <li><a href="{% url 'shared_pdf_overview' %}">Shared</a></li>
-            {% if request.user.is_superuser and request.user.is_staff %}
-            <li><a href="{% url 'admin_overview' %}">Admin</a></li>
-            {% endif %}
-            <li x-data="{ dropdownOpen: false }" class="relative">
-                <a @click="dropdownOpen = !dropdownOpen" @click.away="dropdownOpen = false" class="cursor-pointer select-none">
-                    <!-- bg-primary needed as profile image will flicker otherwise -->
-                    <img class="h-8 w-8 bg-primary rounded-full object-cover" src="{% static "images/profile.svg" %}"/>
-                    <img class="rotate-90 w-5" x-bind:class="dropdownOpen && '-rotate-90 duration-300'" src="{% static "images/arrow_right.svg" %}"/>
-                </a>
-                <div x-show="dropdownOpen" x-cloak
-                     class="absolute md:right-0 bg-white dark:bg-slate-700 text-black dark:text-slate-50 shadow rounded-lg w-52 p-2 z-20"
-                x-transition:enter="duration-300 ease-out"
-                x-transition:enter-start="opacity-0 -translate-y-5 scale-90"
-                x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                >
-                    <div class="mx-2">
-                        <span class="flex text-xs pb-1 text-left  justify-start">Logged in as</span>
-                        <span class="flex text-xs pb-1 text-left  justify-start  truncate">{{ user.email}}</span>
-                        <div class="flex-grow border-b border-gray-400"></div>
-                    </div>
-                    <ul class="hoverlist  [&>li>*]:justify-left">
-                        <li><a href="{% url 'profile-settings' %}">Settings</a></li>
-                        <li><a href="{% url 'account_logout' %}">Log Out</a></li>
-                    </ul>
-                </div>
-            </li>
-
-            {% else %}
-            <li><a href="{% url 'login' %}">Login</a></li>
-            {% if not SOCIALACCOUNT_ONLY and not SIGNUP_CLOSED %}
-            <li><a href="{% url 'signup' %}">Signup</a></li>
-            {% endif %}
-            {% endif %}
-        </ul>
-    </nav>
+        <div>
+            {% include 'partials/header_menu.html' %}
+        </div>
+    </div>
 </header>
