@@ -64,11 +64,19 @@ class AddSharedPdfMixin(BaseShareMixin):
         return context
 
     @classmethod
-    def pre_obj_save(cls, shared_pdf: SharedPdf, request: HttpRequest, identifier: str):
-        """Actions that need to be run before saving the shared PDF in the creation process"""
+    def obj_save(cls, form: ShareForm, request: HttpRequest, identifier: str):
+        """Save the shared PDF based on the submitted form."""
 
-        pdf = PdfMixin.get_object(request, identifier)
-        shared_pdf.pdf = pdf
+        shared_pdf = form.save(commit=False)
+        shared_pdf.owner = request.user.profile
+        shared_pdf.pdf = PdfMixin.get_object(request, identifier)
+
+        cls.add_qr_code(shared_pdf, request)
+        cls.set_access_dates(shared_pdf, form.data['expiration_input'], form.data['deletion_input'])
+
+    @classmethod
+    def add_qr_code(cls, shared_pdf: SharedPdf, request: HttpRequest):
+        """Add the QR code to the shared PDF."""
 
         qr_code_content = (
             f'{request.scheme}://{request.get_host()}{reverse("view_shared_pdf", kwargs={"identifier": shared_pdf.id})}'
@@ -77,14 +85,9 @@ class AddSharedPdfMixin(BaseShareMixin):
 
         shared_pdf.file.save(None, File(qr_as_byte))
 
-        return shared_pdf
-
     @staticmethod
-    def post_obj_save(shared_pdf, form_data):
-        """Actions that need to be run after saving the sharing PDF in the creation process"""
-
-        expiration_input = form_data['expiration_input']
-        deletion_input = form_data['deletion_input']
+    def set_access_dates(shared_pdf, expiration_input, deletion_input):
+        """Set the deletion date and expiration date of the shared PDF."""
 
         if expiration_input:
             shared_pdf.expiration_date = get_future_datetime(expiration_input)

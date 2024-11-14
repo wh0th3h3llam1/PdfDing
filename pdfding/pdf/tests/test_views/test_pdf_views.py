@@ -1,6 +1,8 @@
 from datetime import datetime, timezone
+from unittest import mock
 
 from django.contrib.auth.models import User
+from django.core.files import File
 from django.test import Client, TestCase
 from django.urls import reverse
 from pdf.forms import AddForm, DescriptionForm, NameForm, TagsForm
@@ -15,29 +17,35 @@ def set_up(self):
 
 
 class TestAddPDFMixin(TestCase):
+    username = 'user'
+    password = '12345'
+
+    def setUp(self):
+        self.user = None
+        set_up(self)
+
     def test_get_context_get(self):
         add_pdf_mixin = AddPdfMixin()
         generated_context = add_pdf_mixin.get_context_get(None, None)
 
         self.assertEqual({'form': AddForm}, generated_context)
 
-    def test_pre_obj_save(self):
-        user = User.objects.create_user(username='username', password='password', email='a@a.com')
-        pdf = Pdf.objects.create(owner=user.profile, name='pdf')
-        adjusted_pdf = AddPdfMixin.pre_obj_save(pdf, None, None)
+    @mock.patch('pdf.forms.magic.from_buffer', return_value='application/pdf')
+    def test_obj_save(self, mock_from_buffer):
+        # do a dummy request so we can get a request object
+        response = self.client.get(reverse('pdf_overview'))
+        file_mock = mock.MagicMock(spec=File, name='FileMock')
+        file_mock.name = 'test1.pdf'
+        form = AddForm(
+            data={'name': 'some_pdf', 'tag_string': 'tag_a tag_2'}, owner=self.user.profile, files={'file': file_mock}
+        )
 
-        self.assertEqual(pdf, adjusted_pdf)
+        AddPdfMixin.obj_save(form, response.wsgi_request, None)
 
-    def test_post_obj_save(self):
-        user = User.objects.create_user(username='username', password='password', email='a@a.com')
-        pdf = Pdf.objects.create(owner=user.profile, name='pdf')
-        AddPdfMixin.post_obj_save(pdf, {'tag_string': 'tag_a tag_2'})
-
-        # get pdf again so changes are reflected
-        pdf = user.profile.pdf_set.get(name='pdf')
-
+        pdf = self.user.profile.pdf_set.get(name='some_pdf')
         tag_names = [tag.name for tag in pdf.tags.all()]
         self.assertEqual(set(tag_names), {'tag_2', 'tag_a'})
+        self.assertEqual(pdf.owner, self.user.profile)
 
 
 class TestOverviewMixin(TestCase):

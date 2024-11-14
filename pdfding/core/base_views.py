@@ -25,12 +25,7 @@ class BaseAdd(View):
         form = self.form(request.POST, request.FILES, owner=request.user.profile)
 
         if form.is_valid():
-            obj = form.save(commit=False)
-            obj.owner = request.user.profile
-            obj = self.pre_obj_save(obj, request, identifier)
-            obj.save()
-
-            self.post_obj_save(obj, form.data)
+            self.obj_save(form, request, identifier)
 
             return redirect(f'{self.obj_name}_overview')
 

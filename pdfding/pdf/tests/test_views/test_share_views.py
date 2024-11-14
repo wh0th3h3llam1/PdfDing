@@ -52,22 +52,39 @@ class TestAddSharedPdfMixin(TestCase):
 
         self.assertEqual({'form': ShareForm, 'pdf_name': self.pdf.name}, generated_context)
 
+    @patch('pdf.views.share_views.get_future_datetime', return_value=datetime.now(timezone.utc))
+    @patch('pdf.views.share_views.AddSharedPdfMixin.add_qr_code')
+    def test_obj_save(self, mock_add_qr_code, mock_get_future_datetime):
+        # do a dummy request so we can get a request object
+        response = self.client.get(reverse('pdf_overview'))
+        form = ShareForm(
+            data={'name': 'some_shared_pdf', 'expiration_input': '0d1h1m', 'deletion_input': '0d2h2m'},
+            owner=self.user.profile,
+        )
+
+        AddSharedPdfMixin.obj_save(form, response.wsgi_request, self.pdf.id)
+        shared_pdf = self.user.profile.sharedpdf_set.get(name='some_shared_pdf')
+
+        self.assertEqual(shared_pdf.pdf, self.pdf)
+        self.assertEqual(shared_pdf.owner, self.user.profile)
+        mock_get_future_datetime.assert_any_call('0d1h1m')
+        mock_get_future_datetime.assert_any_call('0d2h2m')
+        mock_add_qr_code.assert_called_with(shared_pdf, response.wsgi_request)
+
     @patch('pdf.views.share_views.AddSharedPdfMixin.generate_qr_code', return_value=BytesIO())
-    def test_pre_obj_save(self, mock_generate_qr_code):
+    def test_add_qr_code(self, mock_generate_qr_code):
         shared_pdf = SharedPdf.objects.create(owner=self.user.profile, pdf=self.pdf, name='share')
-        other_pdf = Pdf.objects.create(owner=self.user.profile, name='other_pdf')
         # we need to create a request so get_pdf can access the user profile
         response = self.client.get(reverse('pdf_overview'))
 
-        adjusted_shared_pdf = AddSharedPdfMixin.pre_obj_save(shared_pdf, response.wsgi_request, other_pdf.id)
+        AddSharedPdfMixin.add_qr_code(shared_pdf, response.wsgi_request)
 
-        self.assertEqual(other_pdf, adjusted_shared_pdf.pdf)
         mock_generate_qr_code.assert_called_with(f'http://testserver/pdf/shared/{shared_pdf.id}')
 
-    def test_post_obj_save(self):
+    def test_set_access_dates(self):
         shared_pdf = SharedPdf.objects.create(owner=self.user.profile, pdf=self.pdf, name='share')
 
-        AddSharedPdfMixin.post_obj_save(shared_pdf, {'expiration_input': '1d0h22m', 'deletion_input': '1d0h22m'})
+        AddSharedPdfMixin.set_access_dates(shared_pdf, '1d0h22m', '1d0h22m')
 
         # get pdf again so changes are reflected
         shared_pdf = self.user.profile.sharedpdf_set.get(name='share')

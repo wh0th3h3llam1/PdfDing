@@ -14,7 +14,7 @@ from pdf.models import Pdf
 from pdf.tests.test_views import base_view_definitions
 
 test_patterns = [
-    path('test/add', base_view_definitions.Add.as_view(), name='test_add'),
+    path('test/add/<identifier>', base_view_definitions.Add.as_view(), name='test_add'),
     path('test/overview', base_view_definitions.Overview.as_view(), name='test_overview'),
     path('test/serve/<identifier>', base_view_definitions.Serve.as_view(), name='test_serve'),
     path('test/download/<identifier>', base_view_definitions.Download.as_view(), name='test_download'),
@@ -43,7 +43,7 @@ class TestViews(TestCase):
 
     @override_settings(ROOT_URLCONF=__name__)
     def test_base_add_get(self):
-        response = self.client.get(reverse('test_add'))
+        response = self.client.get(reverse('test_add', kwargs={'identifier': 'some_id'}))
 
         self.assertEqual(response.context['form'], AddForm)
         self.assertEqual(response.context['other'], 1234)
@@ -51,7 +51,7 @@ class TestViews(TestCase):
 
     @override_settings(ROOT_URLCONF=__name__)
     def test_add_post_invalid_form(self):
-        response = self.client.post(reverse('test_add'), data={'name': 'pdf'})
+        response = self.client.post(reverse('test_add', kwargs={'identifier': 'some_id'}), data={'name': 'pdf'})
 
         self.assertIsInstance(response.context['form'], AddForm)
         self.assertTemplateUsed(response, 'add_pdf.html')
@@ -62,7 +62,7 @@ class TestViews(TestCase):
         simple_file = SimpleUploadedFile("simple.pdf", b"these are the file contents!")
 
         response = self.client.post(
-            reverse('test_add'),
+            reverse('test_add', kwargs={'identifier': 'some_id'}),
             data={'name': 'pdf', 'description': 'something', 'tag_string': 'tag_a tag_2', 'file': simple_file},
         )
 
@@ -70,7 +70,7 @@ class TestViews(TestCase):
 
         for pdf in pdfs:
             Path(pdf.file.path).unlink()
-            self.assertEqual(pdf.name, 'pre_save_pdf_post_save')
+            self.assertEqual(pdf.name, 'pdf_some_id')
 
         self.assertEqual(len(pdfs), 1)
         self.assertRedirects(response, reverse('pdf_overview'))

@@ -19,21 +19,11 @@ class BaseAddMixin(BaseMixin):
         return context
 
     @staticmethod
-    def pre_obj_save(pdf, _, __):
-        """Actions that need to be run before saving the object in the creation process"""
-
-        pdf.name = f'pre_save_{pdf.name}'
-
-        return pdf
-
-    @staticmethod
-    def post_obj_save(pdf, _):
-        """Actions that need to be run after saving the object in the creation process"""
-
-        pdf.name = f'{pdf.name}_post_save'
+    def obj_save(form: AddForm, request: HttpRequest, identifier: str = None):
+        pdf = form.save(commit=False)
+        pdf.owner = request.user.profile
+        pdf.name = f'{pdf.name}_{identifier}'
         pdf.save()
-
-        return pdf
 
 
 class OverviewMixin(BaseMixin):

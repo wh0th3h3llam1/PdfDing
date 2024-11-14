@@ -28,16 +28,14 @@ class AddPdfMixin(BasePdfMixin):
         return context
 
     @staticmethod
-    def pre_obj_save(pdf, _, __):
-        """Actions that need to be run before saving the PDF in the creation process"""
+    def obj_save(form: AddForm, request: HttpRequest, __):
+        """Save the PDF based on the submitted form."""
 
-        return pdf
+        pdf = form.save(commit=False)
+        pdf.owner = request.user.profile
+        pdf.save()
 
-    @staticmethod
-    def post_obj_save(pdf, form_data):
-        """Actions that need to be run after saving the PDF in the creation process"""
-
-        tag_string = form_data['tag_string']
+        tag_string = form.data['tag_string']
         # get unique tag names
         tag_names = Tag.parse_tag_string(tag_string)
         tags = process_tag_names(tag_names, pdf.owner)
