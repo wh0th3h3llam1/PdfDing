@@ -3,10 +3,37 @@
 {% block content %}
 
 <h1 class="mb-6">Add PDF File</h1>
-<div x-data="{ in_progress: false }">
+<div x-data="{ in_progress: false, hide_name_input: false }">
     <form x-on:submit="in_progress = true" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form.as_p }}
+        <p>
+            <label class="w-auto mr-2 inline-block dark:text-slate-200" for="id_use_file_name">Use File Name:</label>
+            <input x-model="hide_name_input" class="w-auto" type="checkbox" name="use_file_name" id="id_use_file_name">
+        </p>
+        <p>
+            {{ form.name.errors }}
+            <input x-show="!hide_name_input" x-bind:value="get_name_place_holder(hide_name_input)"
+                   type="text" name="name" placeholder="Add PDF Name" maxlength="150"  id="id_name" required>
+        </p>
+        <p>
+            {{ form.description.errors }}
+            {{ form.description }}
+            <span class="helptext" id="{{ form.description.auto_id }}_helptext">
+                {{ form.description.help_text|safe }}
+            </span>
+        </p>
+        <p>
+            {{ form.file.errors }}
+            {{ form.file }}
+        </p>
+        <p>
+            {{ form.tag_string.errors }}
+            {{ form.tag_string }}
+            <span class="helptext" id="{{ form.tag_string.auto_id }}_helptext">
+                {{ form.tag_string.help_text|safe }}
+            </span>
+        </p>
+
         <button class="-pt-4"  x-show="!in_progress" type="submit" >Submit</button>
         <button class="-pt-4" x-show="in_progress" x-cloak type="button" disabled>
           <div class="flex justify-center">
@@ -19,4 +46,16 @@
         </button>
     </form>
 </div>
+
+<script>
+  function get_name_place_holder(hidden)
+  {
+    if (hidden === true) {
+      return "bb36974a-3792-47c5-96cc-c79adb87cf82";
+    }
+    else {
+      return "";
+    }
+  }
+</script>
 {% endblock %}

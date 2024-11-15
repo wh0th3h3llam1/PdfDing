@@ -102,7 +102,7 @@ hr {
     @apply flex items-center gap-2 h-12 px-4 hover:bg-secondary rounded-lg;
 }
 .hoverlist>* {
-    @apply dark:text-slate-50 dark:bg-slate-700 hover:bg-primary rounded-md transition duration-150;
+    @apply dark:text-slate-50 dark:bg-slate-700 hover:text-slate-50 hover:bg-primary rounded-md transition duration-150;
 }
 .hoverlist>*>a {
     @apply flex items-center p-2;

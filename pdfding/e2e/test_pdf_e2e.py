@@ -15,7 +15,7 @@ class NoPdfE2ETestCase(PdfDingE2ETestCase):
             expect(self.page.locator("body")).to_contain_text("Get started by adding PDFs.")
 
     @patch('pdf.forms.magic.from_buffer', return_value='application/pdf')
-    def test_add_pdf(self, mock_from_buffer):
+    def test_add_pdf_specify_name(self, mock_from_buffer):
         # this also tests the overview
 
         # just use some dummy file for uploading
@@ -30,8 +30,8 @@ class NoPdfE2ETestCase(PdfDingE2ETestCase):
             self.page.get_by_placeholder("Add PDF Name").fill("Some Name")
             self.page.get_by_placeholder("Add Description").click()
             self.page.get_by_placeholder("Add Description").fill("Some Description")
-            self.page.get_by_label("File:").click()
-            self.page.get_by_label("File:").set_input_files(dummy_file_path)
+            self.page.locator("#id_file").click()
+            self.page.locator("#id_file").set_input_files(dummy_file_path)
             self.page.get_by_placeholder("Add Tags").click()
             self.page.get_by_placeholder("Add Tags").fill("bread tag_1 banana tag_0 1")
             self.page.get_by_role("button", name="Submit").click()
@@ -53,6 +53,34 @@ class NoPdfE2ETestCase(PdfDingE2ETestCase):
             expect(self.page.get_by_role("link", name="bread", exact=True)).to_have_attribute(
                 "href", "/pdf/?q=%23bread"
             )
+
+        dummy_file_path.unlink()
+
+    @patch('pdf.forms.magic.from_buffer', return_value='application/pdf')
+    def test_add_pdf_use_file_name(self, mock_from_buffer):
+        # this also tests the overview
+
+        # just use some dummy file for uploading
+        dummy_file_path = Path(__file__).parent / 'dummy.pdf'
+        with open(dummy_file_path, 'w') as f:
+            f.write('Some text')
+
+        with sync_playwright() as p:
+            self.open(reverse('pdf_overview'), p)
+            self.page.get_by_role("link", name="Add PDF").click()
+            self.page.get_by_label("Use File Name:").check()
+            self.page.get_by_placeholder("Add Description").click()
+            self.page.get_by_placeholder("Add Description").fill("Some Description")
+            self.page.locator("#id_file").click()
+            self.page.locator("#id_file").set_input_files(dummy_file_path)
+            self.page.get_by_placeholder("Add Tags").click()
+            self.page.get_by_placeholder("Add Tags").fill("bread tag_1 banana tag_0 1")
+            self.page.get_by_role("button", name="Submit").click()
+
+            expect(self.page.locator("body")).to_contain_text("dummy")
+            expect(self.page.locator("body")).to_contain_text("#1 #banana #bread #tag_0 #tag_1")
+            expect(self.page.locator("body")).to_contain_text("Some Description")
+            expect(self.page.locator("body")).to_contain_text("now |")
 
         dummy_file_path.unlink()
 

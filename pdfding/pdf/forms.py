@@ -1,9 +1,12 @@
 import re
+from uuid import uuid4
 
 import magic
 from django import forms
 from django.contrib.auth.hashers import check_password, make_password
-from django.forms import ModelForm
+from django.core.files import File
+from django.forms import CheckboxInput, ModelForm
+from users.models import Profile
 
 from .models import Pdf, SharedPdf
 
@@ -18,12 +21,14 @@ class AddForm(ModelForm):
         'If a tag does not exist it will be automatically created.',
     )
 
+    use_file_name = forms.BooleanField(required=False, widget=CheckboxInput(attrs={'class': 'form-control'}))
+
     class Meta:
         model = Pdf
         widgets = {
             'name': forms.TextInput(attrs={'placeholder': 'Add PDF Name'}),
             'description': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Add Description'}),
-            'file': forms.ClearableFileInput(),
+            'file': forms.ClearableFileInput(attrs={'accept': 'application/pdf'}),
         }
 
         fields = ['name', 'description', 'file']
@@ -42,6 +47,10 @@ class AddForm(ModelForm):
         if not self.owner:
             raise forms.ValidationError('Owner is missing!')
 
+        # only get the name from the file if it passed the clean_file method which will be executed before clean
+        if self.cleaned_data['use_file_name'] and self.cleaned_data.get('file'):
+            self.cleaned_data['name'] = CleanHelpers.create_name_from_file(self.cleaned_data.get('file'), self.owner)
+
         return self.cleaned_data
 
     def clean_name(self) -> str:
@@ -50,30 +59,21 @@ class AddForm(ModelForm):
         has an uploaded PDF with the same name.
         """
 
-        pdf_name = clean_name(self.cleaned_data['name'])
+        pdf_name = CleanHelpers.clean_name(self.cleaned_data['name'])
 
         existing_pdf = Pdf.objects.filter(owner=self.owner, name=pdf_name).first()
 
-        if existing_pdf:
+        # only raise validation error if name is not the dummy placeholder from the frontend
+        # otherwise it will be replaced by the filename in "clean".
+        if pdf_name != 'bb36974a-3792-47c5-96cc-c79adb87cf82' and existing_pdf:
             raise forms.ValidationError('A PDF with this name already exists!')
 
         return pdf_name
 
-    def clean_file(self):
-        """Clean the submitted pdf file. Checks if the file as a .pdf/.PDF ending"""
+    def clean_file(self) -> File:  # pragma: no cover
+        """Clean the submitted pdf file. Checks if the file is a pdf."""
 
-        file = self.cleaned_data['file']
-
-        if file.name.lower().split('.')[-1] != 'pdf':
-            raise forms.ValidationError('Uploaded file is not a PDF!')
-
-        # recommend using at least the first 2048 bytes, as less can produce incorrect identification
-        file_type = magic.from_buffer(self.cleaned_data['file'].read(2048), mime=True)
-
-        if file_type.lower() != 'application/pdf':
-            raise forms.ValidationError('Uploaded file is not a PDF!')
-
-        return file
+        return CleanHelpers.clean_file(self.cleaned_data['file'])
 
 
 class DescriptionForm(forms.ModelForm):
@@ -93,7 +93,7 @@ class NameForm(forms.ModelForm):
 
     def clean_name(self) -> str:  # pragma: no cover
         """Clean the submitted pdf name. Removes trailing and multiple whitespaces."""
-        pdf_name = clean_name(self.cleaned_data['name'])
+        pdf_name = CleanHelpers.clean_name(self.cleaned_data['name'])
 
         return pdf_name
 
@@ -156,7 +156,7 @@ class ShareForm(forms.ModelForm):
         has a share with the same name.
         """
 
-        share_name = clean_name(self.cleaned_data['name'])
+        share_name = CleanHelpers.clean_name(self.cleaned_data['name'])
 
         existing_share = SharedPdf.objects.filter(owner=self.owner, name=share_name).first()
 
@@ -168,22 +168,22 @@ class ShareForm(forms.ModelForm):
     def clean_password(self) -> str:  # pragma: no cover
         """Hash the user provided input."""
 
-        return clean_password(self.cleaned_data['password'])
+        return CleanHelpers.clean_password(self.cleaned_data['password'])
 
     def clean_expiration_input(self) -> str:  # pragma: no cover
         """Check if the expiration input is in the correct format _d_h_m, e.g. 1d0h22m."""
 
-        return clean_time_input(self.cleaned_data['expiration_input'])
+        return CleanHelpers.clean_time_input(self.cleaned_data['expiration_input'])
 
     def clean_deletion_input(self) -> str:  # pragma: no cover
         """Check if the deletion input is in the correct format _d_h_m, e.g. 1d0h22m."""
 
-        return clean_time_input(self.cleaned_data['deletion_input'])
+        return CleanHelpers.clean_time_input(self.cleaned_data['deletion_input'])
 
     def clean_max_views(self) -> int:  # pragma: no cover
         """Check that the provided max views are a positive integer"""
 
-        return clean_max_views(self.cleaned_data['max_views'])
+        return CleanHelpers.clean_max_views(self.cleaned_data['max_views'])
 
 
 class SharedDescriptionForm(forms.ModelForm):
@@ -203,7 +203,7 @@ class SharedNameForm(forms.ModelForm):
 
     def clean_name(self) -> str:  # pragma: no cover
         """Clean the submitted pdf name. Removes trailing and multiple whitespaces."""
-        pdf_name = clean_name(self.cleaned_data['name'])
+        pdf_name = CleanHelpers.clean_name(self.cleaned_data['name'])
 
         return pdf_name
 
@@ -218,7 +218,7 @@ class SharedMaxViewsForm(forms.ModelForm):
     def clean_max_views(self) -> int:  # pragma: no cover
         """Check that the provided max views are a positive integer"""
 
-        return clean_max_views(self.cleaned_data['max_views'])
+        return CleanHelpers.clean_max_views(self.cleaned_data['max_views'])
 
 
 class SharedPasswordForm(forms.ModelForm):
@@ -231,7 +231,7 @@ class SharedPasswordForm(forms.ModelForm):
     def clean_password(self) -> str:  # pragma: no cover
         """Hash the user provided input."""
 
-        return clean_password(self.cleaned_data['password'])
+        return CleanHelpers.clean_password(self.cleaned_data['password'])
 
 
 class SharedExpirationDateForm(forms.ModelForm):
@@ -287,37 +287,72 @@ class ViewSharedPasswordForm(forms.Form):
         return password
 
 
-def clean_name(pdf_name: str) -> str:
-    """Clean the submitted pdf name. Removes trailing and multiple whitespaces."""
+class CleanHelpers:
+    @staticmethod
+    def create_name_from_file(file: File, owner: Profile) -> str:
+        """
+        Get the file name from the file name. Will remove the '.pdf' from the file name. If there is already
+        a pdf with the same name then it will add a random 8 characters long suffix.
+        """
 
-    pdf_name.strip()
-    pdf_name = ' '.join(pdf_name.split())
+        name = file.name
+        split_name = name.rsplit(sep='.', maxsplit=1)
 
-    return pdf_name
+        if len(split_name) > 1 and str.lower(split_name[-1]) == 'pdf':
+            name = split_name[0]
 
+        existing_pdf = Pdf.objects.filter(owner=owner, name=name).first()
 
-def clean_password(password: str) -> str:
-    """Hash the password"""
+        # if pdf name is already existing add a random 8 characters long string
+        if existing_pdf:
+            name += f'_{str(uuid4())[:8]}'
 
-    if password:
-        password = make_password(password, salt='pdfding')
+        return name
 
-    return password
+    @staticmethod
+    def clean_file(file: File) -> File:
+        """Clean the submitted pdf file. Checks if the file is a pdf."""
 
+        # recommended to use at least the first 2048 bytes, as less can produce incorrect identification
+        file_type = magic.from_buffer(file.read(2048), mime=True)
 
-def clean_max_views(max_views: int) -> int:
-    """Check that the provided max views are a positive integer"""
+        if file_type.lower() != 'application/pdf':
+            raise forms.ValidationError('Uploaded file is not a PDF!')
 
-    if max_views and not re.match(r'^[0-9]*$', str(max_views)):
-        raise forms.ValidationError('Only positive numbers are allowed!')
+        return file
 
-    return max_views
+    @staticmethod
+    def clean_name(pdf_name: str) -> str:
+        """Clean the submitted pdf name. Removes trailing and multiple whitespaces."""
 
+        pdf_name.strip()
+        pdf_name = ' '.join(pdf_name.split())
 
-def clean_time_input(time_input: str) -> str:
-    """Check if the provided time input is in the correct format _d_h_m, e.g. 1d0h22m."""
+        return pdf_name
 
-    if time_input and not re.match(r'^[0-9]+d[0-9]+h[0-9]+m$', str(time_input)):
-        raise forms.ValidationError('Wrong format! Format needs to be _d_h_m!')
+    @staticmethod
+    def clean_password(password: str) -> str:
+        """Hash the password"""
 
-    return time_input
+        if password:
+            password = make_password(password, salt='pdfding')
+
+        return password
+
+    @staticmethod
+    def clean_max_views(max_views: int) -> int:
+        """Check that the provided max views are a positive integer"""
+
+        if max_views and not re.match(r'^[0-9]*$', str(max_views)):
+            raise forms.ValidationError('Only positive numbers are allowed!')
+
+        return max_views
+
+    @staticmethod
+    def clean_time_input(time_input: str) -> str:
+        """Check if the provided time input is in the correct format _d_h_m, e.g. 1d0h22m."""
+
+        if time_input and not re.match(r'^[0-9]+d[0-9]+h[0-9]+m$', str(time_input)):
+            raise forms.ValidationError('Wrong format! Format needs to be _d_h_m!')
+
+        return time_input
