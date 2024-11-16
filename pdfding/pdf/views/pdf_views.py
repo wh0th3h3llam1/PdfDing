@@ -7,7 +7,7 @@ from django.db.models.functions import Lower
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.views import View
-from pdf.forms import AddForm, DescriptionForm, NameForm, TagsForm
+from pdf.forms import AddForm, BulkAddForm, DescriptionForm, NameForm, TagsForm
 from pdf.models import Pdf, Tag
 from pdf.service import check_object_access_allowed, get_tag_dict, process_raw_search_query, process_tag_names
 from users.service import convert_hex_to_rgb
@@ -21,7 +21,7 @@ class AddPdfMixin(BasePdfMixin):
     form = AddForm
 
     def get_context_get(self, _, __):
-        """Get the context needed to be passed to the template containing the form for adding a PDf."""
+        """Get the context needed to be passed to the template containing the form for adding a PDF."""
 
         context = {'form': self.form}
 
@@ -41,6 +41,34 @@ class AddPdfMixin(BasePdfMixin):
         tags = process_tag_names(tag_names, pdf.owner)
 
         pdf.tags.set(tags)
+
+
+class BulkAddPdfMixin:
+    obj_name = 'bulk_pdf'
+    form = BulkAddForm
+
+    def get_context_get(self, _, __):
+        """Get the context needed to be passed to the template containing the form for bulk adding PDFs."""
+
+        context = {'form': self.form}
+
+        return context
+
+    @staticmethod
+    def obj_save(form: BulkAddForm, request: HttpRequest, __):
+        """Save the multiple PDFs based on the submitted form."""
+
+        pass
+        # pdf = form.save(commit=False)
+        # pdf.owner = request.user.profile
+        # pdf.save()
+        #
+        # tag_string = form.data['tag_string']
+        # # get unique tag names
+        # tag_names = Tag.parse_tag_string(tag_string)
+        # tags = process_tag_names(tag_names, pdf.owner)
+        #
+        # pdf.tags.set(tags)
 
 
 class OverviewMixin(BasePdfMixin):
@@ -236,6 +264,10 @@ class Serve(PdfMixin, base_views.BaseServe):
 
 class Add(AddPdfMixin, base_views.BaseAdd):
     """View for adding new PDF files."""
+
+
+class BulkAdd(BulkAddPdfMixin, base_views.BaseAdd):
+    """View for bulk adding new PDF files."""
 
 
 class Details(PdfMixin, base_views.BaseDetails):

@@ -5,13 +5,12 @@ import magic
 from django import forms
 from django.contrib.auth.hashers import check_password, make_password
 from django.core.files import File
-from django.forms import CheckboxInput, ModelForm
 from users.models import Profile
 
 from .models import Pdf, SharedPdf
 
 
-class AddForm(ModelForm):
+class AddForm(forms.ModelForm):
     """Class for creating the form for adding PDFs."""
 
     tag_string = forms.CharField(
@@ -21,7 +20,7 @@ class AddForm(ModelForm):
         'If a tag does not exist it will be automatically created.',
     )
 
-    use_file_name = forms.BooleanField(required=False, widget=CheckboxInput(attrs={'class': 'form-control'}))
+    use_file_name = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'form-control'}))
 
     class Meta:
         model = Pdf
@@ -74,6 +73,23 @@ class AddForm(ModelForm):
         """Clean the submitted pdf file. Checks if the file is a pdf."""
 
         return CleanHelpers.clean_file(self.cleaned_data['file'])
+
+
+class BulkAddForm(forms.Form):
+    file = forms.FileField()
+
+    description = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={'rows': 3, 'placeholder': 'Add Description'}),
+        help_text='Optional',
+    )
+
+    tag_string = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Add Tags'}),
+        help_text='Enter any number of tags separated by space and without the hash (#). '
+        'If a tag does not exist it will be automatically created.',
+    )
 
 
 class DescriptionForm(forms.ModelForm):

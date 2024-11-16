@@ -1,0 +1,28 @@
+{% extends 'layouts/box.html' %}
+
+{% block optional %}
+<div class="pt-4 md:pt-0">
+    <div class="bg-white !rounded-t-2xl">
+      <ul class="text-center flex font-semibold text-slate-100 md:text-lg dark:divide-gray-700 [&>li]:md:w-full [&>li]:w-1/2">
+        <li>
+            <a href="{% url 'add_pdf' %}" class="inline-block w-full p-4 rounded-tl-2xl text-white
+            opacity-70 hover:opacity-100 bg-tertiary2 transition delay-100">Individual</a>
+        </li>
+        <li>
+            <a href="{% url 'bulk_add_pdfs' %}" class="inline-block w-full p-4 bg-primary rounded-tr-2xl">Bulk</a>
+        </li>
+      </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>Bulk add PDF files</h1>
+<h2 class="mb-6 truncate">{{ pdf_name }}</h2>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" >Submit</button>
+</form>
+{% endblock %}
