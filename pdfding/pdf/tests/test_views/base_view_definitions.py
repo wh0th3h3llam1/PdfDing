@@ -12,6 +12,7 @@ class BaseMixin:
 
 class BaseAddMixin(BaseMixin):
     form = AddForm
+    template_name = 'add_pdf.html'
 
     def get_context_get(self, _, __):
         context = {'form': self.form, 'other': 1234}

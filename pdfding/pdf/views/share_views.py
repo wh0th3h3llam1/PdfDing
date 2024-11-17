@@ -35,6 +35,7 @@ class BaseShareMixin:
 
 class AddSharedPdfMixin(BaseShareMixin):
     form = ShareForm
+    template_name = 'add_shared_pdf.html'
 
     @staticmethod
     def generate_qr_code(qr_code_content: str) -> BytesIO:  # pragma: no cover
@@ -72,7 +73,7 @@ class AddSharedPdfMixin(BaseShareMixin):
         shared_pdf.pdf = PdfMixin.get_object(request, identifier)
 
         cls.add_qr_code(shared_pdf, request)
-        cls.set_access_dates(shared_pdf, form.data['expiration_input'], form.data['deletion_input'])
+        cls.set_access_dates(shared_pdf, form.data.get('expiration_input'), form.data.get('deletion_input'))
 
     @classmethod
     def add_qr_code(cls, shared_pdf: SharedPdf, request: HttpRequest):

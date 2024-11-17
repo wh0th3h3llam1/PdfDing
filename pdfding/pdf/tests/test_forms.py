@@ -26,7 +26,15 @@ class TestPdfForms(TestCase):
         self.assertTrue(form.is_valid())
 
     @mock.patch('pdf.forms.magic.from_buffer', return_value='application/pdf')
-    def test_clean_missing_owner(self, mock_from_buffer):
+    def test_bulk_add_form_valid(self, mock_from_buffer):
+        file_mock = mock.MagicMock(spec=File, name='FileMock')
+        file_mock.name = 'test1.pdf'
+        form = forms.BulkAddForm(owner=self.user.profile, files={'file': [file_mock]})
+
+        self.assertTrue(form.is_valid())
+
+    @mock.patch('pdf.forms.magic.from_buffer', return_value='application/pdf')
+    def test_add_clean_missing_owner(self, mock_from_buffer):
         file_mock = mock.MagicMock(spec=File, name='FileMock')
         file_mock.name = 'test1.pdf'
         form = forms.AddForm(data={'name': 'PDF Name'}, files={'file': file_mock})
@@ -35,29 +43,26 @@ class TestPdfForms(TestCase):
         # need to test it like this, as owner is not a key of form.errors
         self.assertIn('Owner is missing!', str(form.errors))
 
-    @mock.patch('pdf.forms.CleanHelpers.create_name_from_file')
     @mock.patch('pdf.forms.magic.from_buffer', return_value='application/pdf')
-    def test_clean_use_file_name(self, mock_from_buffer, mock_create_name_from_file):
+    def test_bulk_add_clean_missing_owner(self, mock_from_buffer):
         file_mock = mock.MagicMock(spec=File, name='FileMock')
         file_mock.name = 'test1.pdf'
-        form = forms.AddForm(
-            data={'name': 'PDF Name', 'use_file_name': True}, owner=self.user.profile, files={'file': file_mock}
-        )
+        form = forms.BulkAddForm(files={'file': file_mock})
 
-        self.assertTrue(form.is_valid())
-        mock_create_name_from_file.assert_called_with(file_mock, self.user.profile)
+        self.assertFalse(form.is_valid())
+        # need to test it like this, as owner is not a key of form.errors
+        self.assertIn('Owner is missing!', str(form.errors))
 
-    @mock.patch('pdf.forms.CleanHelpers.create_name_from_file')
-    @mock.patch('pdf.forms.magic.from_buffer', return_value='application/pdf')
-    def test_clean_not_use_file_name(self, mock_from_buffer, mock_create_name_from_file):
-        file_mock = mock.MagicMock(spec=File, name='FileMock')
-        file_mock.name = 'test1.pdf'
-        form = forms.AddForm(
-            data={'name': 'PDF Name', 'use_file_name': False}, owner=self.user.profile, files={'file': file_mock}
-        )
+    @mock.patch('pdf.forms.CleanHelpers.clean_file')
+    def test_bulk_add_clean_file(self, mock_clean_file):
+        file_mock_1 = mock.MagicMock(spec=File, name='FileMock_1')
+        file_mock_1.name = 'test1.pdf'
+        file_mock_2 = mock.MagicMock(spec=File, name='FileMock_2')
+        file_mock_2.name = 'test2.pdf'
+        form = forms.BulkAddForm(files={'file': [file_mock_1, file_mock_2]})
 
-        self.assertTrue(form.is_valid())
-        mock_create_name_from_file.assert_not_called()
+        self.assertFalse(form.is_valid())
+        mock_clean_file.assert_has_calls([mock.call(file_mock_1), mock.call(file_mock_2)])
 
     @mock.patch('pdf.forms.magic.from_buffer', return_value='application/pdf')
     def test_pdf_clean_name_existing(self, mock_from_buffer):
@@ -176,29 +181,3 @@ class TestCleanHelpers(TestCase):
 
         with self.assertRaisesMessage(ValidationError, expected_message='Uploaded file is not a PDF!'):
             CleanHelpers.clean_file(simple_file)
-
-    def test_create_name_from_file_no_suffix(self):
-        user = User.objects.create_user(username='user', password='12345', email='a@a.com')
-        file_mock = mock.MagicMock(spec=File, name='FileMock')
-        file_mock.name = 'some_name'
-
-        generated_name = forms.CleanHelpers.create_name_from_file(file_mock, user.profile)
-        self.assertEqual(generated_name, 'some_name')
-
-    def test_create_name_from_file_suffix(self):
-        user = User.objects.create_user(username='user', password='12345', email='a@a.com')
-        file_mock = mock.MagicMock(spec=File, name='FileMock')
-        file_mock.name = 'some_name.PdF'
-
-        generated_name = forms.CleanHelpers.create_name_from_file(file_mock, user.profile)
-        self.assertEqual(generated_name, 'some_name')
-
-    @mock.patch('pdf.forms.uuid4', return_value='123456789')
-    def test_create_name_from_file_existing_name(self, mock_uuid4):
-        user = User.objects.create_user(username='user', password='12345', email='a@a.com')
-        Pdf.objects.create(owner=user.profile, name='existing_name')
-        file_mock = mock.MagicMock(spec=File, name='FileMock')
-        file_mock.name = 'existing_name.pdf'
-
-        generated_name = forms.CleanHelpers.create_name_from_file(file_mock, user.profile)
-        self.assertEqual(generated_name, 'existing_name_12345678')

@@ -1,12 +1,14 @@
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
+from uuid import uuid4
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.files import File
 from django.forms import ValidationError
 from django.http import Http404, HttpRequest
 from users.models import Profile
 
-from .models import Tag
+from .models import Pdf, Tag
 
 
 def process_tag_names(tag_names: list[str], owner_profile: Profile) -> list[Tag]:
@@ -116,3 +118,24 @@ def get_future_datetime(time_input: str) -> datetime | None:
     future_date = now + timedelta(days=days, hours=hours, minutes=minutes)
 
     return future_date
+
+
+def create_name_from_file(file: File, owner: Profile) -> str:
+    """
+    Get the file name from the file name. Will remove the '.pdf' from the file name. If there is already
+    a pdf with the same name then it will add a random 8 characters long suffix.
+    """
+
+    name = file.name
+    split_name = name.rsplit(sep='.', maxsplit=1)
+
+    if len(split_name) > 1 and str.lower(split_name[-1]) == 'pdf':
+        name = split_name[0]
+
+    existing_pdf = Pdf.objects.filter(owner=owner, name=name).first()
+
+    # if pdf name is already existing add a random 8 characters long string
+    if existing_pdf:
+        name += f'_{str(uuid4())[:8]}'
+
+    return name

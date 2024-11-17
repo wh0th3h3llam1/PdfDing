@@ -5,9 +5,10 @@ from django.contrib.auth.models import User
 from django.core.files import File
 from django.test import Client, TestCase
 from django.urls import reverse
-from pdf.forms import AddForm, DescriptionForm, NameForm, TagsForm
+from django.utils.datastructures import MultiValueDict
+from pdf.forms import AddForm, BulkAddForm, DescriptionForm, NameForm, TagsForm
 from pdf.models import Pdf, Tag
-from pdf.views.pdf_views import AddPdfMixin, EditPdfMixin, OverviewMixin, PdfMixin
+from pdf.views.pdf_views import AddPdfMixin, BulkAddPdfMixin, EditPdfMixin, OverviewMixin, PdfMixin
 
 
 def set_up(self):
@@ -37,7 +38,9 @@ class TestAddPDFMixin(TestCase):
         file_mock = mock.MagicMock(spec=File, name='FileMock')
         file_mock.name = 'test1.pdf'
         form = AddForm(
-            data={'name': 'some_pdf', 'tag_string': 'tag_a tag_2'}, owner=self.user.profile, files={'file': file_mock}
+            data={'name': 'some_pdf', 'tag_string': 'tag_a tag_2'},
+            owner=self.user.profile,
+            files={'file': file_mock},
         )
 
         AddPdfMixin.obj_save(form, response.wsgi_request, None)
@@ -46,6 +49,82 @@ class TestAddPDFMixin(TestCase):
         tag_names = [tag.name for tag in pdf.tags.all()]
         self.assertEqual(set(tag_names), {'tag_2', 'tag_a'})
         self.assertEqual(pdf.owner, self.user.profile)
+
+    @mock.patch('pdf.forms.magic.from_buffer', return_value='application/pdf')
+    def test_obj_save_use_file_name(self, mock_from_buffer):
+        # do a dummy request so we can get a request object
+        response = self.client.get(reverse('pdf_overview'))
+        file_mock = mock.MagicMock(spec=File, name='FileMock')
+        file_mock.name = 'test1.pdf'
+        form = AddForm(
+            data={'name': 'bla', 'tag_string': 'tag_a tag_2', 'use_file_name': True},
+            owner=self.user.profile,
+            files={'file': file_mock},
+        )
+
+        AddPdfMixin.obj_save(form, response.wsgi_request, None)
+
+        pdf = self.user.profile.pdf_set.get(name='test1')
+        tag_names = [tag.name for tag in pdf.tags.all()]
+        self.assertEqual(set(tag_names), {'tag_2', 'tag_a'})
+        self.assertEqual(pdf.owner, self.user.profile)
+
+
+class TestBulkAddPDFMixin(TestCase):
+    username = 'user'
+    password = '12345'
+
+    def setUp(self):
+        self.user = None
+        set_up(self)
+
+    def test_get_context_get(self):
+        add_pdf_mixin = BulkAddPdfMixin()
+        generated_context = add_pdf_mixin.get_context_get(None, None)
+
+        self.assertEqual({'form': BulkAddForm}, generated_context)
+
+    @mock.patch('pdf.forms.magic.from_buffer', return_value='application/pdf')
+    def test_obj_save_single_file(self, mock_from_buffer):
+        # do a dummy request so we can get a request object
+        response = self.client.get(reverse('pdf_overview'))
+        file_mock = mock.MagicMock(spec=File, name='FileMock')
+        file_mock.name = 'test1.pdf'
+        form = BulkAddForm(
+            data={'tag_string': 'tag_a tag_2', 'description': ''},
+            owner=self.user.profile,
+            files=MultiValueDict({'file': [file_mock]}),
+        )
+
+        BulkAddPdfMixin.obj_save(form, response.wsgi_request, None)
+
+        pdf = self.user.profile.pdf_set.get(name='test1')
+        tag_names = [tag.name for tag in pdf.tags.all()]
+        self.assertEqual(set(tag_names), {'tag_2', 'tag_a'})
+        self.assertEqual(pdf.owner, self.user.profile)
+
+    @mock.patch('pdf.forms.magic.from_buffer', return_value='application/pdf')
+    def test_obj_save_multiple_files(self, mock_from_buffer):
+        # do a dummy request so we can get a request object
+        response = self.client.get(reverse('pdf_overview'))
+        file_mock_1 = mock.MagicMock(spec=File, name='FileMock1')
+        file_mock_1.name = 'test1.pdf'
+        file_mock_2 = mock.MagicMock(spec=File, name='FileMock2')
+        file_mock_2.name = 'test2.pdf'
+        form = BulkAddForm(
+            data={'tag_string': 'tag_a tag_2', 'description': 'description'},
+            owner=self.user.profile,
+            files=MultiValueDict({'file': [file_mock_1, file_mock_2]}),
+        )
+
+        BulkAddPdfMixin.obj_save(form, response.wsgi_request, None)
+
+        for name in ['test1', 'test2']:
+            pdf = self.user.profile.pdf_set.get(name=name)
+            tag_names = [tag.name for tag in pdf.tags.all()]
+            self.assertEqual(set(tag_names), {'tag_2', 'tag_a'})
+            self.assertEqual('description', 'description')
+            self.assertEqual(pdf.owner, self.user.profile)
 
 
 class TestOverviewMixin(TestCase):

@@ -84,6 +84,53 @@ class NoPdfE2ETestCase(PdfDingE2ETestCase):
 
         dummy_file_path.unlink()
 
+    @patch('pdf.forms.magic.from_buffer', return_value='application/pdf')
+    def test_bulk_add_pdf(self, mock_from_buffer):
+        # this also tests the overview
+
+        # just use some dummy file for uploading
+        dummy_file_paths = []
+
+        for name in ['dummy_1.pdf', 'dummy_2.pdf']:
+            dummy_file_path = Path(__file__).parent / name
+            dummy_file_paths.append(dummy_file_path)
+            with open(dummy_file_path, 'w') as f:
+                f.write('Some text')
+
+        with sync_playwright() as p:
+            self.open(reverse('pdf_overview'), p)
+            self.page.get_by_role("link", name="Add PDF").click()
+            self.page.get_by_role("link", name="Bulk").click()
+            self.page.get_by_label("File:").click()
+            self.page.get_by_label("File:").set_input_files(dummy_file_paths)
+            self.page.get_by_placeholder("Add Description").click()
+            self.page.get_by_placeholder("Add Description").fill("Some Description")
+            self.page.get_by_placeholder("Add Tags").click()
+            self.page.get_by_placeholder("Add Tags").fill("bread tag_1 banana tag_0 1")
+            self.page.get_by_role("button", name="Submit").click()
+
+            # check center
+            expect(self.page.locator("body")).to_contain_text("dummy_1")
+            expect(self.page.locator("body")).to_contain_text("dummy_2")
+            expect(self.page.locator("body")).to_contain_text("#1 #banana #bread #tag_0 #tag_1")
+            expect(self.page.locator("body")).to_contain_text("Some Description")
+            expect(self.page.locator("body")).to_contain_text("now |")
+
+            # check tag sidebar
+            for i, tag_string in enumerate(["1", "banana bread", "tag_0 tag_1"]):
+                expect(self.page.locator(f"#tags_{i}")).to_contain_text(tag_string)
+
+            # check sidebar links
+            # first tag starting with character
+            expect(self.page.get_by_role("link", name="1", exact=True)).to_have_attribute("href", "/pdf/?q=%231")
+            # non first tag starting with character
+            expect(self.page.get_by_role("link", name="bread", exact=True)).to_have_attribute(
+                "href", "/pdf/?q=%23bread"
+            )
+
+        for path in dummy_file_paths:
+            path.unlink()
+
 
 class PdfE2ETestCase(PdfDingE2ETestCase):
     def setUp(self, login: bool = True) -> None:

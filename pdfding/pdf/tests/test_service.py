@@ -1,8 +1,10 @@
 from datetime import datetime, timedelta, timezone
+from unittest import mock
 from uuid import uuid4
 
 import pdf.service as service
 from django.contrib.auth.models import User
+from django.core.files import File
 from django.http.response import Http404
 from django.test import TestCase
 from pdf.models import Pdf, Tag
@@ -83,3 +85,29 @@ class TestService(TestCase):
 
     def test_get_future_datetime_empty(self):
         self.assertEqual(service.get_future_datetime(''), None)
+
+    def test_create_name_from_file_no_suffix(self):
+        user = User.objects.create_user(username='user', password='12345', email='a@a.com')
+        file_mock = mock.MagicMock(spec=File, name='FileMock')
+        file_mock.name = 'some_name'
+
+        generated_name = service.create_name_from_file(file_mock, user.profile)
+        self.assertEqual(generated_name, 'some_name')
+
+    def test_create_name_from_file_suffix(self):
+        user = User.objects.create_user(username='user', password='12345', email='a@a.com')
+        file_mock = mock.MagicMock(spec=File, name='FileMock')
+        file_mock.name = 'some_name.PdF'
+
+        generated_name = service.create_name_from_file(file_mock, user.profile)
+        self.assertEqual(generated_name, 'some_name')
+
+    @mock.patch('pdf.service.uuid4', return_value='123456789')
+    def test_create_name_from_file_existing_name(self, mock_uuid4):
+        user = User.objects.create_user(username='user', password='12345', email='a@a.com')
+        Pdf.objects.create(owner=user.profile, name='existing_name')
+        file_mock = mock.MagicMock(spec=File, name='FileMock')
+        file_mock.name = 'existing_name.pdf'
+
+        generated_name = service.create_name_from_file(file_mock, user.profile)
+        self.assertEqual(generated_name, 'existing_name_12345678')

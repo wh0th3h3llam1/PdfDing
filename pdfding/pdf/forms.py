@@ -1,11 +1,9 @@
 import re
-from uuid import uuid4
 
 import magic
 from django import forms
 from django.contrib.auth.hashers import check_password, make_password
 from django.core.files import File
-from users.models import Profile
 
 from .models import Pdf, SharedPdf
 
@@ -46,10 +44,6 @@ class AddForm(forms.ModelForm):
         if not self.owner:
             raise forms.ValidationError('Owner is missing!')
 
-        # only get the name from the file if it passed the clean_file method which will be executed before clean
-        if self.cleaned_data['use_file_name'] and self.cleaned_data.get('file'):
-            self.cleaned_data['name'] = CleanHelpers.create_name_from_file(self.cleaned_data.get('file'), self.owner)
-
         return self.cleaned_data
 
     def clean_name(self) -> str:
@@ -75,8 +69,29 @@ class AddForm(forms.ModelForm):
         return CleanHelpers.clean_file(self.cleaned_data['file'])
 
 
+class MultipleFileInput(forms.ClearableFileInput):  # pragma: no cover
+    allow_multiple_selected = True
+
+
+class MultipleFileField(forms.FileField):  # pragma: no cover
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("widget", MultipleFileInput())
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+        if isinstance(data, (list, tuple)):
+            result = [single_file_clean(d, initial) for d in data]
+        else:
+            result = [single_file_clean(data, initial)]
+        return result
+
+
 class BulkAddForm(forms.Form):
-    file = forms.FileField()
+    file = MultipleFileField(
+        required=True,
+        widget=MultipleFileInput(attrs={'accept': 'application/pdf'}),
+    )
 
     description = forms.CharField(
         required=False,
@@ -90,6 +105,26 @@ class BulkAddForm(forms.Form):
         help_text='Enter any number of tags separated by space and without the hash (#). '
         'If a tag does not exist it will be automatically created.',
     )
+
+    def __init__(self, *args, **kwargs):
+        """
+        Adds the owner profile to the form. This is done, so we can check if the owner already has
+        a PDF with the provided name in clean_name.
+        """
+
+        self.owner = kwargs.pop('owner', None)
+
+        super(BulkAddForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        if not self.owner:
+            raise forms.ValidationError('Owner is missing!')
+
+        return self.cleaned_data
+
+    def clean_file(self):
+        for file in self.cleaned_data['file']:
+            CleanHelpers.clean_file(file)
 
 
 class DescriptionForm(forms.ModelForm):
@@ -304,27 +339,6 @@ class ViewSharedPasswordForm(forms.Form):
 
 
 class CleanHelpers:
-    @staticmethod
-    def create_name_from_file(file: File, owner: Profile) -> str:
-        """
-        Get the file name from the file name. Will remove the '.pdf' from the file name. If there is already
-        a pdf with the same name then it will add a random 8 characters long suffix.
-        """
-
-        name = file.name
-        split_name = name.rsplit(sep='.', maxsplit=1)
-
-        if len(split_name) > 1 and str.lower(split_name[-1]) == 'pdf':
-            name = split_name[0]
-
-        existing_pdf = Pdf.objects.filter(owner=owner, name=name).first()
-
-        # if pdf name is already existing add a random 8 characters long string
-        if existing_pdf:
-            name += f'_{str(uuid4())[:8]}'
-
-        return name
-
     @staticmethod
     def clean_file(file: File) -> File:
         """Clean the submitted pdf file. Checks if the file is a pdf."""

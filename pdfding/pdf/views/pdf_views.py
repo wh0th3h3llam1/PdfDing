@@ -9,7 +9,13 @@ from django.shortcuts import redirect, render
 from django.views import View
 from pdf.forms import AddForm, BulkAddForm, DescriptionForm, NameForm, TagsForm
 from pdf.models import Pdf, Tag
-from pdf.service import check_object_access_allowed, get_tag_dict, process_raw_search_query, process_tag_names
+from pdf.service import (
+    check_object_access_allowed,
+    create_name_from_file,
+    get_tag_dict,
+    process_raw_search_query,
+    process_tag_names,
+)
 from users.service import convert_hex_to_rgb
 
 
@@ -19,6 +25,7 @@ class BasePdfMixin:
 
 class AddPdfMixin(BasePdfMixin):
     form = AddForm
+    template_name = 'add_pdf.html'
 
     def get_context_get(self, _, __):
         """Get the context needed to be passed to the template containing the form for adding a PDF."""
@@ -32,10 +39,14 @@ class AddPdfMixin(BasePdfMixin):
         """Save the PDF based on the submitted form."""
 
         pdf = form.save(commit=False)
+
+        if form.data.get('use_file_name'):
+            pdf.name = create_name_from_file(form.files['file'], request.user.profile)
+
         pdf.owner = request.user.profile
         pdf.save()
 
-        tag_string = form.data['tag_string']
+        tag_string = form.data.get('tag_string')
         # get unique tag names
         tag_names = Tag.parse_tag_string(tag_string)
         tags = process_tag_names(tag_names, pdf.owner)
@@ -43,9 +54,9 @@ class AddPdfMixin(BasePdfMixin):
         pdf.tags.set(tags)
 
 
-class BulkAddPdfMixin:
-    obj_name = 'bulk_pdf'
+class BulkAddPdfMixin(BasePdfMixin):
     form = BulkAddForm
+    template_name = 'bulk_add_pdf.html'
 
     def get_context_get(self, _, __):
         """Get the context needed to be passed to the template containing the form for bulk adding PDFs."""
@@ -58,17 +69,17 @@ class BulkAddPdfMixin:
     def obj_save(form: BulkAddForm, request: HttpRequest, __):
         """Save the multiple PDFs based on the submitted form."""
 
-        pass
-        # pdf = form.save(commit=False)
-        # pdf.owner = request.user.profile
-        # pdf.save()
-        #
-        # tag_string = form.data['tag_string']
-        # # get unique tag names
-        # tag_names = Tag.parse_tag_string(tag_string)
-        # tags = process_tag_names(tag_names, pdf.owner)
-        #
-        # pdf.tags.set(tags)
+        profile = request.user.profile
+
+        tag_string = form.data.get('tag_string')
+        # get unique tag names
+        tag_names = Tag.parse_tag_string(tag_string)
+        tags = process_tag_names(tag_names, profile)
+
+        for file in form.files.getlist('file'):
+            pdf_name = create_name_from_file(file, profile)
+            pdf = Pdf.objects.create(owner=profile, name=pdf_name, description=form.data.get('description'), file=file)
+            pdf.tags.set(tags)
 
 
 class OverviewMixin(BasePdfMixin):

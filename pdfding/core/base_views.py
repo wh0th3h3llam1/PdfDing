@@ -17,7 +17,7 @@ class BaseAdd(View):
 
         context = self.get_context_get(request, identifier)
 
-        return render(request, f'add_{self.obj_name}.html', context)
+        return render(request, self.template_name, context)
 
     def post(self, request: HttpRequest, identifier: str = None):
         """Create the new object."""
@@ -29,7 +29,7 @@ class BaseAdd(View):
 
             return redirect(f'{self.obj_name}_overview')
 
-        return render(request, f'add_{self.obj_name}.html', {'form': form})
+        return render(request, self.template_name, {'form': form})
 
 
 class BaseOverview(View):
@@ -166,7 +166,7 @@ class BaseEdit(View):
             # if the name is changed we need to check that it is a unique name not used by another pdf of this user.
             elif field_name == 'name':
                 existing_obj = self.obj_class.objects.filter(
-                    owner=request.user.profile, name__iexact=form.data['name']
+                    owner=request.user.profile, name__iexact=form.data.get('name')
                 ).first()
 
                 if existing_obj and str(existing_obj.id) != identifier:
