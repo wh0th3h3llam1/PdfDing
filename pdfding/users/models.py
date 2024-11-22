@@ -25,6 +25,10 @@ class Profile(models.Model):
         ORANGE = 'Orange'
         CUSTOM = 'Custom'
 
+    class PdfInvertedMode(models.TextChoices):
+        ENABLED = 'Enabled'
+        DISABLED = 'Disabled'
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     # set dummy default colors, will be overwritten by post_save in signals
     dark_mode = models.CharField(choices=DarkMode.choices, max_length=5, default=DarkMode.DARK)
@@ -33,6 +37,9 @@ class Profile(models.Model):
     custom_theme_color_secondary = models.CharField(max_length=7, default='#cc826a')
     custom_theme_color_tertiary_1 = models.CharField(max_length=7, default='#99614f')
     custom_theme_color_tertiary_2 = models.CharField(max_length=7, default='#ffc7b5')
+    pdf_inverted_mode = models.CharField(
+        choices=PdfInvertedMode.choices, max_length=8, default=PdfInvertedMode.DISABLED
+    )
     pdfs_per_page = models.IntegerField(choices=PdfsPerPage.choices, default=PdfsPerPage.p_25)
 
     def __str__(self):  # pragma: no cover

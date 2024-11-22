@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from pdf.models import Pdf, Tag
-from users.forms import CustomThemeColorForm, EmailForm, PdfsPerPageForm, ThemeForm
+from users.forms import CustomThemeColorForm, EmailForm, PdfInvertedForm, PdfsPerPageForm, ThemeForm
 from users.models import Profile
 
 
@@ -115,6 +115,15 @@ class TestProfileViews(TestCase):
         self.assertIsInstance(response.context['form'], CustomThemeColorForm)
         self.assertEqual({'custom_theme_color': '#ffa385'}, response.context['form'].initial)
 
+    def test_change_settings_inverted_pdf_colors_get_htmx(self):
+        headers = {'HTTP_HX-Request': 'true'}
+        response = self.client.get(
+            reverse('profile-setting-change', kwargs={'field_name': 'pdf_inverted_mode'}), **headers
+        )
+
+        self.assertIsInstance(response.context['form'], PdfInvertedForm)
+        self.assertEqual({'pdf_inverted_mode': 'Disabled'}, response.context['form'].initial)
+
     def test_change_settings_post_invalid_form(self):
         # follow=True is needed for getting the message
         response = self.client.post(
@@ -186,6 +195,17 @@ class TestProfileViews(TestCase):
         # get the user and check if dark mode was changed
         user = User.objects.get(username=self.username)
         self.assertEqual(user.profile.pdfs_per_page, 10)
+
+    def test_change_settings_inverted_pdf_colors_post_correct(self):
+        self.assertEqual(self.user.profile.pdf_inverted_mode, 'Disabled')
+        self.client.post(
+            reverse('profile-setting-change', kwargs={'field_name': 'pdf_inverted_mode'}),
+            data={'pdf_inverted_mode': 'Enabled'},
+        )
+
+        # get the user and check if dark mode was changed
+        user = User.objects.get(username=self.username)
+        self.assertEqual(user.profile.pdf_inverted_mode, 'Enabled')
 
     def test_delete_post(self):
         # in this test we test that the user is successfully deleted

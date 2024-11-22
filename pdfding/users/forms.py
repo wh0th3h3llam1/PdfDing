@@ -32,6 +32,14 @@ class ThemeForm(ModelForm):
         fields = ['dark_mode', 'theme_color']
 
 
+class PdfInvertedForm(ModelForm):
+    """The form for setting the inverted PDF color mode"""
+
+    class Meta:
+        model = Profile
+        fields = ['pdf_inverted_mode']
+
+
 class CustomThemeColorForm(ModelForm):
     """The form for setting dark mode"""
 

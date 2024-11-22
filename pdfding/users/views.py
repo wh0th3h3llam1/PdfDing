@@ -12,7 +12,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from users.service import get_color_shades
 
-from .forms import CustomThemeColorForm, EmailForm, PdfsPerPageForm, ThemeForm
+from .forms import CustomThemeColorForm, EmailForm, PdfInvertedForm, PdfsPerPageForm, ThemeForm
 
 
 def settings(request):
@@ -31,6 +31,7 @@ class ChangeSetting(View):
         'email': EmailForm,
         'pdfs_per_page': PdfsPerPageForm,
         'theme': ThemeForm,
+        'pdf_inverted_mode': PdfInvertedForm,
         'custom_theme_color': CustomThemeColorForm,
     }
 
@@ -42,6 +43,7 @@ class ChangeSetting(View):
             'pdfs_per_page': {'pdfs_per_page': request.user.profile.pdfs_per_page},
             'theme': {'dark_mode': request.user.profile.dark_mode, 'theme_color': request.user.profile.theme_color},
             'custom_theme_color': {'custom_theme_color': request.user.profile.custom_theme_color},
+            'pdf_inverted_mode': {'pdf_inverted_mode': request.user.profile.pdf_inverted_mode},
         }
 
         if request.htmx:
@@ -53,7 +55,7 @@ class ChangeSetting(View):
                 {
                     'form': form,
                     'action_url': reverse('profile-setting-change', kwargs={'field_name': field_name}),
-                    'edit_id': f'{field_name}-edit',
+                    'edit_id': f'{field_name}_edit',
                 },
             )
 

@@ -23,7 +23,7 @@ class UsersE2ETestCase(PdfDingE2ETestCase):
             expect(self.page.locator('header')).to_have_css('background-color', 'rgb(74, 222, 128)')
 
             # change to dark mode
-            self.page.locator("#theme-edit").click()
+            self.page.locator("#theme_edit").click()
             # check that selected option is correct
             expect(self.page.locator("#id_dark_mode")).to_have_value("Light")
             expect(self.page.locator("#id_theme_color")).to_have_value("Green")
@@ -39,7 +39,7 @@ class UsersE2ETestCase(PdfDingE2ETestCase):
             expect(self.page.locator('header')).to_have_css('background-color', 'rgb(255, 163, 133)')
 
             # trigger dropdown again
-            self.page.locator("#theme-edit").click()
+            self.page.locator("#theme_edit").click()
             # check that selected option is correct
             expect(self.page.locator("#id_dark_mode")).to_have_value("Dark")
             expect(self.page.locator("#id_theme_color")).to_have_value("Custom")
@@ -49,35 +49,64 @@ class UsersE2ETestCase(PdfDingE2ETestCase):
             self.open(reverse('profile-settings'), p)
 
             # check email address before changing
-            expect(self.page.locator('#email-address')).to_contain_text('a@a.com')
+            expect(self.page.locator('#email_address')).to_contain_text('a@a.com')
             expect(self.page.locator('content')).to_contain_text('Verified')
 
             # change email address
-            self.page.locator('#email-edit').click()
+            self.page.locator('#email_edit').click()
             self.page.locator('#id_email').click()
             self.page.locator('#id_email').press('ControlOrMeta+a')
             self.page.locator('#id_email').fill('a@b.com')
             self.page.get_by_role('button', name='Submit').click()
 
             # check email address after changing
-            expect(self.page.locator('#email-address')).to_contain_text('a@b.com')
+            expect(self.page.locator('#email_address')).to_contain_text('a@b.com')
             expect(self.page.locator('content')).to_contain_text('Not verified')
+
+    def test_settings_change_custom_color(self):
+        with sync_playwright() as p:
+            self.open(reverse('profile-settings'), p)
+
+            # check custom color before changing
+            expect(self.page.locator("#custom_theme_color")).to_contain_text("#ffa385")
+
+            # change custom color
+            self.page.locator("#custom_theme_color_edit").click()
+            self.page.locator("#id_custom_theme_color").fill("#95c2d6")
+            self.page.get_by_role("button", name="Submit").click()
+
+            # check custom color after changing
+            expect(self.page.locator("#custom_theme_color")).to_contain_text("95c2d6")
+
+    def test_settings_change_inverted_pdf(self):
+        with sync_playwright() as p:
+            self.open(reverse('profile-settings'), p)
+
+            # check inverted color mode before changing
+            expect(self.page.locator("#pdf_inverted_mode")).to_contain_text("Inverted PDF colors are disabled")
+
+            # change inverted color mode
+            self.page.locator("#pdf_inverted_mode_edit").click()
+            self.page.locator("#id_pdf_inverted_mode").select_option("Enabled")
+            self.page.get_by_role("button", name="Submit").click()
+
+            # check inverted color mode after changing
+            expect(self.page.locator("#pdf_inverted_mode")).to_contain_text("Inverted PDF colors are enabled")
 
     def test_settings_change_pdf_per_page(self):
         with sync_playwright() as p:
             self.open(reverse('profile-settings'), p)
 
             # check pdfs per page before changing
-            expect(self.page.locator("#pdfs-per-page")).to_contain_text("25")
+            expect(self.page.locator("#pdfs_per_page")).to_contain_text("25")
 
             # change pdfs per page
-            self.page.locator("#pdfs-per-page-edit").click()
+            self.page.locator("#pdfs_per_page_edit").click()
             self.page.locator("#id_pdfs_per_page").select_option("50")
             self.page.get_by_role("button", name="Submit").click()
-            expect(self.page.locator("#pdfs-per-page")).to_contain_text("50")
 
             # check pdfs per page after changing
-            expect(self.page.locator("#pdfs-per-page")).to_contain_text("50")
+            expect(self.page.locator("#pdfs_per_page")).to_contain_text("50")
 
     def test_settings_delete(self):
         with sync_playwright() as p:
@@ -90,15 +119,18 @@ class UsersE2ETestCase(PdfDingE2ETestCase):
     def test_settings_edit_cancel(self):
         with sync_playwright() as p:
             self.open(reverse('profile-settings'), p)
-            self.page.locator('#email-edit').click()
-            expect(self.page.locator('#email-edit')).to_contain_text('Cancel')
-            self.page.get_by_role('link', name='Cancel').click()
-            expect(self.page.locator('#email-edit')).to_contain_text('Edit')
 
-            self.page.locator('#theme-edit').click()
-            expect(self.page.locator('#theme-edit')).to_contain_text('Cancel')
-            self.page.get_by_role('link', name='Cancel').click()
-            expect(self.page.locator('#theme-edit')).to_contain_text('Edit')
+            for name in [
+                '#email_edit',
+                '#theme_edit',
+                '#custom_theme_color_edit',
+                '#pdf_inverted_mode_edit',
+                '#pdfs_per_page_edit',
+            ]:
+                self.page.locator(name).click()
+                expect(self.page.locator(name)).to_contain_text('Cancel')
+                self.page.get_by_role('link', name='Cancel').click()
+                expect(self.page.locator(name)).to_contain_text('Edit')
 
     def test_settings_change_password(self):
         with sync_playwright() as p:
@@ -116,7 +148,7 @@ class UsersE2ETestCase(PdfDingE2ETestCase):
         with sync_playwright() as p:
             self.open(reverse('profile-settings'), p)
 
-            expect(self.page.locator('#email-edit')).to_have_count(0)
+            expect(self.page.locator('#email_edit')).to_have_count(0)
             expect(self.page.get_by_text("Password")).to_have_count(0)
 
     def test_header_dropdown(self):

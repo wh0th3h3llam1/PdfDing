@@ -88,7 +88,13 @@
           color: white !important;
       }
       :root{
-        {% if request.user.profile.dark_mode == 'Dark' %}
+        {% if request.user.profile.pdf_inverted_mode == 'Enabled' %}
+        --body-bg-color:rgb(71 71 71); /* background around pdf, sets also sidebar color!*/
+        --scrollbar-bg-color:rgb(71 71 71);  /* scrollbar background color */
+        --treeitem-color:rgb(243,244,246);  /* table of contents text color */
+        --treeitem-bg-color:rgb(71 71 71);   ;  /* table of contents bg color */
+        --treeitem-selected-bg-color:rgb(71 71 71);  /* table of contents selected bg color */
+        {% elif request.user.profile.dark_mode == 'Dark' %}
         --body-bg-color:rgb(30 41 59); /* background around pdf, sets also sidebar color!*/
         --scrollbar-bg-color:rgb(30 41 59);  /* scrollbar background color */
         --treeitem-color:rgb(243,244,246);  /* table of contents text color */
@@ -139,6 +145,12 @@
       .pdfSidebarNotification::after {
         background-color: rgb({{ theme_color_rgb }});
       }
+      {% if request.user.profile.pdf_inverted_mode == 'Enabled' %}
+      #viewerContainer > #viewer .page {
+        filter: grayscale(100%);
+        filter: invert(80%);
+      }
+      {% endif %}
     </style>
   </head>
 
