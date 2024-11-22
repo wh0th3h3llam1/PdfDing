@@ -1,5 +1,4 @@
 {% load static %}
-<!--pdfjs related files are imported relatively. Otherwise, the whitenoise setup will break it.-->
 <!DOCTYPE html>
 <html dir="ltr" mozdisallowselectionprint>
   <head>
@@ -143,68 +142,89 @@
     </style>
   </head>
 
-  <body>
+  <body tabindex="0">
     <div id="outerContainer">
       <div id="sidebarContainer">
-        <div id="toolbarSidebar">
+        <div id="toolbarSidebar" class="toolbarHorizontalGroup">
           <div id="toolbarSidebarLeft">
-            <div id="sidebarViewButtons" class="splitToolbarButton toggled">
-              <button id="viewThumbnail" class="toolbarButton toggled"></button>
-              <button id="viewOutline" class="toolbarButton"></button>
+            <div id="sidebarViewButtons" class="toolbarHorizontalGroup toggled">
+              <button id="viewThumbnail" class="toolbarButton toggled" type="button">
+                 <span>Thumbnails</span>
+              </button>
+              <button id="viewOutline" class="toolbarButton" type="button">
+                 <span>Document Outline</span>
+              </button>
+            </div>
+          </div>
+          <div id="toolbarSidebarRight">
+            <div id="outlineOptionsContainer" class="toolbarHorizontalGroup">
+              <div class="verticalToolbarSeparator"></div>
+              <button id="currentOutlineItem" class="toolbarButton" type="button" disabled="disabled">
+                <span>Current Outline Item</span>
+              </button>
             </div>
           </div>
         </div>
         <div id="sidebarContent">
-          <div id="thumbnailView">
-          </div>
-          <div id="outlineView" class="hidden">
-          </div>
+          <div id="thumbnailView"></div>
+          <div id="outlineView" class="hidden"></div>
         </div>
         <div id="sidebarResizer"></div>
-      </div>
+      </div>  <!-- sidebarContainer -->
       <div id="mainContainer">
-        <div class="findbar hidden doorHanger" id="findbar">
-          <div id="findbarInputContainer">
-            <span class="loadingInput end">
-              <input id="findInput" class="toolbarField" placeholder="Search for">
-            </span>
-            <div class="splitToolbarButton">
-              <button id="findPrevious" class="toolbarButton"></button>
-              <div class="splitToolbarButtonSeparator"></div>
-              <button id="findNext" class="toolbarButton"></button>
-            </div>
-          </div>
-          <div id="findbarOptionsOneContainer">
-            <input type="checkbox" id="findHighlightAll" class="toolbarField">
-            <label for="findHighlightAll" class="toolbarLabel">Highlight All</label>
-            <input type="checkbox" id="findMatchCase" class="toolbarField">
-            <label for="findMatchCase" class="toolbarLabel">Match Case</label>
-          </div>
-          <div id="findbarOptionsTwoContainer">
-            <input type="checkbox" id="findMatchDiacritics" class="toolbarField">
-            <label for="findMatchDiacritics" class="toolbarLabel">Match Diacritics</label>
-            <input type="checkbox" id="findEntireWord" class="toolbarField">
-            <label for="findEntireWord" class="toolbarLabel">Whole Words</label>
-          </div>
-          <div id="findbarMessageContainer">
-            <span id="findResultsCount" class="toolbarLabel"></span>
-            <span id="findMsg" class="toolbarLabel"></span>
-          </div>
-        </div>
         <div class="toolbar">
           <div id="toolbarContainer">
-            <div id="toolbarViewer">
-              <div id="toolbarViewerLeft">
-                <button id="sidebarToggle" class="toolbarButton"></button>
+            <div id="toolbarViewer" class="toolbarHorizontalGroup">
+              <div id="toolbarViewerLeft" class="toolbarHorizontalGroup">
+                <button id="sidebarToggleButton" class="toolbarButton" type="button"></button>
                 <div class="toolbarButtonSpacer"></div>
-                <button id="viewFind" class="toolbarButton"></button>
-                <div class="toolbarButtonSpacer"></div>
-                <div class="splitToolbarButton">
-                  <button id="zoomOut" class="toolbarButton"></button>
-                  <div class="splitToolbarButtonSeparator"></div>
-                  <button id="zoomIn" class="toolbarButton"></button>
+                <div class="toolbarButtonWithContainer">
+                  <button id="viewFindButton" class="toolbarButton" type="button"></button>
+                  <div class="hidden doorHanger toolbarHorizontalGroup" id="findbar">
+                    <div id="findInputContainer" class="toolbarHorizontalGroup">
+                      <span class="loadingInput end toolbarHorizontalGroup">
+                        <input id="findInput" class="toolbarField" placeholder="Search for">
+                      </span>
+                      <div class="toolbarHorizontalGroup">
+                        <button id="findPreviousButton" class="toolbarButton" type="button"></button>
+                        <div class="splitToolbarButtonSeparator"></div>
+                        <button id="findNextButton" class="toolbarButton" type="button"></button>
+                      </div>
+                    </div>
+                    <div id="findbarOptionsOneContainer" class="toolbarHorizontalGroup">
+                      <div class="toggleButton toolbarLabel">
+                        <input type="checkbox" id="findHighlightAll"/>
+                        <label for="findHighlightAll" data-l10n-id="pdfjs-find-highlight-checkbox">Highlight All</label>
+                      </div>
+                      <div class="toggleButton toolbarLabel">
+                        <input type="checkbox" id="findMatchCase"/>
+                        <label for="findMatchCase" data-l10n-id="pdfjs-find-match-case-checkbox-label">Match Case</label>
+                      </div>
+                    </div>
+                    <div id="findbarOptionsTwoContainer" class="toolbarHorizontalGroup">
+                      <div class="toggleButton toolbarLabel">
+                        <input type="checkbox" id="findMatchDiacritics"/>
+                        <label for="findMatchDiacritics" data-l10n-id="pdfjs-find-match-diacritics-checkbox-label">Match Diacritics</label>
+                      </div>
+                      <div class="toggleButton toolbarLabel">
+                        <input type="checkbox" id="findEntireWord"/>
+                        <label for="findEntireWord" data-l10n-id="pdfjs-find-entire-word-checkbox-label">Whole Words</label>
+                      </div>
+                    </div>
+                    <div id="findbarMessageContainer" class="toolbarHorizontalGroup">
+                      <span id="findResultsCount" class="toolbarLabel"></span>
+                      <span id="findMsg" class="toolbarLabel"></span>
+                    </div>
+                  </div>  <!-- findbar -->
                 </div>
                 <div class="toolbarButtonSpacer"></div>
+              </div>
+              <div id="toolbarViewerMiddle" class="toolbarHorizontalGroup">
+                <div class="toolbarHorizontalGroup">
+                  <button id="zoomOutButton" class="toolbarButton" type="button"></button>
+                  <div class="splitToolbarButtonSeparator"></div>
+                  <button id="zoomInButton" class="toolbarButton" type="button"></button>
+                </div>
                 <span id="scaleSelectContainer" class="dropdownToolbarButton">
                   <select id="scaleSelect">
                     <option id="pageAutoOption" value="auto" selected="selected">Automatic Zoom</option>
@@ -219,36 +239,40 @@
                   </select>
                 </span>
                 <div class="toolbarButtonSpacer"></div>
-                <div class="toolbarButtonSpacer"></div>
-                <img src="{% static 'images/logo.svg' %}" width="22" style="opacity: 0.9;padding: 3px 4px 0;margin: 2px 1px;">
-                <span class="toolbarLabel hiddenSmallView" style="font-size: medium;font-weight: bold">PdfDing</span>
+                <div class="toolbarHorizontalGroup hiddenSmallView">
+                  <button class="toolbarButton" type="button" id="previous"></button>
+                  <div class="splitToolbarButtonSeparator"></div>
+                  <button class="toolbarButton" type="button" id="next"></button>
+                </div>
+                <div class="toolbarHorizontalGroup">
+                  <span class="loadingInput start toolbarHorizontalGroup">
+                    <input type="number" id="pageNumber" class="toolbarField" value="1" min="1" autocomplete="off">
+                  </span>
+                  <span id="numPages" class="toolbarLabel"></span>
+                </div>
               </div>
               <div id="toolbarViewerRight">
-                {% if user_view_bool %}
-                <button onclick="location.href='{% url 'download_pdf' pdf_id %}'" class="button1">
-                {% else %}
-                <button onclick="location.href='{% url 'download_shared_pdf' shared_pdf_id %}'" class="button1">
-                {% endif %}
-                  <img src="{% static 'images/download.svg' %}" width="22" style="opacity: 0.6">
-                </button>
-                {% if 'pdf/view' in request.META.HTTP_REFERER %}
-                <button onclick="location.href='{% url 'pdf_overview' %}'" class="button1">
-                {% else %}
-                <button onclick="history.back()" class="button1">
-                {% endif %}
-                  <img src="{% static 'images/close_white.svg' %}" width="22" style="opacity: 0.6">
-                </button>
-              </div>
-              <div id="toolbarViewerMiddle">
-                <div class="splitToolbarButton hiddenSmallView">
-                  <button class="toolbarButton" id="previous"></button>
-                  <div class="splitToolbarButtonSeparator"></div>
-                  <button class="toolbarButton" id="next"></button>
+                <div class="toolbarHorizontalGroup toolbarLabel hiddenSmallView">
+                  <img src="{% static 'images/logo.svg' %}" width="22" style="opacity: 0.9;padding: 3px 4px 0;margin: 2px 1px;">
+                  <span style="font-size: medium;font-weight: bold">PdfDing</span>
+                  <div class="toolbarButtonSpacer"></div>
                 </div>
-                <span class="loadingInput start">
-                  <input type="number" id="pageNumber" class="toolbarField" value="1" min="1" autocomplete="off">
-                </span>
-                <span id="numPages" class="toolbarLabel"></span>
+                <div class="toolbarHorizontalGroup">
+                  {% if user_view_bool %}
+                  <button onclick="location.href='{% url 'download_pdf' pdf_id %}'" class="button1">
+                  {% else %}
+                  <button onclick="location.href='{% url 'download_shared_pdf' shared_pdf_id %}'" class="button1">
+                  {% endif %}
+                    <img src="{% static 'images/download.svg' %}" width="22" style="opacity: 0.6">
+                  </button>
+                  {% if 'pdf/view' in request.META.HTTP_REFERER %}
+                  <button onclick="location.href='{% url 'pdf_overview' %}'" class="button1">
+                  {% else %}
+                  <button onclick="history.back()" class="button1">
+                  {% endif %}
+                    <img src="{% static 'images/close_white.svg' %}" width="22" style="opacity: 0.6">
+                  </button>
+                </div>
               </div>
             </div>
             <div id="loadingBar">
@@ -259,40 +283,40 @@
             </div>
           </div>
         </div>
-        <div id="viewerContainer">
+        <div id="viewerContainer" tabindex="0">
           <div id="viewer" class="pdfViewer"></div>
         </div>
-      </div>
+      </div> <!-- mainContainer -->
       <div id="dialogContainer">
         <dialog id="passwordDialog">
           <div class="row">
-            <label for="password" id="passwordText">Enter the password</label>
+            <label for="password" id="passwordText" data-l10n-id="pdfjs-password-label">Enter the password to open this PDF file:</label>
           </div>
           <div class="row">
             <input type="password" id="password" class="toolbarField">
           </div>
           <div class="buttonRow">
-            <button id="passwordCancel" class="dialogButton"><span>Cancel</span></button>
-            <button id="passwordSubmit" class="dialogButton"><span>OK</span></button>
+            <button id="passwordCancel" class="dialogButton" type="button"><span data-l10n-id="pdfjs-password-cancel-button">Cancel</span></button>
+            <button id="passwordSubmit" class="dialogButton" type="button"><span data-l10n-id="pdfjs-password-ok-button">OK</span></button>
           </div>
         </dialog>
-      </div>
-    </div>
+      </div>  <!-- dialogContainer -->
+    </div> <!-- outerContainer -->
   </body>
 
-  <div id="currentOutlineItem"></div><div id="secondaryOpenFile"></div><div id="secondaryDownload"></div>
-  <div id="presentationMode"></div><div id="viewBookmark"></div><div id="firstPage"></div><div id="lastPage"></div>
-  <div id="pageRotateCcw"></div><div id="pageRotateCw"></div><div id="cursorSelectTool"></div>
-  <div id="cursorHandTool"></div><div id="scrollHorizontal"></div><div id="scrollVertical"></div>
-  <div id="scrollPage"></div><div id="scrollWrapped"></div><div id="spreadNone"></div><div id="spreadOdd"></div>
-  <div id="spreadEven"></div><div id="documentProperties"></div><div id="editorFreeTextColor"></div>
-  <div id="editorFreeTextFontSize"></div><div id="editorHighlightShowAll"></div><div id="altTextDialog"></div>
-  <div id="documentPropertiesDialog"></div><div id="documentPropertiesClose"></div>
-  <div id="secondaryToolbarToggle"></div><div id="editorStampAddImage"></div><div id="editorStamp"></div>
-  <div id="print"></div><div id="secondaryPrint"></div><div id="viewAttachments"></div><div id="viewLayers"></div>
-  <div id="editorInk"></div><div id="editorInkColor"></div><div id="editorInkThickness"></div>
-  <div id="editorInkOpacity"></div><div id="editorFreeText"></div><div id="download"></div>
-  <div id="editorHighlight"></div><div id="altTextCancel"></div><div id="altTextSave"></div>
-  <div id="decorativeButton"></div><div id="descriptionButton"></div><div id="editorFreeHighlightThickness"></div>
-  <div id="imageAltTextSettings"></div>
+  <div id="viewAttachments"></div><div id="viewLayers"></div><div id="editorHighlightShowAll"></div>
+  <div id="editorFreeHighlightThickness"></div><div id="editorHighlightButton"></div>
+  <div id="editorFreeTextButton"></div><div id="editorFreeTextColor"></div><div id="editorFreeTextFontSize"></div>
+  <div id="editorInkButton"></div><div id="editorInkColor"></div><div id="editorInkThickness"></div>
+  <div id="editorInkOpacity"></div><div id="editorStampButton"></div><div id="editorStampAddImage"></div>
+  <div id="downloadButton"></div><div id="printButton"></div><div id="secondaryToolbarToggleButton"></div>
+  <div id="secondaryOpenFile"></div><div id="secondaryPrint"></div><div id="secondaryDownload"></div>
+  <div id="presentationMode"></div><div id="viewBookmark"></div><div id="firstPage"></div>
+  <div id="lastPage"></div><div id="pageRotateCw"></div><div id="pageRotateCcw"></div>
+  <div id="cursorSelectTool"></div><div id="cursorHandTool"></div><div id="scrollPage"></div>
+  <div id="scrollVertical"></div><div id="scrollHorizontal"></div><div id="scrollWrapped"></div>
+  <div id="spreadNone"></div><div id="spreadOdd"></div><div id="spreadEven"></div><div id="imageAltTextSettings"></div>
+  <div id="documentProperties"></div><div id="documentPropertiesDialog"></div><div id="documentPropertiesClose"></div>
+  <div id="descriptionButton"></div><div id="decorativeButton"></div><div id="altTextCancel"></div>
+  <div id="altTextSave"></div><div id="altTextDialog"></div>
 </html>
