@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from huey import crontab
 from huey.contrib.djhuey import periodic_task
 from minio import Minio
-from pdf.models import Pdf
+from pdf.models import Pdf, SharedPdf
 
 logger = logging.getLogger('huey')
 minio_client = Minio(
@@ -37,7 +37,7 @@ def parse_cron_schedule(cron_schedule: str) -> dict[str, str]:
 @periodic_task(crontab(**parse_cron_schedule(settings.BACKUP_SCHEDULE)), retries=3, retry_delay=60)
 def backup_task():  # pragma: no cover
     """
-    Periodic huey task for backing up the PDF files and (if used) the sqlite database.
+    Periodic huey task for backing up the PDF and QR code files and (if used) the sqlite database.
     Backup will only be created if at least one user and one PDF are present in the database.
     """
 
@@ -58,8 +58,8 @@ def check_backup_requirements():
 
 def backup_function():
     """
-    Function for backing up the PDF files and (if used) the sqlite database. This is a separate function in order
-    to make the unit tests easier.
+    Function for backing up the PDF and QR code files and (if used) the sqlite database. This is a separate function
+    in order to make the unit tests easier.
     """
 
     logger.info('----------------------------------------------------')
@@ -116,7 +116,7 @@ def backup_sqlite(db_path: Path, backup_path: Path):
 
 def difference_local_minio() -> tuple[set[str], set[str]]:
     """
-    Compare the local PDF files to the PDF files in the minio bucket.
+    Compare the local PDF and qr code files to the files in the minio bucket.
 
     Returns two sets: - one with the file names that need to be added to the minio bucket as they were recently uploaded
                         by users.
@@ -124,7 +124,10 @@ def difference_local_minio() -> tuple[set[str], set[str]]:
                       present on the local system, e.g. a user has deleted a file.
     """
 
-    set_of_local_files = {pdf.file.name for pdf in Pdf.objects.all()}
+    set_of_local_pdf_files = {pdf.file.name for pdf in Pdf.objects.all()}
+    set_of_local_qr_codes = {shared_pdf.file.name for shared_pdf in SharedPdf.objects.all() if not shared_pdf.deleted}
+    set_of_local_files = set_of_local_pdf_files.union(set_of_local_qr_codes)
+
     set_of_minio_files = {
         minio_object.object_name
         for minio_object in minio_client.list_objects(settings.BACKUP_BUCKET_NAME, recursive=True)

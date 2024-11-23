@@ -48,7 +48,7 @@ class Command(BaseCommand):
 
                 db_backup_path.rename(settings.DATABASES['default']['NAME'])
 
-            logger.info('Recovering PDF files')
+            logger.info('Recovering PDF files and QR codes')
             objects = minio_client.list_objects(settings.BACKUP_BUCKET_NAME, recursive=True)
             for obj in objects:
                 obj_name = obj.object_name
