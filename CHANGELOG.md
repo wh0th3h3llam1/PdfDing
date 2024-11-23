@@ -1,6 +1,15 @@
 # Changelog
 <hr>
 
+## 0.5.0 - Inverted Color Mode and Bulk Upload  (Nov 23, 2024)
+* Inverted color mode for reading PDFs
+* Bulk uploading for PDFs
+* Use file name when uploading individual PDFs
+* Add date tooltips in the PDF and shared PDF overviews
+* Add loading spinners to PDF uploads
+* Clean up shared PDFs with a deletion date in the past on container start
+* Bug Fix: Backup QR code svgs
+
 ## 0.4.2 - Bug Fixes and Small Features  (Nov 10, 2024)
 * Bug Fix: Adjust base.html, so that x-cloak of Alpine JS  works on all themes.
            Did only work on custom theme colors after introducing that feature.
