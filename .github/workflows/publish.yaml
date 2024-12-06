@@ -27,7 +27,9 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: mrmn/pdfding:${{ github.event.release.tag_name }}
+          tags: |
+            mrmn/pdfding:${{ github.event.release.tag_name }}
+            mrmn/pdfding:latest
           platforms: linux/amd64,linux/arm64
   dry_run:
     name: Dry run
