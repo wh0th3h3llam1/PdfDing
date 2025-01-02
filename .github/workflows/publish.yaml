@@ -27,6 +27,8 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          build-args: |
+            CI_COMMIT_TAG=${{ github.event.release.tag_name }}
           push: true
           tags: |
             mrmn/pdfding:${{ github.event.release.tag_name }}
