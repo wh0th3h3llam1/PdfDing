@@ -70,6 +70,6 @@ jobs:
         run: |
           npm ci
           npm run build
-          npx --yes tailwindcss -i pdfding/static/css/input.css -o pdfding/static/css/tailwind.css -c tailwind.config.js --minify
+          npx --yes @tailwindcss/cli -i pdfding/static/css/input.css -o pdfding/static/css/tailwind.css --minify
       - name: Run tests
         run: poetry run python -m pytest pdfding/e2e
