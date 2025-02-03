@@ -48,7 +48,14 @@ jobs:
           python-version: '3.13'
           cache: 'pip'
       - run: pip install -r .github/workflows/scripts/requirements.txt
+      # we need to use a gh app as the default actions github_token cannot trigger further workflows
+      # like e.g. the chart release workflow which should be running afterwards
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.PDFDING_APP_ID }}
+          private-key: ${{ secrets.PDFDING_PEM_KEY }}
       - run: python .github/workflows/scripts/update_chart_yaml_after_release.py
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
