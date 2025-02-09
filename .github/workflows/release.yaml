@@ -1,43 +1,42 @@
 name: PdfDing Release
 
 on:
-  push:
   release:
     types:
       - released
 
 jobs:
-#  publish_release:
-#    name: Publish release
-#    # Don't run for release created by the chart-releaser-action
-#    if: ${{ ! startsWith(github.ref, 'refs/tags/pdfding') }}
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v4
-#      - name: Set up QEMU
-#        uses: docker/setup-qemu-action@v3
-#      - name: Set up Docker Buildx
-#        uses: docker/setup-buildx-action@v3
-#      - name: Login to Docker Hub
-#        uses: docker/login-action@v3
-#        with:
-#          username: mrmn
-#          password: ${{ secrets.DOCKERHUB_TOKEN }}
-#      - name: Build and push
-#        uses: docker/build-push-action@v6
-#        with:
-#          context: .
-#          build-args: |
-#            CI_COMMIT_TAG=${{ github.event.release.tag_name }}
-#          push: true
-#          tags: |
-#            mrmn/pdfding:${{ github.event.release.tag_name }}
-#            mrmn/pdfding:latest
-#          platforms: linux/amd64,linux/arm64
+  publish_release:
+    name: Publish release
+    # Don't run for release created by the chart-releaser-action
+    if: ${{ ! startsWith(github.ref, 'refs/tags/pdfding') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: mrmn
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          build-args: |
+            CI_COMMIT_TAG=${{ github.event.release.tag_name }}
+          push: true
+          tags: |
+            mrmn/pdfding:${{ github.event.release.tag_name }}
+            mrmn/pdfding:latest
+          platforms: linux/amd64,linux/arm64
   update_files:
     name: Update files after release
     # Don't run for release created by the chart-releaser-action
-#    if: ${{ ! startsWith(github.ref, 'refs/tags/pdfding') }}
+    if: ${{ ! startsWith(github.ref, 'refs/tags/pdfding') }}
     runs-on: ubuntu-latest
     needs: publish_release
     steps:
