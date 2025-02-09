@@ -33,21 +33,13 @@ jobs:
             mrmn/pdfding:${{ github.event.release.tag_name }}
             mrmn/pdfding:latest
           platforms: linux/amd64,linux/arm64
-  update_helm_chart:
-    name: Update helm chart
+  update_files:
+    name: Update files after release
     # Don't run for release created by the chart-releaser-action
     if: ${{ ! startsWith(github.ref, 'refs/tags/pdfding') }}
     runs-on: ubuntu-latest
     needs: publish_release
-    permissions:
-      contents: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-          cache: 'pip'
-      - run: pip install -r .github/workflows/scripts/requirements.txt
       # we need to use a gh app as the default actions github_token cannot trigger further workflows
       # like e.g. the chart release workflow which should be running afterwards
       - uses: actions/create-github-app-token@v1
@@ -55,7 +47,24 @@ jobs:
         with:
           app-id: ${{ vars.PDFDING_APP_ID }}
           private-key: ${{ secrets.PDFDING_PEM_KEY }}
-      - run: python .github/workflows/scripts/update_chart_yaml_after_release.py
-        env:
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          token: ${{ steps.app-token.outputs.token }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Update files
+        run: |
+          python .github/workflows/scripts/update_files_after_release.py \
+            --release_tag "${{ github.event.release.tag_name }}" \
+            --release_body "${{ github.event.release.body }}" \
+            --changelog_path "CHANGELOG.MD" \
+            --chart_yaml_path "helm-charts/pdfding/Chart.yaml"
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "197665213+pdfding[bot]@users.noreply.github.com"
+          git config --local user.name "pdfding[bot]"
+          git add CHANGELOG.MD helm-charts/pdfding/Chart.yaml
+          git commit -m "chore: update files for release ${{ github.event.release.tag_name }}"
+          git push
