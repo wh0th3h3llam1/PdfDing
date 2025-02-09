@@ -65,6 +65,6 @@ jobs:
         run: |
           git config --local user.email "197665213+pdfding[bot]@users.noreply.github.com"
           git config --local user.name "pdfding[bot]"
-          git add CHANGELOG.MD helm-charts/pdfding/Chart.yaml
+          git add CHANGELOG.md helm-charts/pdfding/Chart.yaml
           git commit -m "chore: update files for release ${{ github.event.release.tag_name }}"
           git push
