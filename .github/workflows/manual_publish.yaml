@@ -8,6 +8,11 @@ on:
         type: string
         required: true
         default: dev
+      branch:
+        description: Branch for manual publishing
+        type: string
+        required: true
+        default: master
 
 jobs:
   manual_publish:
@@ -15,6 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392
       - name: Set up Docker Buildx
@@ -29,8 +36,8 @@ jobs:
         with:
           context: .
           build-args: |
-            CI_COMMIT_TAG=${{ github.event.inputs.tag }}
+            CI_COMMIT_TAG=${{ inputs.tag }}
           push: true
           tags: |
-            mrmn/pdfding:${{ github.event.inputs.tag }}
+            mrmn/pdfding:${{ inputs.tag }}
           platforms: linux/amd64
