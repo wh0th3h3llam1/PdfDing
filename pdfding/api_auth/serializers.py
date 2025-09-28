@@ -36,6 +36,7 @@ class AccessTokenCreateSerializer(serializers.ModelSerializer):
     """
 
     expires_at = serializers.DateTimeField(required=False, allow_null=True)
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
     _plaintext_token: str = ""  # set after save()
 
     def validate_expires_at(self, value):
@@ -57,19 +58,19 @@ class AccessTokenCreateSerializer(serializers.ModelSerializer):
         model = AccessToken
         fields = ["name", "expires_at"]
 
-    def create(self, validated):
-        user = self.context["request"].user
-        # 1) create knox token (returns instance + plaintext)
+    def create(self, validated_data):
+        user = validated_data["user"]
 
-        expires_at = validated.pop("expires_at", None)
+        expires_at = validated_data.pop("expires_at", None)
         knox_token, token = create_knox_token(user, expires_at)
 
-        # 3) create our metadata
-        meta = AccessToken.objects.create(user=user, knox_token=knox_token, **validated)
+        meta = create_access_token(user=user, knox_token=knox_token, name=validated_data["name"])
         # 4) stash plaintext for the view to return once
         self._plaintext_token = token
         return meta
 
+    def to_representation(self, instance):
+        return super().to_representation(instance)
 
 class AccessTokenRotateSerializer(serializers.Serializer):
     """
@@ -79,7 +80,7 @@ class AccessTokenRotateSerializer(serializers.Serializer):
 
     expires_at = serializers.DateTimeField(required=False, allow_null=True)
 
-    plaintext_token: str | None = None
+    _plaintext_token: str | None = None
 
     def validate_expires_at(self, value):
         if value is None:
@@ -100,10 +101,14 @@ class AccessTokenRotateSerializer(serializers.Serializer):
         expires_at = self.validated_data.get("expires_at", None)  # type: ignore
         knox_token, token = create_knox_token(user, expires_at)
 
-        new_meta = AccessToken.objects.create(user=user, knox_token=knox_token, name=name)
-        self.plaintext_token = token
+        new_meta = create_access_token(user=user, knox_token=knox_token, name=name)
+        self._plaintext_token = token
         return new_meta
 
 
+def create_access_token(user, knox_token, name):
+    return AccessToken.objects.create(user=user, knox_token=knox_token, name=name)
+
+
 def create_knox_token(user, expires_at) -> tuple[AuthToken, str]:
-    return AuthToken.objects.create(user=user, expires_at=expires_at)  # type: ignore
+    return AuthToken.objects.create(user=user, expiry=expires_at)  # type: ignore

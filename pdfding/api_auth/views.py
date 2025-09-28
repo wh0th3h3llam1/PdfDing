@@ -17,9 +17,7 @@ class AccessTokenViewSet(viewsets.ModelViewSet):
     queryset = AccessToken.objects.select_related("knox_token")
 
     def get_queryset(self):
-        return (
-            super().get_queryset().filter(user=self.request.user).order_by("-knox_token__created")
-        )
+        return super().get_queryset().filter(user=self.request.user)
 
     def get_serializer_class(self):
         return (
@@ -29,12 +27,13 @@ class AccessTokenViewSet(viewsets.ModelViewSet):
         )
 
     def create(self, request, *args, **kwargs):
-        ser = self.get_serializer(data=request.data, context={"request": request})
-        ser.is_valid(raise_exception=True)
-        meta = ser.save()
+        serializer = self.get_serializer(data=request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        meta = serializer.save()
+
         return Response(
-            {
-                "token": ser.plaintext_token,  # show once
+            data={
+                "token": serializer._plaintext_token,  # show once
                 "token_key_prefix": meta.token_key_prefix(),
                 "id": meta.id,
                 "name": meta.name,
@@ -54,7 +53,7 @@ class AccessTokenViewSet(viewsets.ModelViewSet):
         new_meta = ser.save(meta=meta)
         return Response(
             {
-                "token": ser.plaintext_token,  # show once
+                "token": ser._plaintext_token,  # show once
                 "token_key_prefix": new_meta.token_key_prefix(),
                 "id": new_meta.id,
                 "name": new_meta.name,
