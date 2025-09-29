@@ -1,6 +1,5 @@
 from __future__ import annotations
 from datetime import timedelta
-from re import A
 
 from django.utils import timezone
 from rest_framework import serializers
@@ -33,7 +32,8 @@ class ReadOnlyAccessTokenSerializer(serializers.ModelSerializer):
 
 
 class BaseAccessTokenSerializer(serializers.ModelSerializer):
-    """ Base serializer for creating and rotating access tokens.
+    """
+    Base serializer for creating and rotating access tokens.
     Handles the `expires_at` field and provides the plaintext token after creation.
     """
 
@@ -68,7 +68,6 @@ class AccessTokenCreateSerializer(BaseAccessTokenSerializer):
         now = timezone.now()
         if aware <= now + timedelta(days=1):
             raise serializers.ValidationError("`expires_at` must be in the future.")
-        # (Optional) enforce a max lifetime, e.g. 365 days
         max_expiry = now + timedelta(days=365)
         if aware > max_expiry:
             raise serializers.ValidationError(
