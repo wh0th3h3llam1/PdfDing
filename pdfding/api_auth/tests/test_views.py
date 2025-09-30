@@ -67,3 +67,12 @@ class TestAccessTokenViewSet:
 
         response = api_client.get(url)
         assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_token_rotation(self, api_client, token):
+        url = reverse("api_tokens-rotate", args=[token.id])
+        response = api_client.post(url)
+        assert response.status_code == status.HTTP_200_OK
+
+        assert "token" in response.data
+        assert response.data["id"] != token.id
+        assert AccessToken.objects.filter(id=response.data["id"]).exists()
