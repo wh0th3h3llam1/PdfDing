@@ -20,15 +20,14 @@ def _to_aware(dt):
 class ReadOnlyAccessTokenSerializer(serializers.ModelSerializer):
     """Read-only serializer for listing and retrieving access tokens."""
 
-    token_id = serializers.IntegerField(source="knox_token.id")
     created = serializers.DateTimeField(source="knox_token.created")
     expiry = serializers.DateTimeField(source="knox_token.expiry")
     prefix = serializers.CharField(source="token_key_prefix")
 
     class Meta:
         model = AccessToken
-        fields = ["id", "token_id", "name", "prefix", "created", "expiry", "last_used"]
-        readonly_fields = fields
+        fields = ["id", "name", "prefix", "created", "expiry", "last_used"]
+        read_only_fields = fields
 
 
 class BaseAccessTokenSerializer(serializers.ModelSerializer):
@@ -107,7 +106,7 @@ class AccessTokenRotateSerializer(BaseAccessTokenSerializer):
 
     def update(self, instance: AccessToken, validated_data: dict) -> AccessToken:
         user = self.context["request"].user
-        if meta.user.id != user.id:  # type: ignore
+        if validated_data["user"].id != user.id:
             raise serializers.ValidationError("Not allowed to rotate this token.")
 
         instance.knox_token.delete()
