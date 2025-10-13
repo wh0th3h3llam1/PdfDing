@@ -1,11 +1,11 @@
 from __future__ import annotations
+
 from datetime import timedelta
 
-from django.utils import timezone
-from rest_framework import serializers
-
-from knox.models import AuthToken
 from api.models import AccessToken
+from django.utils import timezone
+from knox.models import AuthToken
+from rest_framework import serializers
 
 # Create your serializers here.
 
@@ -49,9 +49,7 @@ class BaseAccessTokenSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("`expires_at` must be in the future.")
         max_expiry = now + timedelta(days=365)
         if aware > max_expiry:
-            raise serializers.ValidationError(
-                "`expires_at` is too far in the future (max 365 days)."
-            )
+            raise serializers.ValidationError("`expires_at` is too far in the future (max 365 days).")
         return aware
 
     class Meta:
