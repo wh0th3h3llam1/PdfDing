@@ -47,10 +47,9 @@ jobs:
       - name: Update changelog
         # do not change " to ' as the quotes will be closed incorrectly because of "What's changed"
         run: |
-          python .github/workflows/scripts/update_changelog_after_release.py \
+          python .github/workflows/scripts/update_files_after_release.py \
             --release_tag "${{ github.event.release.tag_name }}" \
             --release_body "${{ github.event.release.body }}" \
-            --changelog_path "CHANGELOG.md"
       - name: Commit and push changes
         run: |
           git config user.email 'github-actions[bot]@users.noreply.github.com'
