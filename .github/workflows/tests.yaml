@@ -10,6 +10,10 @@ on:
       - '.github/workflows/test.yaml'
       - 'Dockerfile'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   code_quality:
     name: Code quality
