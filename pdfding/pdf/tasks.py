@@ -3,6 +3,7 @@ import traceback
 from pathlib import Path
 
 import magic
+from base.task_helpers import parse_cron_schedule
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files import File
@@ -13,7 +14,7 @@ from pdf import service
 logger = logging.getLogger('huey')
 
 
-@periodic_task(crontab(minute='*/5'), retries=0)
+@periodic_task(crontab(**parse_cron_schedule(settings.CONSUME_SCHEDULE)), retries=0)
 def consume_task():  # pragma: no cover
     """
     Periodic huey task for creating pdf instances from pdf files put into the consume folder.

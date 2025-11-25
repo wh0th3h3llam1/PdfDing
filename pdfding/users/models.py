@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import QuerySet
+from pdf.models.workspace_models import Workspace
 
 
 def get_last_time_nagged_initial():  # pragma: no cover
@@ -70,15 +71,15 @@ class Profile(models.Model):
         LIST = 'List'
         GRID = 'Grid'
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
     annotation_sorting = models.CharField(
         choices=AnnotationsSortingChoice, max_length=15, default=AnnotationsSortingChoice.NEWEST
     )
+    current_collection_id = models.CharField(max_length=36, editable=False, blank=False, null=True)
+    current_workspace_id = models.CharField(max_length=36, editable=False, blank=False, null=True)
     # set dummy default colors, will be overwritten in users/signals.py
-    dark_mode = models.CharField(choices=DarkMode.choices, max_length=6, default=DarkMode.DARK)
-    theme_color = models.CharField(choices=ThemeColor.choices, max_length=6, default=ThemeColor.RED)
     custom_theme_color = models.CharField(max_length=7, default='#ffa385')
     custom_theme_color_secondary = models.CharField(max_length=7, default='#cc826a')
+    dark_mode = models.CharField(choices=DarkMode.choices, max_length=6, default=DarkMode.DARK)
     layout = models.CharField(choices=LayoutChoice.choices, max_length=7, default=LayoutChoice.COMPACT)
     last_time_nagged = models.DateTimeField(default=get_last_time_nagged_initial)
     number_of_pdfs = models.IntegerField(default=0)
@@ -95,6 +96,8 @@ class Profile(models.Model):
     signatures = models.JSONField(default=dict)
     tags_open = models.BooleanField(default=False)
     tag_tree_mode = models.BooleanField(default=True)
+    theme_color = models.CharField(choices=ThemeColor.choices, max_length=6, default=ThemeColor.RED)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     user_sorting = models.CharField(choices=UserSortingChoice, max_length=15, default=UserSortingChoice.NEWEST)
 
     def __str__(self):  # pragma: no cover
@@ -148,3 +151,19 @@ class Profile(models.Model):
         """Return all tags associated with the profile."""
 
         return self.tag_set.all()
+
+    @property
+    def workspaces(self) -> QuerySet:
+        """Return all workspaces associated with the profile."""
+
+        workspaces = Workspace.objects.filter(workspaceuser__user=self.user)
+
+        return workspaces
+
+    @property
+    def collections(self) -> QuerySet:
+        """Return all collections associated with the profile."""
+
+        workspace = self.workspaces.get(id=self.current_workspace_id)
+
+        return workspace.collections
